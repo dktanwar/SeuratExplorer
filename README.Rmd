@@ -48,26 +48,26 @@ launchSeuratExplorer()
 
 ### Load data
 
-```{r  echo = FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics(system.file("extdata/www", "loadingdata.png", package = "SeuratExplorer"))
+```{r   echo = FALSE, message=FALSE, warning=FALSE}
+knitr::include_graphics("inst/extdata/www/loadingdata.png")
 ```
 
 ### Cell Meta
 
 ```{r  echo = FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics(system.file("extdata/www", "cellmeta.png", package = "SeuratExplorer"))
+knitr::include_graphics("inst/extdata/www/cellmeta.png")
 ```
 
 ### Dimplot
 
 ```{r  echo = FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics(system.file("extdata/www", "dimplot.png", package = "SeuratExplorer"))
+knitr::include_graphics("inst/extdata/www/dimplot.png")
 ```
 
 ### FeaturePlot
 
 ```{r  echo = FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics(system.file("extdata/www", "Featureplot.png", package = "SeuratExplorer"))
+knitr::include_graphics("inst/extdata/www/Featureplot.png")
 ```
 
 

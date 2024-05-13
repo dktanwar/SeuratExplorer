@@ -39,16 +39,16 @@ launchSeuratExplorer()
 
 ### Load data
 
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.3/SeuratExplorer/extdata/www/loadingdata.png" width="100%" />
+<img src="inst/extdata/www/loadingdata.png" width="100%" />
 
 ### Cell Meta
 
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.3/SeuratExplorer/extdata/www/cellmeta.png" width="100%" />
+<img src="inst/extdata/www/cellmeta.png" width="100%" />
 
 ### Dimplot
 
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.3/SeuratExplorer/extdata/www/dimplot.png" width="100%" />
+<img src="inst/extdata/www/dimplot.png" width="100%" />
 
 ### FeaturePlot
 
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.3/SeuratExplorer/extdata/www/Featureplot.png" width="100%" />
+<img src="inst/extdata/www/Featureplot.png" width="100%" />
