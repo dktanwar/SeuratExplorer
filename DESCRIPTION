@@ -1,0 +1,22 @@
+Package: SeuratExplorer
+Title: An interactive R shiny application for exploring scRNAseq data processed in Seurat
+Version: 0.0.0.9000
+Authors@R: 
+  person("Yongchao", "Zhang", , "zhangyongchao@nibs.ac.cn", role = c("aut", "cre"),
+           comment = c(Github = "https://github.com/fentouxungui"))
+Description: A simple, one-command package which runs an interactive shiny dashboard capable of common visualizations for single cell RNAseq. The application requires a pre-processed Seurat object, saved as an RDS file.
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports:
+    dplyr,
+    ggplot2,
+    Seurat,
+    shiny,
+    shinydashboard,
+    DT,
+    shinycssloaders,
+    patchwork,
+    tools
+Depends: R (>= 4.1.0)
