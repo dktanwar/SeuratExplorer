@@ -3,12 +3,14 @@
 
 #' Server for SeuratExplorer shiny app
 #' @import shiny
+#' @import Seurat
 #' @param input Input from the UI
 #' @param output Output to send back to UI
 #' @param session from shiny server function
 #' @export
 server <- function(input, output, session) {
   requireNamespace("Seurat")
+  requireNamespace("ggplot2")
 
   # 设置上传文件的大小限制
   options(shiny.maxRequestSize=5*1024^3)
@@ -16,14 +18,19 @@ server <- function(input, output, session) {
   ## Dataset tab ----
   # reactiveValues: Create an object for storing reactive values,similar to a list,
   # but with special capabilities for reactive programming.
-  data = reactiveValues(obj = NULL, loaded=FALSE)
-
+  data = reactiveValues(obj = NULL, loaded = FALSE, reduction_options = NULL, cluster_options = NULL, split_options = NULL, extra_qc_options = NULL)
+  # reductions_options: 为可视化时的xy轴座标
+  # cluster_options/split_options/extra_qc_options均为seurat object meta.data里的列名，后续绘图会作为可选参数被反复用到
   # 选择好数据后，读入数据
   observe({
     shiny::req(input$dataset_file) # req: Check for required values; dataset_file is a data.frame
     ext = tools::file_ext(input$dataset_file$datapath) # file_ext: returns the file (name) extensions
     validate(need(expr = ext == "rds", message = "Please upload a .rds file")) # validate + need：检查后缀是否为rds，否则抛出错误
     data$obj <- prepare_seurat_object(obj = Seurat::UpdateSeuratObject(readRDS(file = input$dataset_file$datapath)))
+    data$reduction_options <- prepare_reduction_options(obj = data$obj, keyword = c("umap","tsne"))
+    data$cluster_options <- prepare_cluster_options(df = data$obj@meta.data)
+    data$split_options <- prepare_split_options(df = data$obj@meta.data, max.level = 6)
+    data$extra_qc_options <- prepare_qc_options(df = data$obj@meta.data, types = c("double","integer","numeric"))
   })
 
   # 数据加载成功后，设置loaded为TRUE
@@ -32,7 +39,7 @@ server <- function(input, output, session) {
     data$loaded = !is.null(data$obj)
   })
 
-  # Render metadata table
+  ############################### Render metadata table
   # 可以下载全部，参考：https://stackoverflow.com/questions/50039186/add-download-buttons-in-dtrenderdatatable
   output$dataset_meta <- DT::renderDT(server=FALSE,{
     req(data$obj)
@@ -53,79 +60,222 @@ server <- function(input, output, session) {
   # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditionalpanel所需要要的参数
   outputOptions(output, 'file_loaded', suspendWhenHidden=FALSE)
 
+  ############################# Dimension Reduction Plot
   # define reductions choices UI
-  output$Reductions.UI <- renderUI({
-    reductions.keywords <- c("umap","tsne")
-    reduction.choice <- grep(paste0(paste0("(",reductions.keywords,")"),collapse = "|"), Seurat::Reductions(data$obj),value = TRUE)
-    names(reduction.choice) <- toupper(reduction.choice)
-    selectInput("DimensionReduction", "Dimension Reduction:", choices = reduction.choice) # set default reduction
+  output$DimReductions.UI <- renderUI({
+      selectInput("DimDimensionReduction", "Dimension Reduction:", choices = data$reduction_options) # set default reduction
   })
 
   # define Cluster Annotation choice
-  output$ClusterResolution.UI <- renderUI({
-    full.res <- colnames(data$obj@meta.data)[check_df_factor(data$obj@meta.data)]
-    names(full.res) <- full.res
-    selectInput("ClusterResolution","Cluster Resolution:", choices = full.res)
+  output$DimClusterResolution.UI <- renderUI({
+    selectInput("DimClusterResolution","Cluster Resolution:", choices = data$cluster_options)
   })
 
   # define Split Choice UI
-  output$Split.UI <- renderUI({
-    SplitBy.levels.max <- 4 #最大的样本数目
-    SplitBy.Choice <- df_factor_columns(data$obj@meta.data, max.level = SplitBy.levels.max)
-    SplitBy.Choice <- SplitBy.Choice[!unname(apply(data$obj@meta.data[,SplitBy.Choice, drop = FALSE],2,function(x)any(is.na(x))))] #split choice列中不可以有NA值
-    names(SplitBy.Choice) <- SplitBy.Choice
-    selectInput("Split","Split by:", choices = c("None" = "None", SplitBy.Choice))
+  output$DimSplit.UI <- renderUI({
+    selectInput("DimSplit","Split by:", choices = c("None" = "None", data$split_options))
   })
 
-
-  # # check if the split is set appropriate (not None or NA) 如何让此处的代码优雅一些！，然后如何优化这个R包！ 2024.05.11
-  Split.Revised <- reactive({
-    req(input$Split) # split值出现后，才会执行的代码
+  # Revise Split selection which will be appropriate for DimPlot, FeaturePlot and Vlnplot functions.
+  DimSplit.Revised <- reactive({
+    req(input$DimSplit) # split值出现后，才会执行的代码
     # Revise the Split choice
-    if(is.na(input$Split)) {
+    if(is.na(input$DimSplit) | input$DimSplit == "None") {
       return(NULL)
-    }else if(input$Split == "None"){
-      return(NULL)
-    }else{ return(input$Split) }
-  })
-
-  # define all available features used for featureplot
-  GeneLibrary <- reactive({
-    c(rownames(data$obj),c("nCount_RNA", "nFeature_RNA","percent.mt","log10GenesPerUMI"))
-  })
-
-  # Check the input gene
-  Gene.Revised <- reactive({
-    CheckGene(InputGene = ifelse(is.na(input$GeneSymbol), NA, input$GeneSymbol), GeneLibrary = GeneLibrary())
-  })
-
-
-  # Scatter Plot
-  PlotMain <- reactive({
-    # Dimplot, Attention: wrong input gene will also output the dimplot!
-    if(is.na(Gene.Revised())) {
-      if (is.null(Split.Revised())) { # not splited
-        Seurat::DimPlot(data$obj, reduction = input$DimensionReduction, label = input$ShowLabel, pt.size = input$PointSize, label.size = input$LabelSize, group.by = input$ClusterResolution)
-      }else{ # splited
-        plot_numbers <- length(levels(data$obj@meta.data[,Split.Revised()]))
-        Seurat::DimPlot(data$obj, reduction = input$DimensionReduction, label = input$ShowLabel, pt.size = input$PointSize, label.size = input$LabelSize, group.by = input$ClusterResolution,
-                split.by = Split.Revised(), ncol = ceiling(sqrt(plot_numbers)))
-      }
-    }else { # Feature plot
-      if (is.null(Split.Revised())) { # not splited
-        # Gene.Revised()[1]: could set only use the first gene (input DL, get Dl and dl)
-        Seurat::FeaturePlot(data$obj, features = Gene.Revised(), pt.size = input$PointSize, label.size = input$LabelSize, reduction = input$DimensionReduction, cols = c("gray","red"))
-      } else { # splited
-        plot_numbers <- length(levels(data$obj@meta.data[,Split.Revised()]))
-        Seurat::FeaturePlot(data$obj, features = Gene.Revised(), pt.size = input$PointSize, label.size = input$LabelSize, reduction = input$DimensionReduction, cols = c("gray","red"),
-                    split.by = Split.Revised()) +
-          patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
-      }
+    }else{
+      return(input$DimSplit)
     }
   })
 
-  # MainPlot
-  output$MainPlot <- renderPlot({PlotMain()}, height = function(){session$clientData$output_MainPlot_width * input$MainPlotHWRatio}) # box plot: height = width default
+  output$dimplot <- renderPlot({
+    if (is.null(DimSplit.Revised())) { # not splited
+      Seurat::DimPlot(data$obj, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
+                      group.by = input$DimClusterResolution)
+    }else{ # splited
+      plot_numbers <- length(levels(data$obj@meta.data[,DimSplit.Revised()]))
+      Seurat::DimPlot(data$obj, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
+                      group.by = input$DimClusterResolution, split.by = DimSplit.Revised(), ncol = ceiling(sqrt(plot_numbers)))
+    }
+  }, height = function(){session$clientData$output_dimplot_width * input$DimPlotHWRatio}) # box plot: height = width default
 
+
+  ################################ Feature Plot
+  # define reductions choices UI
+  output$FeatureReductions.UI <- renderUI({
+    selectInput("FeatureDimensionReduction", "Dimension Reduction:", choices = data$reduction_options) # set default reduction
+  })
+
+  # # define Cluster Annotation choice
+  # output$FeatureClusterResolution.UI <- renderUI({
+  #   selectInput("FeatureClusterResolution","Cluster Resolution:", choices = data$cluster_options)
+  # })
+
+  # define Split Choice UI
+  output$FeatureSplit.UI <- renderUI({
+    selectInput("FeatureSplit","Split by:", choices = c("None" = "None", data$split_options))
+  })
+
+  # 提示可用的qc选项作为Gene symbol
+  output$Featurehints.UI <- renderUI({
+    helpText(strong(paste("Multiple genes are separted by a comma, such as: CD4,CD8A; Also supports: ", paste(data$extra_qc_options, collapse = ", "), ".",sep = "")),style = "font-size:12px;")
+  })
+
+
+  # Revise Split selection which will be appropriate for DimPlot, FeaturePlot and Vlnplot functions.
+  FeatureSplit.Revised <- reactive({
+    req(input$FeatureSplit) # split值出现后，才会执行的代码
+    # Revise the Split choice
+    if(is.na(input$FeatureSplit) | input$FeatureSplit == "None") {
+      return(NULL)
+    }else{
+      return(input$FeatureSplit)
+    }
+  })
+
+  # Check the input gene
+  Featureplot.Gene.Revised <- reactive({
+    req(input$FeatureGeneSymbol)
+    ifelse(is.na(input$FeatureGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$FeatureGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
+  })
+
+  output$featureplot <- renderPlot({
+    if (any(is.na(Featureplot.Gene.Revised()))) { # NA 值时
+      ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+    }else if(is.null(FeatureSplit.Revised())) { # not splited
+      Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
+                          cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor))
+     }else{ # splited
+      p <- Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
+                          cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), split.by = FeatureSplit.Revised())
+      if (length( Featureplot.Gene.Revised()) == 1) { # 仅仅一个基因时
+        plot_numbers <- length(levels(data$obj@meta.data[,FeatureSplit.Revised()]))
+        p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
+      }else{ # 多个基因时
+        p
+      }
+    }
+  }, height = function(){session$clientData$output_featureplot_width * input$FeaturePlotHWRatio}) # box plot: height = width default
+
+  ################################ Violin Plot
+  # Check the input gene
+  Vlnplot.Gene.Revised <- reactive({
+    req(input$VlnGeneSymbol)
+    ifelse(is.na(input$VlnGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$VlnGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
+  })
+
+  # 提示可用的qc选项作为Gene symbol
+  output$Vlnhints.UI <- renderUI({
+    helpText(strong(paste("Multiple genes are separted by a comma, such as: CD4,CD8A; Also supports: ", paste(data$extra_qc_options, collapse = ", "), ".",sep = "")),style = "font-size:12px;")
+  })
+
+  # define Cluster Annotation choice
+  output$VlnClusterResolution.UI <- renderUI({
+    selectInput("VlnClusterResolution","Cluster Resolution:", choices = data$cluster_options)
+  })
+
+  # define Split Choice UI
+  output$VlnSplitBy.UI <- renderUI({
+    selectInput("VlnSplitBy","Split by:", choices = c("None" = "None", data$split_options))
+  })
+
+  # Conditional panel: split.by被勾选，且level数目为2时，显示此panel
+  output$Vlnplot_splitoption_twolevels = reactive({
+    req(input$VlnSplitBy)
+    print(input$VlnSplitBy)
+    if (input$VlnSplitBy == "None"){
+      return(FALSE)
+    }else if(length(levels(data$obj@meta.data[,input$VlnSplitBy])) == 2) {
+      return(TRUE)
+    }else{
+      return(FALSE)
+    }
+  })
+
+  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditionalpanel所需要要的参数
+  outputOptions(output, 'Vlnplot_splitoption_twolevels', suspendWhenHidden = FALSE)
+
+  # Conditional panel: symbol输入为多个基因时，显示此panel
+  output$Vlnplot_multiple_genes = reactive({
+    req(input$VlnGeneSymbol)
+    if (length(Vlnplot.Gene.Revised()) > 1) {
+      return(TRUE)
+    }else{
+      return(FALSE)
+    }
+  })
+
+  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditionalpanel所需要要的参数
+  outputOptions(output, 'Vlnplot_multiple_genes', suspendWhenHidden = FALSE)
+
+
+  # Conditional panel: 输入为多个基因且stack设为TRUE时，显示此panel
+  output$Vlnplot_StackPlot = reactive({
+    req(input$VlnStackPlot)
+    req(input$VlnGeneSymbol)
+    if (length(Vlnplot.Gene.Revised()) > 1 & input$VlnStackPlot) {
+      return(TRUE)
+    }else{
+      return(FALSE)
+    }
+  })
+
+  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditionalpanel所需要要的参数
+  outputOptions(output, 'Vlnplot_StackPlot', suspendWhenHidden = FALSE)
+
+  # Revise Split selection which will be appropriate for DimPlot, FeaturePlot and Vlnplot functions.
+  VlnSplit.Revised <- reactive({
+    req(input$VlnSplitBy) # split值出现后，才会执行的代码
+    # Revise the Split choice
+    if(is.na(input$VlnSplitBy) | input$VlnSplitBy == "None") {
+      return(NULL)
+    }else{
+      return(input$VlnSplitBy)
+    }
+  })
+
+  # reset VlnSplitPlot value to FALSE when change the split options
+  observe({
+    req(input$VlnSplitBy)
+    updateCheckboxInput(session, "VlnSplitPlot", value = FALSE)
+    updateCheckboxInput(session, "VlnStackPlot", value = FALSE)
+    updateCheckboxInput(session, "VlnFlipPlot", value = FALSE)
+    updateSelectInput(session, "VlnFillBy", selected = 1)
+  })
+
+  # shiny related bug
+  # 以后再debug吧！ 2024.05.15
+  # how to make sure renderPlot run after the observe(input$VlnSplitBy)[Warning: Error in SingleExIPlot: Unknown plot type: splitViolin,
+  # 因为此时的VlnSplitPlot还没有被更新]
+
+  # seurat related bug
+  # VlnPlot(cds,features = c("CD4","CD8A"),split.by = "orig.ident", stack = TRUE,group.by = "cca_clusters_res_0.2",flip = FALSE,split.plot = TRUE)
+  # Error:
+  # Error in `vln.geom()`:
+  #   ! Problem while converting geom to grob.
+  # ℹ Error occurred in the 1st layer.
+  # Caused by error in `$<-.data.frame`:
+  #   ! 替换数据里有0行，但数据有512
+  # Run `rlang::last_trace()` to see where the error occurred
+  # 经测试，与ggplot2,pathcwork,rlang等R包的版本无关！
+
+  output$vlnplot <- renderPlot({
+    req(Vlnplot.Gene.Revised())
+    if (any(is.na(Vlnplot.Gene.Revised()))) { # NA 值时
+      ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+    }else if(length(Vlnplot.Gene.Revised()) == 1) { # only One Gene
+      Seurat::VlnPlot(data$obj, features = Vlnplot.Gene.Revised(), group.by = input$VlnClusterResolution,
+                      split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot, pt.size = input$VlnPointSize, alpha = input$VlnPointAlpha) &
+        ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
+                       axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
+    }else{ # multiple genes
+      print(input$VlnFillBy)
+      Seurat::VlnPlot(data$obj, features = Vlnplot.Gene.Revised(), group.by = input$VlnClusterResolution,
+                      split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot, stack = input$VlnStackPlot,
+                      flip = input$VlnFlipPlot, fill.by = input$VlnFillBy,
+                      pt.size = input$VlnPointSize, alpha = input$VlnPointAlpha) &
+        ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
+                       axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
+    }
+  }, height = function(){session$clientData$output_vlnplot_width * input$VlnPlotHWRatio}) # box plot: height = width default
 
 }

@@ -1,35 +1,66 @@
 prepare_seurat_object <- function(obj){
   requireNamespace("Seurat")
-  # 1. meta.data中，分析非factor类型的列，如果unique数目少于细胞总数的1/50，并且不大于50种，也强制转为factor类型。
-  # change some columns in meta.data to factors
-  columns.to.factor <- colnames(obj@meta.data)[check_df_level(obj@meta.data) & !check_df_factor(obj@meta.data)]
-  obj@meta.data[columns.to.factor] <- lapply(obj@meta.data[columns.to.factor],as.factor)
+  # 将meta.data中的部分非factor类型的列，转为factor类型
+  # 如果unique数目少于细胞总数的1/20，并且不大于50种，并且数据类型为chr或num类型，会强制转为factor类型。
+  # 可能的问题： unique_max_percent = 0.05可能不适合只有100个细胞但由大于5群的的数据
+  obj@meta.data <- modify_columns_types(df = obj@meta.data, types_to_check = c("numeric", "character"), unique_max_counts = 50, unique_max_percent = 0.05)
   return(obj)
 }
 
-# check data.frame all columns levels, return a logic vector
-check_df_level <- function(df, max.counts = 50, max.pct = 1/50){
-  cutoff <- min(max.counts, round(nrow(df) * max.pct))
-  unname(sapply(df,function(x){length(unique(as.character(x)))})) <= cutoff
-}
-# check if data.frame all columns are factor, return a logic vector
-check_df_factor <- function(df){
-  unname(sapply(df,is.factor))
-}
-
-# data.frame中，类型为factor，且level数目不超过指定值的列有哪些，返回列名
-df_factor_columns <- function(df, max.level = 4){
-  df <- df[,check_df_factor(df)]
-  colnames(df)[unname(sapply(df,FUN = function(x)length(levels(x)))) <= max.level]
+# 把符合条件的非因子列，转为因子类型
+modify_columns_types <- function(df, types_to_check = c("numeric", "character"), unique_max_counts = 50, unique_max_percent = 0.05){
+  candidates.types.logic <- sapply(df, class) %in% types_to_check
+  cutoff <- min(unique_max_counts, round(nrow(df) * unique_max_percent))
+  candidates.unique.logic <- sapply(df, FUN = function(x)length(unique(x))) <= cutoff
+  candidates.logic <- candidates.types.logic & candidates.unique.logic & !sapply(df, is.factor)
+  df[candidates.logic] <- lapply(df[candidates.logic], as.factor)
+  return(df)
 }
 
-# Chcek the input gene, return the revised gene
+# 通过关键字换取reduction options
+prepare_reduction_options <- function(obj, keywords = c("umap","tsne")){
+  requireNamespace("Seurat")
+  reduction.choice <- grep(paste0(paste0("(", keywords,")"),collapse = "|"), Seurat::Reductions(obj),value = TRUE)
+  names(reduction.choice) <- toupper(reduction.choice)
+  return(reduction.choice)
+}
+
+
+# 将所有meta.data中所有类型为因子的列名作为cluster options
+prepare_cluster_options <- function(df){
+  cluster.options <- colnames(df)[sapply(df, is.factor)]
+  names(cluster.options) <- cluster.options
+  return(cluster.options)
+}
+
+# 将所有meta.data中level数目少于max_level的因子列作为split options
+prepare_split_options <- function(df, max.level = 4){
+  cluster.options <- colnames(df)[sapply(df, is.factor)]
+  leve.counts <- unname(sapply(df[cluster.options],FUN = function(x)length(levels(x))))
+  split.options <- cluster.options[leve.counts <= max.level]
+  names(split.options) <- split.options
+  return(split.options)
+}
+
+# 添加额外的来自meta data的列名为qc options
+prepare_qc_options <- function(df, types = c("double","integer","numeric")){
+  return(colnames(df)[sapply(df, class) %in% types])
+}
+
+
+# Check the input gene, return the revised gene, which can be used for FeaturePlot, Vlnplot ect.
 CheckGene <- function(InputGene, GeneLibrary){
-  InputGene <- trimws(InputGene)
-  if (InputGene %in% GeneLibrary) { # when input gene is absolutely right
-    return(InputGene)
-  }else if(tolower(InputGene) %in% tolower(GeneLibrary)){ # when not case sensitive
-    return(GeneLibrary[tolower(GeneLibrary) %in% tolower(InputGene)]) # gene list length can > 1
+  InputGenes <- trimws(unlist(strsplit(InputGene,split = ",")))
+  revised.genes <- sapply(InputGenes, FUN = function(x)ReviseGene(x, GeneLibrary = GeneLibrary))
+  revised.genes <- unique(unname(revised.genes[!is.na(revised.genes)]))
+  ifelse(length(revised.genes) == 0, yes = return(NA), no = return(revised.genes))
+}
+
+ReviseGene <- function(Agene, GeneLibrary){
+  if (Agene %in% GeneLibrary) { # when input gene is absolutely right
+    return(Agene)
+  }else if(tolower(Agene) %in% tolower(GeneLibrary)){ # when not case sensitive
+    return(GeneLibrary[tolower(GeneLibrary) %in% tolower(Agene)][1]) # gene list length can > 1
   }else{ # when not match
     return(NA)
   }

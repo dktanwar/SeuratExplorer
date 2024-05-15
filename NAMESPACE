@@ -3,4 +3,6 @@
 export(launchSeuratExplorer)
 export(server)
 export(ui)
+import(Seurat)
 import(shiny)
+import(shinydashboard)

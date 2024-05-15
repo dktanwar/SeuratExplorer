@@ -3,18 +3,26 @@
 
 #' UI for shiny App interface
 #' @import shiny
+#' @import shinydashboard
 #' @export
 ui <-  function(){
+  requireNamespace("shinydashboard")
   # Header ----
-  header = shinydashboard::dashboardHeader(title = "SeuratExplorer")
+  header = dashboardHeader(title = "SeuratExplorer")
 
   # Sidebar ----
-  sidebar = shinydashboard::dashboardSidebar(
-    shinydashboard::sidebarMenu(
+  sidebar = dashboardSidebar(
+    sidebarMenu(
       menuItem("Dataset", tabName = "dataset", icon = icon("database")),
       conditionalPanel(
         condition = "output.file_loaded",
-        shinydashboard::sidebarMenu(menuItem("Explorer", tabName = "explorer", icon = icon("dashboard")))
+        sidebarMenu(menuItem(text = "Explorer", tabName = "explorer", icon = icon("dashboard"), startExpanded = TRUE,
+                             menuSubItem(text = "DimPlot", tabName = "dimplot", icon = shiny::icon("angle-double-right")),
+                             menuSubItem(text = "FeaturePlot", tabName = "featureplot", icon = shiny::icon("angle-double-right")),
+                             menuSubItem(text = "VlnPlot", tabName = "vlnplot", icon = shiny::icon("angle-double-right")),
+                             menuSubItem(text = "DotPlot", tabName = "dotplot", icon = shiny::icon("angle-double-right")),
+                             menuSubItem(text = "HeatmapPlot", tabName = "doheatmapplot", icon = shiny::icon("angle-double-right")),
+                             menuSubItem(text = "DEG Analysis", tabName = "degs", icon = shiny::icon("angle-double-right"))))
         )
      )
   )
@@ -24,50 +32,101 @@ ui <-  function(){
 
   tab_list[["dataset"]] = tabItem(tabName = "dataset",
                                   # 上传文件
-                                  box(fileInput("dataset_file", "Choose Seurat .rds file:", accept = '.rds'), status = "primary", width = 12),
+                                  box(fileInput("dataset_file", "Choose A Seurat .rds file:", accept = '.rds'), status = "primary", width = 12),
                                   conditionalPanel(
                                     condition = "output.file_loaded",
                                     box(title = "Cell Meta Info", collapsible = TRUE,
-                                      shinycssloaders::withSpinner(DT::dataTableOutput('dataset_meta')), status = "primary", width = 12) # 计划：改成在上传完数据后，再显示这个box！
+                                        shinycssloaders::withSpinner(DT::dataTableOutput('dataset_meta')), status = "primary", width = 12)
                                     )
                                   )
 
-  tab_list[["explorer"]] = tabItem(tabName = "explorer",
-                                  # 数据展示
+  tab_list[["dimplot"]] = tabItem(tabName = "dimplot",
                                   fluidRow(
-                                    box(title = "Main Plot",
-                                        shinycssloaders::withSpinner(plotOutput("MainPlot",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                    box(title = "Dimension Reduction Plot",
+                                        shinycssloaders::withSpinner(plotOutput("dimplot",height = "auto")), # Add a spinner that shows when an output is recalculating
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
-                                        # proxy.height: spinner height
-                                        shinycssloaders::withSpinner(uiOutput("Reductions.UI"), proxy.height = "10px"),
-                                        shinycssloaders::withSpinner(uiOutput("ClusterResolution.UI"), proxy.height = "10px"),
-                                        shinycssloaders::withSpinner(uiOutput("Split.UI"), proxy.height = "10px"),
-                                        textInput("GeneSymbol", "Gene Symbol:", value = ""),
-                                        # # helpText(strong(paste("Support: ", paste(Genes.qc, collapse = ", "), ".",sep = "")),style = "font-size:5px;"),
-                                        # adjust the Ratio of width and height of plot.
-                                        sliderInput("MainPlotHWRatio", label = "Adjust H/W Ratio of Main Plot", min = 0.1, max = 2, value = 0.9),
-                                        checkboxInput("ShowLabel",label = "Show cluster label", TRUE),
-                                        sliderInput("LabelSize", label = "Label Size:", min = 0, max = 10, value = 7),
-                                        sliderInput("PointSize", label = "Point Size", min = 0.001, max = 2, value = 0.8),
-                                        # downloadButton('DownloadPlot', label = 'Download Scater Plot - Not Recommmended'),
-                                        # textInput("Group1","Group 1:", value = "1"),
-                                        # textInput("Group2","Group 2:", value = "2"),
-                                        # actionButton("CalculateDEG", "Calculate DEGs!"),
-                                        # textInput("Cluster", "Cluster:", value = "0"),
-                                        # actionButton("CalculateDEGWithin", "Calculate DEGs Within A Cluster"),
-                                        # shinycssloaders::withSpinner(uiOutput("Vlnplot.Cluster.Selection.UI"), proxy.height = "10px"),
-                                        # # adjust the Ratio of width and height of scater plot
-                                        # sliderInput("ClusterAnnotationPlotHWRatio", label = "Cluster Annotation Plot Height/Width Ratio", min = 0.1, max = 2, value = 1)
+                                        shinycssloaders::withSpinner(uiOutput("DimReductions.UI"), proxy.height = "10px"),
+                                        shinycssloaders::withSpinner(uiOutput("DimClusterResolution.UI"), proxy.height = "10px"),
+                                        shinycssloaders::withSpinner(uiOutput("DimSplit.UI"), proxy.height = "10px"),
+                                        sliderInput("DimPlotHWRatio", label = "Adjust H/W Ratio of DimPlot", min = 0.1, max = 2, value = 0.9),# adjust the Ratio of width and height of plot.
+                                        checkboxInput("DimShowLabel",label = "Show cluster label", TRUE),
+                                        sliderInput("DimLabelSize", label = "Label Size:", min = 0, max = 10, value = 7),
+                                        sliderInput("DimPointSize", label = "Point Size", min = 0.001, max = 2, value = 0.8)
                                       )
                                     )
                                   )
-  body = shinydashboard::dashboardBody(
+
+  tab_list[["featureplot"]] = tabItem(tabName = "featureplot",
+                                  fluidRow(
+                                    box(title = "Visualize 'features' on a dimensional reduction plot",
+                                        shinycssloaders::withSpinner(plotOutput("featureplot",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                        width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
+                                    box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
+                                        textInput("FeatureGeneSymbol", "Gene Symbol:", value = ""),
+                                        shinycssloaders::withSpinner(uiOutput("Featurehints.UI"), proxy.height = "10px"),
+                                        shinycssloaders::withSpinner(uiOutput("FeatureReductions.UI"), proxy.height = "10px"),
+                                        # shinycssloaders::withSpinner(uiOutput("FeatureClusterResolution.UI"), proxy.height = "10px"),
+                                        shinycssloaders::withSpinner(uiOutput("FeatureSplit.UI"), proxy.height = "10px"),
+                                        # 拾色器参考： https://daattali.com/shiny/colourInput/
+                                        colourpicker::colourInput("FeaturePlotLowestExprColor", "Pick Color for lowest expression:", "#E5E5E5", palette = "limited"),
+                                        colourpicker::colourInput("FeaturePlotHighestExprColor", "Pick Color for highest expression:", "#FF0000",palette = "limited"),
+                                        sliderInput("FeaturePlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 2, value = 0.9), # adjust the Ratio of width and height of plot.
+                                        # checkboxInput("FeatureShowLabel",label = "Show cluster label", TRUE),
+                                        # sliderInput("FeatureLabelSize", label = "Label Size:", min = 0, max = 10, value = 7),
+                                        sliderInput("FeaturePointSize", label = "Point Size:", min = 0.001, max = 2, value = 0.8),
+                                    )
+                                  )
+  )
+
+  tab_list[["vlnplot"]] = tabItem(tabName = "vlnplot",
+                                      fluidRow(
+                                        box(title = "Single cell violin plot",
+                                            shinycssloaders::withSpinner(plotOutput("vlnplot",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                            width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
+                                        box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
+                                            textInput("VlnGeneSymbol", "Gene Symbols:", value = ""),
+                                            shinycssloaders::withSpinner(uiOutput("Vlnhints.UI"), proxy.height = "10px"),
+                                            shinycssloaders::withSpinner(uiOutput("VlnClusterResolution.UI"), proxy.height = "10px"),
+                                            shinycssloaders::withSpinner(uiOutput("VlnSplitBy.UI"), proxy.height = "10px"),
+                                            conditionalPanel(
+                                              condition = "output.Vlnplot_splitoption_twolevels",
+                                              checkboxInput("VlnSplitPlot",label = "Split Plot", FALSE)
+                                            ),
+                                            conditionalPanel(
+                                              condition = "output.Vlnplot_multiple_genes",
+                                              checkboxInput("VlnStackPlot",label = "Stack Plot", FALSE)
+                                            ),
+                                            conditionalPanel(
+                                              condition = "output.Vlnplot_StackPlot",
+                                              checkboxInput("VlnFlipPlot",label = "Flip Plot", FALSE)
+                                            ),
+                                            conditionalPanel(
+                                              condition = "output.Vlnplot_StackPlot && input.VlnSplitBy == 'None'", # 仅对于split为NULL时有效。
+                                              selectInput("VlnFillBy","Color By:", choices = c(Feature = "feature", Ident = "ident"))
+                                            ),
+                                            sliderInput("VlnPointSize", label = "Point Size:", min = 0, max = 4, value = 0),
+                                            sliderInput("VlnPointAlpha", label = "Point Alpha:", min = 0, max = 1, value = 1),
+                                            sliderInput("VlnXlabelSize", label = "x Axis Label Size:", min = 0, max = 20, value = 14),
+                                            sliderInput("VlnYlabelSize", label = "Y Axis Label Size:", min = 0, max = 20, value = 10),
+                                            sliderInput("VlnPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 2, value = 0.9), # adjust the Ratio of width and height of plot.
+
+                                            # downloadButton('DownloadPlot', label = 'Download Scater Plot - Not Recommmended'),
+                                            # textInput("Group1","Group 1:", value = "1"),
+                                            # textInput("Group2","Group 2:", value = "2"),
+                                            # actionButton("CalculateDEG", "Calculate DEGs!"),
+                                            # textInput("Cluster", "Cluster:", value = "0"),
+                                            # actionButton("CalculateDEGWithin", "Calculate DEGs Within A Cluster"),
+                                        )
+                                      )
+  )
+
+  body = dashboardBody(
     div(class= "tab-content", tab_list)
   )
 
   # 整合到一起
-  ui_out = shinydashboard::dashboardPage(header, sidebar, body)
+  ui_out = dashboardPage(header, sidebar, body)
   return(ui_out)
 }
 

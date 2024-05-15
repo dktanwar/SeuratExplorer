@@ -25,6 +25,8 @@ install_github("fentouxungui/SeuratExplorer")
 
 ## Example
 
+本页内容后续会更新！
+
 ``` r
 library(SeuratExplorer)
 ```
