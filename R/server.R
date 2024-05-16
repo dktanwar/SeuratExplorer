@@ -11,6 +11,7 @@
 server <- function(input, output, session) {
   requireNamespace("Seurat")
   requireNamespace("ggplot2")
+  requireNamespace("shinyWidgets")
 
   # 设置上传文件的大小限制
   options(shiny.maxRequestSize=5*1024^3)
@@ -76,7 +77,7 @@ server <- function(input, output, session) {
     selectInput("DimSplit","Split by:", choices = c("None" = "None", data$split_options))
   })
 
-  # Revise Split selection which will be appropriate for DimPlot, FeaturePlot and Vlnplot functions.
+  # Revise Split selection which will be appropriate for plot
   DimSplit.Revised <- reactive({
     req(input$DimSplit) # split值出现后，才会执行的代码
     # Revise the Split choice
@@ -181,7 +182,6 @@ server <- function(input, output, session) {
   # Conditional panel: split.by被勾选，且level数目为2时，显示此panel
   output$Vlnplot_splitoption_twolevels = reactive({
     req(input$VlnSplitBy)
-    print(input$VlnSplitBy)
     if (input$VlnSplitBy == "None"){
       return(FALSE)
     }else if(length(levels(data$obj@meta.data[,input$VlnSplitBy])) == 2) {
@@ -268,7 +268,6 @@ server <- function(input, output, session) {
         ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
                        axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
     }else{ # multiple genes
-      print(input$VlnFillBy)
       Seurat::VlnPlot(data$obj, features = Vlnplot.Gene.Revised(), group.by = input$VlnClusterResolution,
                       split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot, stack = input$VlnStackPlot,
                       flip = input$VlnFlipPlot, fill.by = input$VlnFillBy,
@@ -277,5 +276,188 @@ server <- function(input, output, session) {
                        axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
     }
   }, height = function(){session$clientData$output_vlnplot_width * input$VlnPlotHWRatio}) # box plot: height = width default
+
+  ################################ Dot Plot
+
+  # Check the input gene
+  Dotplot.Gene.Revised <- reactive({
+    req(input$DotGeneSymbol)
+    ifelse(is.na(input$DotGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$DotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
+  })
+
+  # 提示可用的qc选项作为Gene symbol
+  output$Dothints.UI <- renderUI({
+    helpText(strong(paste("Multiple genes are separted by a comma, such as: CD4,CD8A; Also supports: ", paste(data$extra_qc_options, collapse = ", "), ".",sep = "")),style = "font-size:12px;")
+  })
+
+  # define Cluster Annotation choice
+  output$DotClusterResolution.UI <- renderUI({
+    selectInput("DotClusterResolution","Cluster Resolution:", choices = data$cluster_options)
+  })
+
+  # define the idents used
+  output$DotIdentsSelected.UI <- renderUI({
+    req(input$DotClusterResolution)
+    # selectInput("DotIdentsSelected","Idents used:", choices = levels(data$obj@meta.data[,input$DotClusterResolution]))
+    shinyWidgets::pickerInput(inputId = "DotIdentsSelected", label = "Idents used:",
+      choices = levels(data$obj@meta.data[,input$DotClusterResolution]), selected = levels(data$obj@meta.data[,input$DotClusterResolution]),
+      options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
+  })
+
+  # define Split Choice UI
+  output$DotSplitBy.UI <- renderUI({
+    selectInput("DotSplitBy","Split by:", choices = c("None" = "None", data$split_options))
+  })
+
+  # Revise Split selection which will be appropriate for DimPlot, FeaturePlot and Vlnplot functions.
+  DotSplit.Revised <- reactive({
+    req(input$DotSplitBy) # split值出现后，才会执行的代码
+    # Revise the Split choice
+    if(is.na(input$DotSplitBy) | input$DotSplitBy == "None") {
+      return(NULL)
+    }else{
+      return(input$DotSplitBy)
+    }
+  })
+
+  # Conditional panel: 当split为NULL时，可以自行设定最高和最低表达值对应的颜色。当split不为NULL时，需要软件自动使用ggplot2生成的颜色填充每组的点的颜色。
+  output$DotPlot_Split_isNone <- reactive({
+    req(input$DotSplitBy)
+    if(is.na(input$DotSplitBy) | input$DotSplitBy == "None") {
+      return(TRUE)
+    }else{
+      return(FALSE)
+    }
+  })
+
+  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditional panel所需要要的参数
+  outputOptions(output, 'DotPlot_Split_isNone', suspendWhenHidden = FALSE)
+
+  output$dotplot <- renderPlot({
+    req(Dotplot.Gene.Revised())
+
+    if (any(is.na(Dotplot.Gene.Revised()))) { # NA 值时
+      ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+    }else{
+      isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
+      Idents(cds) <- input$DotClusterResolution
+
+      if (is.null(DotSplit.Revised())) {
+        p <- Seurat::DotPlot(cds, features = Dotplot.Gene.Revised(), group.by = input$DotClusterResolution,
+                             idents = input$DotIdentsSelected, #不支持使用Group.by参数所定义的cluster，所以需要新见变量cds，修改Idents
+                             split.by = DotSplit.Revised(), cluster.idents = input$DotClusterIdents, dot.scale = input$DotDotScale,
+                             cols = c(input$DotPlotLowestExprColor, input$DotPlotHighestExprColor))
+      }else{
+        split.levels.length <- length(levels(cds@meta.data[,DotSplit.Revised()]))
+        p <- Seurat::DotPlot(cds, features = Dotplot.Gene.Revised(), group.by = input$DotClusterResolution,
+                             idents = input$DotIdentsSelected, #不支持使用Group.by参数所定义的cluster，所以需要新见变量cds，修改Idents
+                             split.by = DotSplit.Revised(), cluster.idents = input$DotClusterIdents, dot.scale = input$DotDotScale,
+                             cols = scales::hue_pal()(split.levels.length))
+      }
+      p <- p & ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$DotXlabelSize), axis.text.y = ggplot2::element_text(size = input$DotYlabelSize))
+      if (input$DotRotateAxis) { p <- p + Seurat::RotatedAxis() }
+      if (input$DotFlipCoordinate) { p <- p + ggplot2::coord_flip() }
+      p
+    }
+  }, height = function(){session$clientData$output_dotplot_width * input$DotPlotHWRatio}) # box plot: height = width default
+
+
+  ################################ Heatmap
+
+  # Check the input gene
+  Heatmap.Gene.Revised <- reactive({
+    req(input$HeatmapGeneSymbol)
+    ifelse(is.na(input$HeatmapGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$HeatmapGeneSymbol, GeneLibrary =  rownames(data$obj))))
+  })
+
+  # 提示可用的qc选项作为Gene symbol
+  output$Heatmaphints.UI <- renderUI({
+    helpText(strong("Multiple genes are separted by a comma, such as: CD4,CD8A."),style = "font-size:12px;")
+  })
+
+  # define Cluster Annotation choice
+  output$HeatmapClusterResolution.UI <- renderUI({
+    selectInput("HeatmapClusterResolution","Cluster Resolution:", choices = data$cluster_options)
+  })
+
+
+  output$heatmap <- renderPlot({
+    req(Heatmap.Gene.Revised())
+
+    if (any(is.na(Heatmap.Gene.Revised()))) { # NA 值时
+      ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+    }else{
+      isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
+      if (!all(Heatmap.Gene.Revised() %in% Seurat::VariableFeatures(cds))) { #问题： 每次修改任何绘图参数，都得要执行此代码！！！
+        cds <- Seurat::ScaleData(object = cds, features = unique(c(Seurat::VariableFeatures(cds), Heatmap.Gene.Revised()))) # 不能只用一个基因去做scaledata，会报错。
+      }
+
+      Seurat::DoHeatmap(object = cds, features = Heatmap.Gene.Revised(), group.by = input$HeatmapClusterResolution, size = input$HeatmapTextSize,
+                        hjust = input$HeatmapTextHjust, vjust = input$HeatmapTextVjust, angle = input$HeatmapTextRatateAngle,
+                        group.bar.height = input$HeatmapGroupBarHeight, lines.width = input$HeatmapLineWidth) &
+        ggplot2::theme(axis.text.y = ggplot2::element_text(size = input$HeatmapFeatureTextSize))
+    }
+  }, height = function(){session$clientData$output_heatmap_width * input$HeatmapPlotHWRatio}) # box plot: height = width default
+
+  ################################ Ridge Plot
+
+  # Check the input gene
+  Ridgeplot.Gene.Revised <- reactive({
+    req(input$RidgeplotGeneSymbol)
+    ifelse(is.na(input$RidgeplotGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$RidgeplotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
+  })
+
+  # 提示可用的qc选项作为Gene symbol
+  output$Ridgeplothints.UI <- renderUI({
+    helpText(strong(paste("Multiple genes are separted by a comma, such as: CD4,CD8A; Also supports: ", paste(data$extra_qc_options, collapse = ", "), ".",sep = "")),style = "font-size:12px;")
+  })
+
+  # define Cluster Annotation choice
+  output$RidgeplotClusterResolution.UI <- renderUI({
+    selectInput("RidgeplotClusterResolution","Cluster Resolution:", choices = data$cluster_options)
+  })
+
+  # Conditional panel: 输入为多个基因且stack设为TRUE时，显示此panel
+  output$Ridgeplot_stack_show = reactive({
+    req(input$RidgeplotGeneSymbol)
+    if (length(Ridgeplot.Gene.Revised()) > 1) {
+      return(TRUE)
+    }else{
+      return(FALSE)
+    }
+  })
+
+  outputOptions(output, 'Ridgeplot_stack_show', suspendWhenHidden = FALSE)
+
+  # Conditional panel: 输入为多个基因且stack设为TRUE时，显示此panel
+  output$Ridgeplot_stack_NotSelected = reactive({
+    if (input$RidgeplotStackPlot) {
+      return(FALSE)
+    }else{
+      return(TRUE)
+    }
+  })
+
+  outputOptions(output, 'Ridgeplot_stack_NotSelected', suspendWhenHidden = FALSE)
+
+  # reset VlnSplitPlot value to FALSE when change the split options
+  observe({
+    req(input$RidgeplotGeneSymbol)
+    updateCheckboxInput(session, "RidgeplotStackPlot", value = FALSE)
+  })
+
+  output$ridgeplot <- renderPlot({
+    req(Ridgeplot.Gene.Revised())
+    if (any(is.na(Ridgeplot.Gene.Revised()))) { # NA 值时
+      ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+    }else{
+      Seurat::RidgePlot(object = data$obj, features = Ridgeplot.Gene.Revised(), group.by = input$RidgeplotClusterResolution, ncol = input$RidgeplotNumberOfColumns,
+                        stack = input$RidgeplotStackPlot, fill.by = input$RidgeplotFillBy) &
+        ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$RidgeplotXlabelSize),
+                       axis.text.y = ggplot2::element_text(size = input$RidgeplotYlabelSize))
+    }
+  }, height = function(){session$clientData$output_ridgeplot_width * input$RidgeplotHWRatio}) # box plot: height = width default
+
+
 
 }
