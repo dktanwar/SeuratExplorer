@@ -27,7 +27,7 @@ server <- function(input, output, session) {
     shiny::req(input$dataset_file) # req: Check for required values; dataset_file is a data.frame
     ext = tools::file_ext(input$dataset_file$datapath) # file_ext: returns the file (name) extensions
     validate(need(expr = ext == "rds", message = "Please upload a .rds file")) # validate + need：检查后缀是否为rds，否则抛出错误
-    data$obj <- prepare_seurat_object(obj = Seurat::UpdateSeuratObject(readRDS(file = input$dataset_file$datapath)))
+    data$obj <- SeuratObject::JoinLayers(prepare_seurat_object(obj = Seurat::UpdateSeuratObject(readRDS(file = input$dataset_file$datapath))))
     data$reduction_options <- prepare_reduction_options(obj = data$obj, keyword = c("umap","tsne"))
     data$cluster_options <- prepare_cluster_options(df = data$obj@meta.data)
     data$split_options <- prepare_split_options(df = data$obj@meta.data, max.level = 6)
@@ -239,7 +239,7 @@ server <- function(input, output, session) {
     updateCheckboxInput(session, "VlnSplitPlot", value = FALSE)
     updateCheckboxInput(session, "VlnStackPlot", value = FALSE)
     updateCheckboxInput(session, "VlnFlipPlot", value = FALSE)
-    updateSelectInput(session, "VlnFillBy", selected = 1)
+    updateSelectInput(session, "VlnFillBy", selected = "feature")
   })
 
   # shiny related bug
@@ -458,6 +458,155 @@ server <- function(input, output, session) {
     }
   }, height = function(){session$clientData$output_ridgeplot_width * input$RidgeplotHWRatio}) # box plot: height = width default
 
+  ################################ DEGs analysis
+  # Warning
+  output$degs_warning = renderText({
+    paste0('Differential Expression testing is computationally intensive and may take some time. 注意，请在点击"Analyze"之前，保存好先前的分析结果！')
+  })
 
+  DEGs <- reactiveValues(degs = NULL, degs_ready = FALSE)
+
+  output$DEGs_ready <- reactive({
+    return(DEGs$degs_ready)
+  })
+
+  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditionalpanel所需要要的参数
+  outputOptions(output, 'DEGs_ready', suspendWhenHidden=FALSE)
+
+  # Part-1: ClusterMarkers
+
+  # define Cluster Annotation choice
+  output$ClusterMarkersClusterResolution.UI <- renderUI({
+    selectInput("ClusterMarkersClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options)
+  })
+
+  observeEvent(input$DEGsClusterMarkersAnalysis, {
+    showModal(modalDialog(title = "Calculating Cluster Markers...", "Please wait for a few minutes!", footer= NULL, size = "l"))
+    isolate(cds <- data$obj)
+    Seurat::Idents(cds) <- input$ClusterMarkersClusterResolution
+    check_dependency(test = input$testuse)
+    cluster.markers <- Seurat::FindAllMarkers(cds, test.use = input$testuse, logfc.threshold = input$logfcthreshold,
+                                      min.pct = input$minpct, min.diff.pct = ifelse(input$mindiffpct, input$mindiffpct, -Inf), only.pos = TRUE)
+    removeModal()
+    DEGs$degs <<- cluster.markers #修改全局变量，需不需要改为 <<-
+    DEGs$degs_ready <<- TRUE
+  })
+
+
+  # Part-2: InterClusterDEGs
+
+  # define Cluster Annotation choice
+  output$InterClusterDEGsClusterResolution.UI <- renderUI({
+    selectInput("InterClusterDEGsClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options)
+  })
+
+  # define the idents used
+  output$InterClusterDEGsGroupCase.UI <- renderUI({
+    req(input$InterClusterDEGsClusterResolution)
+    selectInput("InterClusterDEGsGroupCase","Choose Case Clusters:", choices = levels(data$obj@meta.data[,input$InterClusterDEGsClusterResolution]), multiple = TRUE)
+  })
+
+  # define the idents used
+  output$InterClusterDEGsGroupControl.UI <- renderUI({
+    req(input$InterClusterDEGsClusterResolution)
+    req(input$InterClusterDEGsGroupCase)
+    selectInput("InterClusterDEGsGroupControl","Choose control Clusters:", multiple = TRUE,
+                choices = setdiff(levels(data$obj@meta.data[,input$InterClusterDEGsClusterResolution]),input$InterClusterDEGsGroupCase))
+  })
+
+
+  observeEvent(input$InterClusterDEGsAnalysis, {
+    if (any(is.null(input$InterClusterDEGsGroupCase), is.null(input$InterClusterDEGsGroupControl))) {
+      showModal(modalDialog(title = "Error:","Please specify the case and control clusters. Press ESC to close.",easyClose = TRUE,footer = NULL))
+    }else{
+      showModal(modalDialog(title = "Calculating Cluster Markers...", "Please wait for a few minutes!", footer= NULL, size = "l"))
+      isolate(cds <- data$obj)
+      Seurat::Idents(cds) <- input$InterClusterDEGsClusterResolution
+      check_dependency(test = input$testuse)
+      cluster.markers <- Seurat::FindMarkers(cds, ident.1 = input$InterClusterDEGsGroupCase, ident.2 = input$InterClusterDEGsGroupControl,
+                                             test.use = input$testuse, logfc.threshold = input$logfcthreshold,
+                                             min.pct = input$minpct, min.diff.pct = ifelse(input$mindiffpct, input$mindiffpct, -Inf))
+      removeModal()
+      DEGs$degs <<- cluster.markers #修改全局变量，需不需要改为 <<-
+      DEGs$degs_ready <<- TRUE
+    }
+  })
+
+
+  # Part-3: IntraClusterDEGs
+
+
+  # define Cluster Annotation choice
+  output$IntraClusterDEGsCustomizedGroups.UI <- renderUI({
+    selectInput("IntraClusterDEGsCustomizedGroups","Group samples by:", choices = data$cluster_options)
+  })
+
+  # define the idents used
+  output$IntraClusterDEGsCustomizedGroupsCase.UI <- renderUI({
+    req(input$IntraClusterDEGsCustomizedGroups)
+    selectInput("IntraClusterDEGsCustomizedGroupsCase","Choose Case Samples:", choices = levels(data$obj@meta.data[,input$IntraClusterDEGsCustomizedGroups]), multiple = TRUE)
+  })
+
+  # define the idents used
+  output$IntraClusterDEGsCustomizedGroupsControl.UI <- renderUI({
+    req(input$IntraClusterDEGsCustomizedGroups)
+    req(input$IntraClusterDEGsCustomizedGroupsCase)
+    selectInput("IntraClusterDEGsCustomizedGroupsControl","Choose control Samples:", multiple = TRUE,
+                choices = setdiff(levels(data$obj@meta.data[,input$IntraClusterDEGsCustomizedGroups]),input$IntraClusterDEGsCustomizedGroupsCase))
+  })
+
+  # define Cluster Annotation choice
+  output$IntraClusterDEGsSubsetCells.UI <- renderUI({
+    req(input$IntraClusterDEGsCustomizedGroups)
+    selectInput("IntraClusterDEGsSubsetCells","Subset Cells By:", choices = setdiff(data$cluster_options, input$IntraClusterDEGsCustomizedGroups))
+  })
+
+  # define Cluster Annotation choice
+  output$IntraClusterDEGsSubsetCellsSelectedClusters.UI <- renderUI({
+    req(input$IntraClusterDEGsCustomizedGroups)
+    req(input$IntraClusterDEGsSubsetCells)
+    shinyWidgets::pickerInput(inputId = "IntraClusterDEGsSubsetCellsSelectedClusters", label = "Select Clusters:",
+                              choices = levels(data$obj@meta.data[,input$IntraClusterDEGsSubsetCells]), selected = levels(data$obj@meta.data[,input$IntraClusterDEGsSubsetCells]),
+                              options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
+  })
+
+  # 计算自定义分组的差异基因，支持subset clusters - 这里需要改！下周再说吧！！！ 2024.05.17
+  observeEvent(input$IntraClusterDEGssAnalysis, {
+    # if (any(is.null(input$InterClusterDEGsGroupCase), is.null(input$InterClusterDEGsGroupControl))) {
+    #   showModal(modalDialog(title = "Error:","Please specify the case and control clusters. Press ESC to close.",easyClose = TRUE,footer = NULL))
+    # }else{
+    #   showModal(modalDialog(title = "Calculating Cluster Markers...", "Please wait for a few minutes!", footer= NULL, size = "l"))
+    #   isolate(cds <- data$obj)
+    #   Seurat::Idents(cds) <- input$InterClusterDEGsClusterResolution
+    #   check_dependency(test = input$testuse)
+    #   cluster.markers <- Seurat::FindMarkers(cds, ident.1 = input$InterClusterDEGsGroupCase, ident.2 = input$InterClusterDEGsGroupControl,
+    #                                          test.use = input$testuse, logfc.threshold = input$logfcthreshold,
+    #                                          min.pct = input$minpct, min.diff.pct = ifelse(input$mindiffpct, input$mindiffpct, -Inf))
+    #   removeModal()
+    #   DEGs$degs <<- cluster.markers #修改全局变量，需不需要改为 <<-
+    #   DEGs$degs_ready <<- TRUE
+    # }
+  })
+
+ # part-4: 重置参数
+  observeEvent(input$SetDefault, {
+    updateSelectInput(session = session, inputId = "testuse", selected = "wilcox")
+    updateSliderInput(session, "logfcthreshold", value = 0.1 )
+    updateSliderInput(session, "minpct", value = 0.01 )
+    updateSliderInput(session, "mindiffpct", value = 0 )
+  })
+
+  # part-5: 输出结果
+  # output$dataset_degs <- reactive({ DEGs$degs })
+  output$dataset_degs <-  DT::renderDT(server=FALSE,{
+    req(DEGs$degs)
+    # Show data
+    DT::datatable(DEGs$degs, extensions = 'Buttons',
+                  options = list(scrollX=TRUE, lengthMenu = c(5,10,15),
+                                 paging = TRUE, searching = TRUE,
+                                 fixedColumns = TRUE, autoWidth = TRUE,
+                                 ordering = TRUE, dom = 'Bfrtip',
+                                 buttons = c('copy', 'csv', 'excel')))
+  })
 
 }

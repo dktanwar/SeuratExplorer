@@ -38,8 +38,8 @@ ui <-  function(){
                                   box(fileInput("dataset_file", "Choose A Seurat .rds file:", accept = '.rds'), status = "primary", width = 12),
                                   conditionalPanel(
                                     condition = "output.file_loaded",
-                                    box(title = "Cell Meta Info", collapsible = TRUE,
-                                        shinycssloaders::withSpinner(DT::dataTableOutput('dataset_meta')), status = "primary", width = 12)
+                                    box(title = "Cell Meta Info", collapsible = TRUE, status = "primary", width = 12,
+                                        shinycssloaders::withSpinner(DT::dataTableOutput('dataset_meta')))
                                     )
                                   )
 
@@ -161,13 +161,6 @@ ui <-  function(){
                                         sliderInput("HeatmapLineWidth", label = "Line Width:", min = 1, max = 10, value = 1),
                                         sliderInput("HeatmapFeatureTextSize", label = "Feature Text Size:", min = 0, max = 20, value = 10),
                                         sliderInput("HeatmapPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 2, value = 0.9) # adjust the Ratio of width and height of plot.
-
-                                        # downloadButton('DownloadPlot', label = 'Download Scater Plot - Not Recommmended'),
-                                        # textInput("Group1","Group 1:", value = "1"),
-                                        # textInput("Group2","Group 2:", value = "2"),
-                                        # actionButton("CalculateDEG", "Calculate DEGs!"),
-                                        # textInput("Cluster", "Cluster:", value = "0"),
-                                        # actionButton("CalculateDEGWithin", "Calculate DEGs Within A Cluster"),
                                     )
                                   )
   )
@@ -196,15 +189,49 @@ ui <-  function(){
                                         sliderInput("RidgeplotXlabelSize", label = "x Axis Label Size:", min = 0, max = 20, value = 14),
                                         sliderInput("RidgeplotYlabelSize", label = "Y Axis Label Size:", min = 0, max = 20, value = 10),
                                         sliderInput("RidgeplotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 2, value = 0.9) # adjust the Ratio of width and height of plot.
-
-                                        # downloadButton('DownloadPlot', label = 'Download Scater Plot - Not Recommmended'),
-                                        # textInput("Group1","Group 1:", value = "1"),
-                                        # textInput("Group2","Group 2:", value = "2"),
-                                        # actionButton("CalculateDEG", "Calculate DEGs!"),
-                                        # textInput("Cluster", "Cluster:", value = "0"),
-                                        # actionButton("CalculateDEGWithin", "Calculate DEGs Within A Cluster"),
                                     )
                                   )
+  )
+
+  tab_list[["degs"]] = tabItem(tabName = "degs",
+                               fluidRow(
+                                      box(textOutput("degs_warning"), title = "WARNING：", background = "orange", width = 12),
+                                      tabBox(
+                                        title = "Find Markers or DEGs",
+                                        id = "tabset_degs", width = 12, # height = "250px",
+                                        tabPanel("ClusterMarkers", strong(h3("Find Markers for All Clusters")),
+                                                 shinycssloaders::withSpinner(uiOutput("ClusterMarkersClusterResolution.UI"), proxy.height = "10px"),
+                                                 actionButton("DEGsClusterMarkersAnalysis", "Analyze")),
+                                        tabPanel("InterClusterDEGs", strong(h3("Find DEGs Between two Cluster Groups")),
+                                                 shinycssloaders::withSpinner(uiOutput("InterClusterDEGsClusterResolution.UI"), proxy.height = "10px"),
+                                                 shinycssloaders::withSpinner(uiOutput("InterClusterDEGsGroupCase.UI"), proxy.height = "10px"),
+                                                 shinycssloaders::withSpinner(uiOutput("InterClusterDEGsGroupControl.UI"), proxy.height = "10px"),
+                                                 actionButton("InterClusterDEGsAnalysis", "Analyze")),
+                                        tabPanel("IntraClusterDEGs", strong(h3("Find DEGs by Customized Groups Within Selected Clusters")),
+                                                 shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsCustomizedGroups.UI"), proxy.height = "10px"),
+                                                 shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsCustomizedGroupsCase.UI"), proxy.height = "10px"),
+                                                 shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsCustomizedGroupsControl.UI"), proxy.height = "10px"),
+                                                 tags$hr(style="border: none; border-top: 1px dashed #ccc;"),
+                                                 shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsSubsetCells.UI"), proxy.height = "10px"),
+                                                 shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsSubsetCellsSelectedClusters.UI"), proxy.height = "10px"),
+                                                 tags$hr(style="border: none; border-top: 1px dashed #ccc;"),
+                                                 actionButton("IntraClusterDEGssAnalysis", "Analyze")),
+                                        tabPanel("Parameters", strong(h3("Set Parameters")),
+                                                 sliderInput("logfcthreshold", label = "Logfc Threshold:", min = 0, max = 1, value = 0.1),
+                                                 selectInput("testuse","Test use:", choices = c(wilcox = "wilcox", wilcox_limma = "wilcox_limma",
+                                                                                                T_test = "t", negbinom = "negbinom", poisson = "poisson",
+                                                                                                LR = "LR", MAST = "MAST", DESeq2 = "DESeq2")),
+                                                 sliderInput("minpct", label = "Minimum Expression Percentage:", min = 0, max = 1, value = 0.01),
+                                                 sliderInput("mindiffpct", label = "Minimum Expression Percentage Difference:", min = 0, max = 1, value = 0),
+                                                 actionButton("SetDefault", "Set As Default"))
+
+                                      ),
+                                      conditionalPanel(
+                                        condition = "output.DEGs_ready",
+                                        box(title = "Analysis Results:", collapsible = TRUE, status = "primary", width = 12,
+                                            shinycssloaders::withSpinner(DT::dataTableOutput('dataset_degs')))
+                                      )
+                                    )
   )
 
   body = dashboardBody(

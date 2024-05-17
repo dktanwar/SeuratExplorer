@@ -65,3 +65,30 @@ ReviseGene <- function(Agene, GeneLibrary){
     return(NA)
   }
 }
+
+
+# 检查差异分析时所需要的R包依赖
+check_dependency <- function(test){
+  if (test == "wilcox") { # 检查所需要的R包,暂时这样吧，其它几个test先不测试了
+    if(!require(devtools, quietly = TRUE)){
+      install.packages("devtools")
+    }
+    if(!require(presto)){
+      devtools::install_github('immunogenomics/presto')
+    }
+  }else if(test == "DESeq2"){
+    if (!require("BiocManager", quietly = TRUE))
+      install.packages("BiocManager")
+    if (!require("DESeq2", quietly = TRUE)) {
+      BiocManager::install("DESeq2")
+    }
+  } else if(test == "MAST"){
+    if (!require("BiocManager", quietly = TRUE))
+      install.packages("BiocManager")
+    if (!require("DESeq2", quietly = TRUE)) {
+      BiocManager::install("MAST")
+    }
+  }
+}
+
+
