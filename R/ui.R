@@ -223,7 +223,7 @@ ui <-  function(){
                                                                                                 LR = "LR", MAST = "MAST", DESeq2 = "DESeq2")),
                                                  sliderInput("minpct", label = "Minimum Expression Percentage:", min = 0, max = 1, value = 0.01),
                                                  sliderInput("mindiffpct", label = "Minimum Expression Percentage Difference:", min = 0, max = 1, value = 0),
-                                                 actionButton("SetDefault", "Set As Default"))
+                                                 actionButton("SetDefault", "Set to Default"))
 
                                       ),
                                       conditionalPanel(

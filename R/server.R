@@ -572,20 +572,22 @@ server <- function(input, output, session) {
 
   # 计算自定义分组的差异基因，支持subset clusters - 这里需要改！下周再说吧！！！ 2024.05.17
   observeEvent(input$IntraClusterDEGssAnalysis, {
-    # if (any(is.null(input$InterClusterDEGsGroupCase), is.null(input$InterClusterDEGsGroupControl))) {
-    #   showModal(modalDialog(title = "Error:","Please specify the case and control clusters. Press ESC to close.",easyClose = TRUE,footer = NULL))
-    # }else{
-    #   showModal(modalDialog(title = "Calculating Cluster Markers...", "Please wait for a few minutes!", footer= NULL, size = "l"))
-    #   isolate(cds <- data$obj)
-    #   Seurat::Idents(cds) <- input$InterClusterDEGsClusterResolution
-    #   check_dependency(test = input$testuse)
-    #   cluster.markers <- Seurat::FindMarkers(cds, ident.1 = input$InterClusterDEGsGroupCase, ident.2 = input$InterClusterDEGsGroupControl,
-    #                                          test.use = input$testuse, logfc.threshold = input$logfcthreshold,
-    #                                          min.pct = input$minpct, min.diff.pct = ifelse(input$mindiffpct, input$mindiffpct, -Inf))
-    #   removeModal()
-    #   DEGs$degs <<- cluster.markers #修改全局变量，需不需要改为 <<-
-    #   DEGs$degs_ready <<- TRUE
-    # }
+    if (any(is.null(input$IntraClusterDEGsCustomizedGroupsCase), is.null(input$IntraClusterDEGsCustomizedGroupsControl), is.null(input$IntraClusterDEGsSubsetCellsSelectedClusters))) {
+      showModal(modalDialog(title = "Error:","Please specify the case & control samples and clusters used. Press ESC to close.",easyClose = TRUE,footer = NULL))
+    }else{
+      showModal(modalDialog(title = "Calculating DEGs...", "Please wait for a few minutes!", footer= NULL, size = "l"))
+      isolate(cds <- data$obj)
+      Seurat::Idents(cds) <- input$IntraClusterDEGsSubsetCells
+      cds <- SeuratObject:::subset.Seurat(cds, idents = input$IntraClusterDEGsSubsetCellsSelectedClusters)
+      Seurat::Idents(cds) <- input$IntraClusterDEGsCustomizedGroups
+      check_dependency(test = input$testuse)
+      cluster.markers <- Seurat::FindMarkers(cds, ident.1 = input$IntraClusterDEGsCustomizedGroupsCase, ident.2 = input$IntraClusterDEGsCustomizedGroupsControl,
+                                             test.use = input$testuse, logfc.threshold = input$logfcthreshold,
+                                             min.pct = input$minpct, min.diff.pct = ifelse(input$mindiffpct, input$mindiffpct, -Inf))
+      removeModal()
+      DEGs$degs <<- cluster.markers #修改全局变量，需不需要改为 <<-
+      DEGs$degs_ready <<- TRUE
+    }
   })
 
  # part-4: 重置参数
