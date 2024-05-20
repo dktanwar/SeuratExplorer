@@ -14,6 +14,8 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 > An interactive R shiny application for exploring scRNAseq data
 > processed in Seurat
 
+> **本质上就是把R包`Seurat`里的部分绘图工具和差异分析工具进行可视化！**
+
 ## Installation
 
 You can install the development version of `SeuratExplorer` like so:
