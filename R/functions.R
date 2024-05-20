@@ -4,6 +4,10 @@ prepare_seurat_object <- function(obj){
   # 如果unique数目少于细胞总数的1/20，并且不大于50种，并且数据类型为chr或num类型，会强制转为factor类型。
   # 可能的问题： unique_max_percent = 0.05可能不适合只有100个细胞但由大于5群的的数据
   obj@meta.data <- modify_columns_types(df = obj@meta.data, types_to_check = c("numeric", "character"), unique_max_counts = 50, unique_max_percent = 0.05)
+  # for splited object, join layers
+  if (sum(grepl("^counts",Layers(object = obj))) > 1 | sum(grepl("^data",Layers(object = obj))) > 1) {
+    obj <- SeuratObject::JoinLayers(object = obj)
+  }
   return(obj)
 }
 
@@ -71,20 +75,20 @@ ReviseGene <- function(Agene, GeneLibrary){
 check_dependency <- function(test){
   if (test == "wilcox") { # 检查所需要的R包,暂时这样吧，其它几个test先不测试了
     if(!require(devtools, quietly = TRUE)){
-      install.packages("devtools")
+      utils::install.packages("devtools")
     }
     if(!require(presto)){
       devtools::install_github('immunogenomics/presto')
     }
   }else if(test == "DESeq2"){
     if (!require("BiocManager", quietly = TRUE))
-      install.packages("BiocManager")
+      utils::install.packages("BiocManager")
     if (!require("DESeq2", quietly = TRUE)) {
       BiocManager::install("DESeq2")
     }
   } else if(test == "MAST"){
     if (!require("BiocManager", quietly = TRUE))
-      install.packages("BiocManager")
+      utils::install.packages("BiocManager")
     if (!require("DESeq2", quietly = TRUE)) {
       BiocManager::install("MAST")
     }

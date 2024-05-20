@@ -3,7 +3,7 @@
 
 #' UI for shiny App interface
 #' @import shiny
-#' @import shinydashboard
+#' @import shinydashboard shinyWidgets
 #' @export
 ui <-  function(){
   requireNamespace("shinydashboard")
@@ -202,16 +202,18 @@ ui <-  function(){
                                         tabPanel("ClusterMarkers", strong(h3("Find Markers for All Clusters")),
                                                  shinycssloaders::withSpinner(uiOutput("ClusterMarkersClusterResolution.UI"), proxy.height = "10px"),
                                                  actionButton("DEGsClusterMarkersAnalysis", "Analyze")),
-                                        tabPanel("InterClusterDEGs", strong(h3("Find DEGs Between two Cluster Groups")),
-                                                 shinycssloaders::withSpinner(uiOutput("InterClusterDEGsClusterResolution.UI"), proxy.height = "10px"),
-                                                 shinycssloaders::withSpinner(uiOutput("InterClusterDEGsGroupCase.UI"), proxy.height = "10px"),
-                                                 shinycssloaders::withSpinner(uiOutput("InterClusterDEGsGroupControl.UI"), proxy.height = "10px"),
-                                                 actionButton("InterClusterDEGsAnalysis", "Analyze")),
+                                        # 功能冗余
+                                        # tabPanel("InterClusterDEGs", strong(h3("Find DEGs Between two Cluster Groups")),
+                                        #          shinycssloaders::withSpinner(uiOutput("InterClusterDEGsClusterResolution.UI"), proxy.height = "10px"),
+                                        #          shinycssloaders::withSpinner(uiOutput("InterClusterDEGsGroupCase.UI"), proxy.height = "10px"),
+                                        #          shinycssloaders::withSpinner(uiOutput("InterClusterDEGsGroupControl.UI"), proxy.height = "10px"),
+                                        #          actionButton("InterClusterDEGsAnalysis", "Analyze")),
                                         tabPanel("IntraClusterDEGs", strong(h3("Find DEGs by Customized Groups Within Selected Clusters")),
                                                  shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsCustomizedGroups.UI"), proxy.height = "10px"),
                                                  shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsCustomizedGroupsCase.UI"), proxy.height = "10px"),
                                                  shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsCustomizedGroupsControl.UI"), proxy.height = "10px"),
                                                  tags$hr(style="border: none; border-top: 1px dashed #ccc;"),
+                                                 strong(h3("Modify the following parameters If you want to subset cells, otherwise ignore it.")),
                                                  shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsSubsetCells.UI"), proxy.height = "10px"),
                                                  shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsSubsetCellsSelectedClusters.UI"), proxy.height = "10px"),
                                                  tags$hr(style="border: none; border-top: 1px dashed #ccc;"),

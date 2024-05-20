@@ -25,20 +25,15 @@ knitr::opts_chunk$set(
 
 ## Installation
 
-You can install the development version of SeuratExplorer like so:
+You can install the development version of ``SeuratExplorer`` like so:
 
 ```{r eval=FALSE}
 library(devtools)
 install_github("fentouxungui/SeuratExplorer")
-```
-
-## Example
-
-本页内容后续会更新！
-
-```{r}
 library(SeuratExplorer)
 ```
+
+**建议将各个软件包升级到最新版本！否则可能出现兼容问题**
 
 Run App:
  
@@ -46,31 +41,178 @@ Run App:
 launchSeuratExplorer()
 ```
 
-## About
+## Functions
 
 ### Load data
 
+- support data processed by Seurat V5 and older versions. it may takes a while for loading data.
+
 ```{r   echo = FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("inst/extdata/www/loadingdata.png")
+knitr::include_graphics("inst/extdata/www/loading-before.png")
+knitr::include_graphics("inst/extdata/www/loading-before.png")
 ```
 
 ### Cell Meta
 
+- 支持下载cell meta信息，可用于统计特定分辨率下的细胞比例。
+
 ```{r  echo = FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("inst/extdata/www/cellmeta.png")
+knitr::include_graphics("inst/extdata/www/cell-metadata.png")
 ```
 
 ### Dimplot
 
+- 支持选择Dimension Reductions
+
+- 支持选择不同的细胞分群方案
+
+- 支持split
+
+- 支持调整图像长宽比
+
+- 支持是否显示cluster label
+
+- 支持调整label大小
+
+- 支持调整点的大小
+
+Example plots:
+
 ```{r  echo = FALSE, message=FALSE, warning=FALSE}
 knitr::include_graphics("inst/extdata/www/dimplot.png")
+knitr::include_graphics("inst/extdata/www/Dimplot-splited.png")
 ```
 
 ### FeaturePlot
 
+- 支持输入多个基因名，以逗号分割，基因名可不区分大小写。
+
+- 支持选择Dimension Reductions
+
+- 支持split
+
+- 支持自定义最大和最小表达值对应的颜色
+
+- 支持调整图像长宽比
+
+- 支持调整点的大小
+
 ```{r  echo = FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("inst/extdata/www/Featureplot.png")
+knitr::include_graphics("inst/extdata/www/featureplot-1.png")
+knitr::include_graphics("inst/extdata/www/Featureplot-split.png")
 ```
 
+### VlnPlot
 
+- 支持输入多个基因名，以逗号分割，基因名可不区分大小写。
+
+- 支持选择不同的细胞分群方案
+
+- 支持split
+
+- 支持stack和flip图像, 和指定颜色的映射
+
+- 支持自定义最大和最小表达值对应的颜色
+
+- 支持调整点的大小
+
+- 支持调整x轴和y轴label的字体大小
+
+- 支持调整图像长宽比
+
+
+```{r}
+knitr::include_graphics("inst/extdata/www/Vlnplot-1.png")
+knitr::include_graphics("inst/extdata/www/Vlnplot-2.png")
+knitr::include_graphics("inst/extdata/www/vlnplot-splited-1.png")
+knitr::include_graphics("inst/extdata/www/vlnplot-splited-2.png")
+```
+
+### DotPlot
+
+- 支持输入多个基因名，以逗号分割，基因名可不区分大小写。
+
+- 支持选择不同的细胞分群方案和指定所使用的clusters
+
+- 支持split
+
+- 支持对cluster/idents进行聚类
+
+- 支持旋转坐标轴lable和旋转整个图像
+
+- 支持调整点的大小和透明度
+
+- 支持调整x轴和y轴label的字体大小
+
+- 支持调整图像长宽比
+
+```{r}
+knitr::include_graphics("inst/extdata/www/Dotplot-1.png")
+knitr::include_graphics("inst/extdata/www/dotplot-splited-1.png")
+```
+
+### DoHeatmap
+
+- 支持输入多个基因名，以逗号分割，基因名可不区分大小写。
+
+- 支持选择不同的细胞分群方案
+
+- 支持调整cluster label的大小、xy轴的位置和旋转角度
+
+- 支持调整Group bar的高度
+
+- 支持调整Group间的间隙大小
+
+- 支持调整基因名的字体大小
+
+- 支持调整图像长宽比
+
+```{r}
+knitr::include_graphics("inst/extdata/www/Heatmap-1.png")
+```
+
+### RidgePlot
+
+- 支持输入多个基因名，以逗号分割，基因名可不区分大小写。
+
+- 支持选择不同的细胞分群方案
+
+- 支持调整列的数目
+
+- 支持Stack和指定颜色的映射
+
+- 支持调整x轴和y轴label的字体大小
+
+- 支持调整图像长宽比
+
+```{r}
+knitr::include_graphics("inst/extdata/www/ridgeplot-1.png")
+knitr::include_graphics("inst/extdata/www/Ridgeplot-2.png")
+knitr::include_graphics("inst/extdata/www/Ridgeplot-3.png")
+```
+
+### DEGs Analysis
+
+- 支持同时计算所有群的marker基因
+
+- 支持计算指定群之间的差异基因
+
+- 支持先做subset，再计算指定群之间的差异基因
+
+- 支持自定义部分计算参数
+
+- 支持结果下载
+
+```{r}
+knitr::include_graphics("inst/extdata/www/DEGs-1.png")
+knitr::include_graphics("inst/extdata/www/DEGs-2.png")
+knitr::include_graphics("inst/extdata/www/DEGs-3.png")
+knitr::include_graphics("inst/extdata/www/DEGs-4.png")
+```
+
+## Session Info
+
+```{r}
+sessionInfo()
+```
 
