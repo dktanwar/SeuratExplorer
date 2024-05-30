@@ -123,7 +123,7 @@ knitr::include_graphics("inst/extdata/www/Featureplot-split.png")
 - 支持调整图像长宽比
 
 
-```{r}
+```{r echo = FALSE}
 knitr::include_graphics("inst/extdata/www/Vlnplot-1.png")
 knitr::include_graphics("inst/extdata/www/Vlnplot-2.png")
 knitr::include_graphics("inst/extdata/www/vlnplot-splited-1.png")
@@ -148,7 +148,7 @@ knitr::include_graphics("inst/extdata/www/vlnplot-splited-2.png")
 
 - 支持调整图像长宽比
 
-```{r}
+```{r echo = FALSE}
 knitr::include_graphics("inst/extdata/www/Dotplot-1.png")
 knitr::include_graphics("inst/extdata/www/dotplot-splited-1.png")
 ```
@@ -169,7 +169,7 @@ knitr::include_graphics("inst/extdata/www/dotplot-splited-1.png")
 
 - 支持调整图像长宽比
 
-```{r}
+```{r echo = FALSE}
 knitr::include_graphics("inst/extdata/www/Heatmap-1.png")
 ```
 
@@ -187,7 +187,7 @@ knitr::include_graphics("inst/extdata/www/Heatmap-1.png")
 
 - 支持调整图像长宽比
 
-```{r}
+```{r echo = FALSE}
 knitr::include_graphics("inst/extdata/www/ridgeplot-1.png")
 knitr::include_graphics("inst/extdata/www/Ridgeplot-2.png")
 knitr::include_graphics("inst/extdata/www/Ridgeplot-3.png")
@@ -205,7 +205,7 @@ knitr::include_graphics("inst/extdata/www/Ridgeplot-3.png")
 
 - 支持结果下载
 
-```{r}
+```{r echo = FALSE}
 knitr::include_graphics("inst/extdata/www/DEGs-1.png")
 knitr::include_graphics("inst/extdata/www/DEGs-2.png")
 knitr::include_graphics("inst/extdata/www/DEGs-3.png")
@@ -219,7 +219,7 @@ knitr::include_graphics("inst/extdata/www/DEGs-4.png")
 
 ## Session Info
 
-```{r}
+```{r echo = FALSE}
 sessionInfo()
 ```
 

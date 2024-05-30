@@ -103,29 +103,7 @@ Example plots:
 
 - 支持调整图像长宽比
 
-``` r
-knitr::include_graphics("inst/extdata/www/Vlnplot-1.png")
-```
-
-<img src="inst/extdata/www/Vlnplot-1.png" width="100%" />
-
-``` r
-knitr::include_graphics("inst/extdata/www/Vlnplot-2.png")
-```
-
-<img src="inst/extdata/www/Vlnplot-2.png" width="100%" />
-
-``` r
-knitr::include_graphics("inst/extdata/www/vlnplot-splited-1.png")
-```
-
-<img src="inst/extdata/www/vlnplot-splited-1.png" width="100%" />
-
-``` r
-knitr::include_graphics("inst/extdata/www/vlnplot-splited-2.png")
-```
-
-<img src="inst/extdata/www/vlnplot-splited-2.png" width="100%" />
+<img src="inst/extdata/www/Vlnplot-1.png" width="100%" /><img src="inst/extdata/www/Vlnplot-2.png" width="100%" /><img src="inst/extdata/www/vlnplot-splited-1.png" width="100%" /><img src="inst/extdata/www/vlnplot-splited-2.png" width="100%" />
 
 ### DotPlot
 
@@ -145,17 +123,7 @@ knitr::include_graphics("inst/extdata/www/vlnplot-splited-2.png")
 
 - 支持调整图像长宽比
 
-``` r
-knitr::include_graphics("inst/extdata/www/Dotplot-1.png")
-```
-
-<img src="inst/extdata/www/Dotplot-1.png" width="100%" />
-
-``` r
-knitr::include_graphics("inst/extdata/www/dotplot-splited-1.png")
-```
-
-<img src="inst/extdata/www/dotplot-splited-1.png" width="100%" />
+<img src="inst/extdata/www/Dotplot-1.png" width="100%" /><img src="inst/extdata/www/dotplot-splited-1.png" width="100%" />
 
 ### DoHeatmap
 
@@ -173,10 +141,6 @@ knitr::include_graphics("inst/extdata/www/dotplot-splited-1.png")
 
 - 支持调整图像长宽比
 
-``` r
-knitr::include_graphics("inst/extdata/www/Heatmap-1.png")
-```
-
 <img src="inst/extdata/www/Heatmap-1.png" width="100%" />
 
 ### RidgePlot
@@ -193,23 +157,7 @@ knitr::include_graphics("inst/extdata/www/Heatmap-1.png")
 
 - 支持调整图像长宽比
 
-``` r
-knitr::include_graphics("inst/extdata/www/ridgeplot-1.png")
-```
-
-<img src="inst/extdata/www/ridgeplot-1.png" width="100%" />
-
-``` r
-knitr::include_graphics("inst/extdata/www/Ridgeplot-2.png")
-```
-
-<img src="inst/extdata/www/Ridgeplot-2.png" width="100%" />
-
-``` r
-knitr::include_graphics("inst/extdata/www/Ridgeplot-3.png")
-```
-
-<img src="inst/extdata/www/Ridgeplot-3.png" width="100%" />
+<img src="inst/extdata/www/ridgeplot-1.png" width="100%" /><img src="inst/extdata/www/Ridgeplot-2.png" width="100%" /><img src="inst/extdata/www/Ridgeplot-3.png" width="100%" />
 
 ### DEGs Analysis
 
@@ -223,29 +171,7 @@ knitr::include_graphics("inst/extdata/www/Ridgeplot-3.png")
 
 - 支持结果下载
 
-``` r
-knitr::include_graphics("inst/extdata/www/DEGs-1.png")
-```
-
-<img src="inst/extdata/www/DEGs-1.png" width="100%" />
-
-``` r
-knitr::include_graphics("inst/extdata/www/DEGs-2.png")
-```
-
-<img src="inst/extdata/www/DEGs-2.png" width="100%" />
-
-``` r
-knitr::include_graphics("inst/extdata/www/DEGs-3.png")
-```
-
-<img src="inst/extdata/www/DEGs-3.png" width="100%" />
-
-``` r
-knitr::include_graphics("inst/extdata/www/DEGs-4.png")
-```
-
-<img src="inst/extdata/www/DEGs-4.png" width="100%" />
+<img src="inst/extdata/www/DEGs-1.png" width="100%" /><img src="inst/extdata/www/DEGs-2.png" width="100%" /><img src="inst/extdata/www/DEGs-3.png" width="100%" /><img src="inst/extdata/www/DEGs-4.png" width="100%" />
 
 ## 为什么做这个R包
 
@@ -253,31 +179,28 @@ knitr::include_graphics("inst/extdata/www/DEGs-4.png")
 
 ## Session Info
 
-``` r
-sessionInfo()
-#> R version 4.3.0 (2023-04-21 ucrt)
-#> Platform: x86_64-w64-mingw32/x64 (64-bit)
-#> Running under: Windows 10 x64 (build 19045)
-#> 
-#> Matrix products: default
-#> 
-#> 
-#> locale:
-#> [1] LC_COLLATE=Chinese (Simplified)_China.utf8 
-#> [2] LC_CTYPE=Chinese (Simplified)_China.utf8   
-#> [3] LC_MONETARY=Chinese (Simplified)_China.utf8
-#> [4] LC_NUMERIC=C                               
-#> [5] LC_TIME=Chinese (Simplified)_China.utf8    
-#> 
-#> time zone: Asia/Shanghai
-#> tzcode source: internal
-#> 
-#> attached base packages:
-#> [1] stats     graphics  grDevices utils     datasets  methods   base     
-#> 
-#> loaded via a namespace (and not attached):
-#>  [1] compiler_4.3.0  fastmap_1.1.1   cli_3.6.1       tools_4.3.0    
-#>  [5] htmltools_0.5.5 rstudioapi_0.14 yaml_2.3.7      rmarkdown_2.22 
-#>  [9] highr_0.10      knitr_1.43      xfun_0.39       digest_0.6.31  
-#> [13] rlang_1.1.3     evaluate_0.21
-```
+    #> R version 4.3.0 (2023-04-21 ucrt)
+    #> Platform: x86_64-w64-mingw32/x64 (64-bit)
+    #> Running under: Windows 10 x64 (build 19045)
+    #> 
+    #> Matrix products: default
+    #> 
+    #> 
+    #> locale:
+    #> [1] LC_COLLATE=Chinese (Simplified)_China.utf8 
+    #> [2] LC_CTYPE=Chinese (Simplified)_China.utf8   
+    #> [3] LC_MONETARY=Chinese (Simplified)_China.utf8
+    #> [4] LC_NUMERIC=C                               
+    #> [5] LC_TIME=Chinese (Simplified)_China.utf8    
+    #> 
+    #> time zone: Asia/Shanghai
+    #> tzcode source: internal
+    #> 
+    #> attached base packages:
+    #> [1] stats     graphics  grDevices utils     datasets  methods   base     
+    #> 
+    #> loaded via a namespace (and not attached):
+    #>  [1] compiler_4.3.0  fastmap_1.1.1   cli_3.6.1       tools_4.3.0    
+    #>  [5] htmltools_0.5.5 rstudioapi_0.14 yaml_2.3.7      rmarkdown_2.22 
+    #>  [9] highr_0.10      knitr_1.43      xfun_0.39       digest_0.6.31  
+    #> [13] rlang_1.1.3     evaluate_0.21
