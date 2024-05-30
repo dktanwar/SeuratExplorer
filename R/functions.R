@@ -24,7 +24,7 @@ modify_columns_types <- function(df, types_to_check = c("numeric", "character"),
 # 通过关键字换取reduction options
 prepare_reduction_options <- function(obj, keywords = c("umap","tsne")){
   requireNamespace("Seurat")
-  reduction.choice <- grep(paste0(paste0("(", keywords,")"),collapse = "|"), Seurat::Reductions(obj),value = TRUE)
+  reduction.choice <- grep(paste0(paste0("(", keywords,")"),collapse = "|"), Seurat::Reductions(obj), value = TRUE, ignore.case = TRUE)
   names(reduction.choice) <- toupper(reduction.choice)
   return(reduction.choice)
 }
@@ -89,7 +89,7 @@ check_dependency <- function(test){
   } else if(test == "MAST"){
     if (!require("BiocManager", quietly = TRUE))
       utils::install.packages("BiocManager")
-    if (!require("DESeq2", quietly = TRUE)) {
+    if (!require("MAST", quietly = TRUE)) {
       BiocManager::install("MAST")
     }
   }

@@ -1,6 +1,6 @@
 Package: SeuratExplorer
 Title: An interactive R shiny application for exploring scRNAseq data processed in Seurat
-Version: 0.0.5.0000
+Version: 0.0.5.9000
 Authors@R: 
   person("Yongchao", "Zhang", , "zhangyongchao@nibs.ac.cn", role = c("aut", "cre"),
            comment = c(Github = "https://github.com/fentouxungui"))

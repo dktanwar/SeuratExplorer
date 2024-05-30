@@ -1,77 +1,24 @@
 # server.R
 ## R shiny server side for SeuratExplorer
 
-#' Server for SeuratExplorer shiny app
-#' @import shiny
-#' @import Seurat SeuratObject
-#' @param input Input from the UI
-#' @param output Output to send back to UI
-#' @param session from shiny server function
+#' server functions for Seurat Explorer menuitems
+#' R shiny server side for Seurat plot and DEGs analysis functions
+#'
+#' @param input server input
+#' @param output server output
+#' @param session server session
+#' @param data the Seurat object and related parameters
 #' @export
-server <- function(input, output, session) {
-  requireNamespace("Seurat")
-  requireNamespace("ggplot2")
-  requireNamespace("shinyWidgets")
-  requireNamespace("shinydashboard")
-  requireNamespace("SeuratObject")
-
-  # 设置上传文件的大小限制
-  options(shiny.maxRequestSize=5*1024^3)
-
-  ## Dataset tab ----
-  # reactiveValues: Create an object for storing reactive values,similar to a list,
-  # but with special capabilities for reactive programming.
-  data = reactiveValues(obj = NULL, loaded = FALSE, reduction_options = NULL, cluster_options = NULL, split_options = NULL, extra_qc_options = NULL)
-  # reductions_options: 为可视化时的xy轴座标
-  # cluster_options/split_options/extra_qc_options均为seurat object meta.data里的列名，后续绘图会作为可选参数被反复用到
-  # 选择好数据后，读入数据
-  observe({
-    shiny::req(input$dataset_file) # req: Check for required values; dataset_file is a data.frame
-    ext = tools::file_ext(input$dataset_file$datapath) # file_ext: returns the file (name) extensions
-    validate(need(expr = ext == "rds", message = "Please upload a .rds file")) # validate + need：检查后缀是否为rds，否则抛出错误
-    data$obj <- prepare_seurat_object(obj = Seurat::UpdateSeuratObject(readRDS(file = input$dataset_file$datapath)))
-    data$reduction_options <- prepare_reduction_options(obj = data$obj, keywords = c("umap","tsne"))
-    data$cluster_options <- prepare_cluster_options(df = data$obj@meta.data)
-    data$split_options <- prepare_split_options(df = data$obj@meta.data, max.level = 6)
-    data$extra_qc_options <- prepare_qc_options(df = data$obj@meta.data, types = c("double","integer","numeric"))
-  })
-
-  # 数据加载成功后，设置loaded为TRUE
-  observe({
-    req(data$obj)
-    data$loaded = !is.null(data$obj)
-  })
-
-  ############################### Render metadata table
-  # 可以下载全部，参考：https://stackoverflow.com/questions/50039186/add-download-buttons-in-dtrenderdatatable
-  output$dataset_meta <- DT::renderDT(server=FALSE,{
-    req(data$obj)
-    # Show data
-    DT::datatable(data$obj@meta.data, extensions = 'Buttons',
-              options = list(scrollX=TRUE, lengthMenu = c(5,10,15),
-                             paging = TRUE, searching = TRUE,
-                             fixedColumns = TRUE, autoWidth = TRUE,
-                             ordering = TRUE, dom = 'Bfrtip',
-                             buttons = c('copy', 'csv', 'excel')))
-  })
-
-  # Conditional panel control based on loaded obj，条件panel,数据记载成功后，显示：dashboardSidebar -sidebarMenu - menuItem - Explorer和 dashboardBody - dataset - tabItem -  box - Cell Meta Info
-  output$file_loaded = reactive({
-    return(data$loaded)
-  })
-
-  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditionalpanel所需要要的参数
-  outputOptions(output, 'file_loaded', suspendWhenHidden=FALSE)
-
+explorer_server <- function(input, output, session, data){
   ############################# Dimension Reduction Plot
   # define reductions choices UI
   output$DimReductions.UI <- renderUI({
-      selectInput("DimDimensionReduction", "Dimension Reduction:", choices = data$reduction_options) # set default reduction
+     selectInput("DimDimensionReduction", "Dimension Reduction:", choices = data$reduction_options, selected = data$reduction_default) # set default reduction
   })
 
   # define Cluster Annotation choice
   output$DimClusterResolution.UI <- renderUI({
-    selectInput("DimClusterResolution","Cluster Resolution:", choices = data$cluster_options)
+    selectInput("DimClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
   # define Split Choice UI
@@ -105,7 +52,7 @@ server <- function(input, output, session) {
   ################################ Feature Plot
   # define reductions choices UI
   output$FeatureReductions.UI <- renderUI({
-    selectInput("FeatureDimensionReduction", "Dimension Reduction:", choices = data$reduction_options) # set default reduction
+    selectInput("FeatureDimensionReduction", "Dimension Reduction:", choices = data$reduction_options, selected = data$reduction_default) # set default reduction
   })
 
   # # define Cluster Annotation choice
@@ -147,9 +94,9 @@ server <- function(input, output, session) {
     }else if(is.null(FeatureSplit.Revised())) { # not splited
       Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
                           cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor))
-     }else{ # splited
+    }else{ # splited
       p <- Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
-                          cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), split.by = FeatureSplit.Revised())
+                               cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), split.by = FeatureSplit.Revised())
       if (length( Featureplot.Gene.Revised()) == 1) { # 仅仅一个基因时
         plot_numbers <- length(levels(data$obj@meta.data[,FeatureSplit.Revised()]))
         p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
@@ -173,7 +120,7 @@ server <- function(input, output, session) {
 
   # define Cluster Annotation choice
   output$VlnClusterResolution.UI <- renderUI({
-    selectInput("VlnClusterResolution","Cluster Resolution:", choices = data$cluster_options)
+    selectInput("VlnClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
   # define Split Choice UI
@@ -294,7 +241,7 @@ server <- function(input, output, session) {
 
   # define Cluster Annotation choice
   output$DotClusterResolution.UI <- renderUI({
-    selectInput("DotClusterResolution","Cluster Resolution:", choices = data$cluster_options)
+    selectInput("DotClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
   # define the idents used
@@ -302,8 +249,8 @@ server <- function(input, output, session) {
     req(input$DotClusterResolution)
     # selectInput("DotIdentsSelected","Idents used:", choices = levels(data$obj@meta.data[,input$DotClusterResolution]))
     shinyWidgets::pickerInput(inputId = "DotIdentsSelected", label = "Idents used:",
-      choices = levels(data$obj@meta.data[,input$DotClusterResolution]), selected = levels(data$obj@meta.data[,input$DotClusterResolution]),
-      options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
+                              choices = levels(data$obj@meta.data[,input$DotClusterResolution]), selected = levels(data$obj@meta.data[,input$DotClusterResolution]),
+                              options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
   })
 
   # define Split Choice UI
@@ -379,7 +326,7 @@ server <- function(input, output, session) {
 
   # define Cluster Annotation choice
   output$HeatmapClusterResolution.UI <- renderUI({
-    selectInput("HeatmapClusterResolution","Cluster Resolution:", choices = data$cluster_options)
+    selectInput("HeatmapClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
 
@@ -416,7 +363,7 @@ server <- function(input, output, session) {
 
   # define Cluster Annotation choice
   output$RidgeplotClusterResolution.UI <- renderUI({
-    selectInput("RidgeplotClusterResolution","Cluster Resolution:", choices = data$cluster_options)
+    selectInput("RidgeplotClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
   # Conditional panel: 输入为多个基因且stack设为TRUE时，显示此panel
@@ -433,6 +380,7 @@ server <- function(input, output, session) {
 
   # Conditional panel: 输入为多个基因且stack设为TRUE时，显示此panel
   output$Ridgeplot_stack_NotSelected = reactive({
+    req(input$RidgeplotStackPlot) # new codes
     if (input$RidgeplotStackPlot) {
       return(FALSE)
     }else{
@@ -479,7 +427,7 @@ server <- function(input, output, session) {
 
   # define Cluster Annotation choice
   output$ClusterMarkersClusterResolution.UI <- renderUI({
-    selectInput("ClusterMarkersClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options)
+    selectInput("ClusterMarkersClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
   observeEvent(input$DEGsClusterMarkersAnalysis, {
@@ -488,7 +436,7 @@ server <- function(input, output, session) {
     Seurat::Idents(cds) <- input$ClusterMarkersClusterResolution
     check_dependency(test = input$testuse)
     cluster.markers <- Seurat::FindAllMarkers(cds, test.use = input$testuse, logfc.threshold = input$logfcthreshold,
-                                      min.pct = input$minpct, min.diff.pct = ifelse(input$mindiffpct, input$mindiffpct, -Inf), only.pos = TRUE)
+                                              min.pct = input$minpct, min.diff.pct = ifelse(input$mindiffpct, input$mindiffpct, -Inf), only.pos = TRUE)
     removeModal()
     DEGs$degs <<- cluster.markers #修改全局变量，需不需要改为 <<-
     DEGs$degs_ready <<- TRUE
@@ -590,7 +538,7 @@ server <- function(input, output, session) {
     }
   })
 
- # part-4: 重置参数
+  # part-4: 重置参数
   observeEvent(input$SetDefault, {
     updateSelectInput(session = session, inputId = "testuse", selected = "wilcox")
     updateSliderInput(session, "logfcthreshold", value = 0.1 )
@@ -609,5 +557,79 @@ server <- function(input, output, session) {
                                  ordering = TRUE, dom = 'Bfrtip',
                                  buttons = c('copy', 'csv', 'excel')))
   })
+}
+
+
+
+
+#' Server for SeuratExplorer shiny app
+#' @import shiny
+#' @import Seurat SeuratObject
+#' @param input Input from the UI
+#' @param output Output to send back to UI
+#' @param session from shiny server function
+#' @export
+server <- function(input, output, session) {
+  requireNamespace("Seurat")
+  requireNamespace("ggplot2")
+  requireNamespace("shinyWidgets")
+  requireNamespace("shinydashboard")
+  requireNamespace("SeuratObject")
+
+  # 设置上传文件的大小限制
+  options(shiny.maxRequestSize=5*1024^3)
+
+  ## Dataset tab ----
+  # reactiveValues: Create an object for storing reactive values,similar to a list,
+  # but with special capabilities for reactive programming.
+  data = reactiveValues(obj = NULL, loaded = FALSE, Name = NULL, Path = NULL, species = NULL,
+                        reduction_options = NULL, reduction_default = NULL,
+                        cluster_options = NULL, cluster_default = NULL,
+                        split_maxlevel = 6, split_options = NULL,
+                        extra_qc_options = NULL)
+
+  # reductions_options: 为可视化时的xy轴座标
+  # cluster_options/split_options/extra_qc_options均为seurat object meta.data里的列名，后续绘图会作为可选参数被反复用到
+  # 选择好数据后，读入数据
+  observe({
+    shiny::req(input$dataset_file) # req: Check for required values; dataset_file is a data.frame
+    ext = tools::file_ext(input$dataset_file$datapath) # file_ext: returns the file (name) extensions
+    validate(need(expr = ext == "rds", message = "Please upload a .rds file")) # validate + need：检查后缀是否为rds，否则抛出错误
+    data$obj <- prepare_seurat_object(obj = Seurat::UpdateSeuratObject(readRDS(file = input$dataset_file$datapath)))
+    data$reduction_options <- prepare_reduction_options(obj = data$obj, keywords = c("umap","tsne"))
+    data$cluster_options <- prepare_cluster_options(df = data$obj@meta.data)
+    data$split_options <- prepare_split_options(df = data$obj@meta.data, max.level = data$split_maxlevel)
+    data$extra_qc_options <- prepare_qc_options(df = data$obj@meta.data, types = c("double","integer","numeric"))
+  })
+
+  # 数据加载成功后，设置loaded为TRUE
+  observe({
+    req(data$obj)
+    data$loaded = !is.null(data$obj)
+  })
+
+  ############################### Render metadata table
+  # 可以下载全部，参考：https://stackoverflow.com/questions/50039186/add-download-buttons-in-dtrenderdatatable
+  output$dataset_meta <- DT::renderDT(server=FALSE,{
+    req(data$obj)
+    # Show data
+    DT::datatable(data$obj@meta.data, extensions = 'Buttons',
+              options = list(scrollX=TRUE, lengthMenu = c(5,10,15),
+                             paging = TRUE, searching = TRUE,
+                             fixedColumns = TRUE, autoWidth = TRUE,
+                             ordering = TRUE, dom = 'Bfrtip',
+                             buttons = c('copy', 'csv', 'excel')))
+  })
+
+  # Conditional panel control based on loaded obj，条件panel,数据记载成功后，显示：dashboardSidebar -sidebarMenu - menuItem - Explorer和 dashboardBody - dataset - tabItem -  box - Cell Meta Info
+  output$file_loaded = reactive({
+    return(data$loaded)
+  })
+
+  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditionalpanel所需要要的参数
+  outputOptions(output, 'file_loaded', suspendWhenHidden=FALSE)
+
+  # Seurat Explorer functions
+  explorer_server(input = input, output = output, session = session, data = data)
 
 }
