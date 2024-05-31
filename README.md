@@ -173,6 +173,11 @@ Example plots:
 
 <img src="inst/extdata/www/DEGs-1.png" width="100%" /><img src="inst/extdata/www/DEGs-2.png" width="100%" /><img src="inst/extdata/www/DEGs-3.png" width="100%" /><img src="inst/extdata/www/DEGs-4.png" width="100%" />
 
+## A Live Demo
+
+Support Rds file size no more than 5GB.
+[Open](http://www.nibs.ac.cn:666/SeuratExplorer/)
+
 ## 为什么做这个R包
 
 > 目前还没有很好的用于可视化Seurat分析结果的工具，当生物信息分析员将结果交给用户后，用户如果没有任何R语言基础，还是比较难去自行进行结果检索和再分析，这个R包可以帮助此类用户进行交互，实现分析结果的可视化，方便用户自行出图。用户仅需要在自己电脑上配置好R和Rstudio，然后安装运行此软件即可，无需其他操作。
