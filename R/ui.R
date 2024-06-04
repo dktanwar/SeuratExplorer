@@ -231,11 +231,20 @@ ui <-  function(){
   requireNamespace("shinydashboard")
   requireNamespace("shinyWidgets")
 
+  # notificationItem 默认函数无法在新页面打开链接; refer to: https://forum.posit.co/t/shinydashboard-notification-item-with-link-in-new-tab/37580/2
+  notificationItemWithAttr <- function(text, icon = shiny::icon("warning"), status = "success", href = NULL, ...) {
+    if (is.null(href))
+      href <- "#"
+    icon <- tagAppendAttributes(icon, class = paste0("text-",
+                                                     status))
+    tags$li(a(href = href, icon, text, ...))
+  }
+
   # Header ----
   header = dashboardHeader(title = "SeuratExplorer",
                            dropdownMenu(type = "notifications", icon = icon("github"), headerText = "R packages on Github:",
-                                        notificationItem(icon = icon("github"), status = "info", "SeuratExplorer", href = "https://github.com/fentouxungui/SeuratExplorer"),
-                                        notificationItem(icon = icon("github"), status = "info", "SeuratExplorerServer", href = "https://github.com/fentouxungui/SeuratExplorerServer")))
+                                        notificationItemWithAttr(icon = icon("github"), status = "info", text = "SeuratExplorer", href = "https://github.com/fentouxungui/SeuratExplorer", target = "_blank"),
+                                        notificationItemWithAttr(icon = icon("github"), status = "info", text = "SeuratExplorerServer", href = "https://github.com/fentouxungui/SeuratExplorerServer", target = "_blank")))
 
   # Sidebar ----
   sidebar = dashboardSidebar(
