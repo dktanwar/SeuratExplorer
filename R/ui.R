@@ -172,12 +172,19 @@ explorer_body_ui <- function(tab_list){
   tab_list[["degs"]] = tabItem(tabName = "degs",
                                fluidRow(
                                  box(textOutput("degs_warning"), title = "WARNING：", background = "orange", width = 12),
+                                 tags$style(".nav-tabs {background: #f4f4f4;}
+                                 .nav-tabs-custom .nav-tabs li.active:hover a, .nav-tabs-custom .nav-tabs li.active a {background-color: #fff;
+                                 border-color: #fff;
+                                 }
+                                 .nav-tabs-custom .nav-tabs li.active {border-top-color:
+                                 #314a6d;
+                                 }"), # refer to: https://stackoverflow.com/questions/45247290/shiny-dashboard-tabbox-tabpanel-css
                                  tabBox(
                                    title = "Find Markers or DEGs",
                                    id = "tabset_degs", width = 12, # height = "250px",
                                    tabPanel("ClusterMarkers", strong(h3("Find Markers for All Clusters")),
                                             shinycssloaders::withSpinner(uiOutput("ClusterMarkersClusterResolution.UI"), proxy.height = "10px"),
-                                            actionButton("DEGsClusterMarkersAnalysis", "Analyze")),
+                                            actionButton("DEGsClusterMarkersAnalysis", "Analyze", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
                                    # 功能冗余
                                    # tabPanel("InterClusterDEGs", strong(h3("Find DEGs Between two Cluster Groups")),
                                    #          shinycssloaders::withSpinner(uiOutput("InterClusterDEGsClusterResolution.UI"), proxy.height = "10px"),
@@ -193,7 +200,7 @@ explorer_body_ui <- function(tab_list){
                                             shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsSubsetCells.UI"), proxy.height = "10px"),
                                             shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsSubsetCellsSelectedClusters.UI"), proxy.height = "10px"),
                                             tags$hr(style="border: none; border-top: 1px dashed #ccc;"),
-                                            actionButton("IntraClusterDEGssAnalysis", "Analyze")),
+                                            actionButton("IntraClusterDEGssAnalysis", "Analyze", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
                                    tabPanel("Parameters", strong(h3("Set Parameters")),
                                             sliderInput("logfcthreshold", label = "Logfc Threshold:", min = 0, max = 1, value = 0.1),
                                             selectInput("testuse","Test use:", choices = c(wilcox = "wilcox", wilcox_limma = "wilcox_limma",
@@ -201,12 +208,12 @@ explorer_body_ui <- function(tab_list){
                                                                                            LR = "LR", MAST = "MAST", DESeq2 = "DESeq2")),
                                             sliderInput("minpct", label = "Minimum Expression Percentage:", min = 0, max = 1, value = 0.01),
                                             sliderInput("mindiffpct", label = "Minimum Expression Percentage Difference:", min = 0, max = 1, value = 0),
-                                            actionButton("SetDefault", "Set to Default"))
+                                            actionButton("SetDefault", "Set to Default", icon = icon("save"), class = "btn-primary"))
 
                                  ),
                                  conditionalPanel(
                                    condition = "output.DEGs_ready",
-                                   box(title = "Analysis Results:", collapsible = TRUE, status = "primary", width = 12,
+                                   box(title = "Analysis Results:", collapsible = TRUE, width = 12,
                                        shinycssloaders::withSpinner(DT::dataTableOutput('dataset_degs')))
                                  )
                                )
@@ -242,13 +249,15 @@ ui <-  function(){
   tab_list = list()
 
   tab_list[["dataset"]] = tabItem(tabName = "dataset",
-                                  # 上传文件
-                                  box(fileInput("dataset_file", "Choose A Seurat .rds file:", accept = '.rds'), status = "primary", width = 12),
-                                  conditionalPanel(
-                                    condition = "output.file_loaded",
-                                    box(title = "Cell Meta Info", collapsible = TRUE, status = "primary", width = 12,
-                                        shinycssloaders::withSpinner(DT::dataTableOutput('dataset_meta')))
-                                    )
+                                  fluidRow(
+                                    # 上传文件
+                                    box(status = "primary", title = "Upload Data", width = 12, collapsible = TRUE, solidHeader = TRUE,
+                                        fileInput("dataset_file", "Choose A Seurat .rds file:", accept = '.rds')),
+                                    conditionalPanel(
+                                      condition = "output.file_loaded",
+                                      box(title = "Metadata of Cells", collapsible = TRUE, width = 12,
+                                          shinycssloaders::withSpinner(DT::dataTableOutput('dataset_meta')))
+                                    ))
                                   )
 
   tab_list <- explorer_body_ui(tab_list = tab_list)
