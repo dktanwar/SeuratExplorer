@@ -8,6 +8,7 @@ prepare_seurat_object <- function(obj){
   if (sum(grepl("^counts",Layers(object = obj))) > 1 | sum(grepl("^data",Layers(object = obj))) > 1) {
     obj <- SeuratObject::JoinLayers(object = obj)
   }
+  message("SeuratExplorer: prepare_seurat_object runs successfully!")
   return(obj)
 }
 
@@ -18,6 +19,7 @@ modify_columns_types <- function(df, types_to_check = c("numeric", "character"),
   candidates.unique.logic <- sapply(df, FUN = function(x)length(unique(x))) <= cutoff
   candidates.logic <- candidates.types.logic & candidates.unique.logic & !sapply(df, is.factor)
   df[candidates.logic] <- lapply(df[candidates.logic], as.factor)
+  message("SeuratExplorer: modify_columns_types runs successfully!")
   return(df)
 }
 
@@ -26,6 +28,7 @@ prepare_reduction_options <- function(obj, keywords = c("umap","tsne")){
   requireNamespace("Seurat")
   reduction.choice <- grep(paste0(paste0("(", keywords,")"),collapse = "|"), Seurat::Reductions(obj), value = TRUE, ignore.case = TRUE)
   names(reduction.choice) <- toupper(reduction.choice)
+  message("SeuratExplorer: prepare_reduction_options runs successfully!")
   return(reduction.choice)
 }
 
@@ -34,6 +37,7 @@ prepare_reduction_options <- function(obj, keywords = c("umap","tsne")){
 prepare_cluster_options <- function(df){
   cluster.options <- colnames(df)[sapply(df, is.factor)]
   names(cluster.options) <- cluster.options
+  message("SeuratExplorer: prepare_cluster_options runs successfully!")
   return(cluster.options)
 }
 
@@ -43,12 +47,15 @@ prepare_split_options <- function(df, max.level = 4){
   leve.counts <- unname(sapply(df[cluster.options],FUN = function(x)length(levels(x))))
   split.options <- cluster.options[leve.counts <= max.level]
   names(split.options) <- split.options
+  message("SeuratExplorer: prepare_split_options runs successfully!")
   return(split.options)
 }
 
 # 添加额外的来自meta data的列名为qc options
 prepare_qc_options <- function(df, types = c("double","integer","numeric")){
-  return(colnames(df)[sapply(df, class) %in% types])
+  qc_options <- colnames(df)[sapply(df, class) %in% types]
+  message("SeuratExplorer: prepare_qc_options runs successfully!")
+  return(qc_options)
 }
 
 
@@ -57,6 +64,7 @@ CheckGene <- function(InputGene, GeneLibrary){
   InputGenes <- trimws(unlist(strsplit(InputGene,split = ",")))
   revised.genes <- sapply(InputGenes, FUN = function(x)ReviseGene(x, GeneLibrary = GeneLibrary))
   revised.genes <- unique(unname(revised.genes[!is.na(revised.genes)]))
+  message("SeuratExplorer: CheckGene runs successfully!")
   ifelse(length(revised.genes) == 0, yes = return(NA), no = return(revised.genes))
 }
 

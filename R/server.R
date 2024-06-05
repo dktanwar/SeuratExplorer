@@ -13,21 +13,25 @@ explorer_server <- function(input, output, session, data){
   ############################# Dimension Reduction Plot
   # define reductions choices UI
   output$DimReductions.UI <- renderUI({
-     selectInput("DimDimensionReduction", "Dimension Reduction:", choices = data$reduction_options, selected = data$reduction_default) # set default reduction
+    message("SeuratExplorer: preparing DimReductions.UI...")
+    selectInput("DimDimensionReduction", "Dimension Reduction:", choices = data$reduction_options, selected = data$reduction_default) # set default reduction
   })
 
   # define Cluster Annotation choice
   output$DimClusterResolution.UI <- renderUI({
+    message("SeuratExplorer: preparing DimClusterResolution.UI...")
     selectInput("DimClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
   # define Split Choice UI
   output$DimSplit.UI <- renderUI({
+    message("SeuratExplorer: preparing DimSplit.UI...")
     selectInput("DimSplit","Split by:", choices = c("None" = "None", data$split_options))
   })
 
   # Revise Split selection which will be appropriate for plot
   DimSplit.Revised <- reactive({
+    message("SeuratExplorer: preparing DimSplit.Revised...")
     req(input$DimSplit) # split值出现后，才会执行的代码
     # Revise the Split choice
     if(is.na(input$DimSplit) | input$DimSplit == "None") {
@@ -38,6 +42,7 @@ explorer_server <- function(input, output, session, data){
   })
 
   output$dimplot <- renderPlot({
+    message("SeuratExplorer: preparing dimplot...")
     if (is.null(DimSplit.Revised())) { # not splited
       Seurat::DimPlot(data$obj, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
                       group.by = input$DimClusterResolution)
@@ -52,6 +57,7 @@ explorer_server <- function(input, output, session, data){
   ################################ Feature Plot
   # define reductions choices UI
   output$FeatureReductions.UI <- renderUI({
+    message("SeuratExplorer: preparing FeatureReductions.UI...")
     selectInput("FeatureDimensionReduction", "Dimension Reduction:", choices = data$reduction_options, selected = data$reduction_default) # set default reduction
   })
 
@@ -62,17 +68,20 @@ explorer_server <- function(input, output, session, data){
 
   # define Split Choice UI
   output$FeatureSplit.UI <- renderUI({
+    message("SeuratExplorer: preparing FeatureSplit.UI...")
     selectInput("FeatureSplit","Split by:", choices = c("None" = "None", data$split_options))
   })
 
   # 提示可用的qc选项作为Gene symbol
   output$Featurehints.UI <- renderUI({
+    message("SeuratExplorer: preparing Featurehints.UI...")
     helpText(strong(paste("Multiple genes are separted by a comma, such as: CD4,CD8A; Also supports: ", paste(data$extra_qc_options, collapse = ", "), ".",sep = "")),style = "font-size:12px;")
   })
 
 
   # Revise Split selection which will be appropriate for DimPlot, FeaturePlot and Vlnplot functions.
   FeatureSplit.Revised <- reactive({
+    message("SeuratExplorer: preparing FeatureSplit.Revised...")
     req(input$FeatureSplit) # split值出现后，才会执行的代码
     # Revise the Split choice
     if(is.na(input$FeatureSplit) | input$FeatureSplit == "None") {
@@ -85,10 +94,12 @@ explorer_server <- function(input, output, session, data){
   # Check the input gene
   Featureplot.Gene.Revised <- reactive({
     req(input$FeatureGeneSymbol)
+    message("SeuratExplorer: preparing Featureplot.Gene.Revised...")
     ifelse(is.na(input$FeatureGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$FeatureGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
   })
 
   output$featureplot <- renderPlot({
+    message("SeuratExplorer: preparing featureplot...")
     if (any(is.na(Featureplot.Gene.Revised()))) { # NA 值时
       ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else if(is.null(FeatureSplit.Revised())) { # not splited
@@ -109,28 +120,33 @@ explorer_server <- function(input, output, session, data){
   ################################ Violin Plot
   # Check the input gene
   Vlnplot.Gene.Revised <- reactive({
+    message("SeuratExplorer: preparing Vlnplot.Gene.Revised...")
     req(input$VlnGeneSymbol)
     ifelse(is.na(input$VlnGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$VlnGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
   })
 
   # 提示可用的qc选项作为Gene symbol
   output$Vlnhints.UI <- renderUI({
+    message("SeuratExplorer: preparing Vlnhints.UI...")
     helpText(strong(paste("Multiple genes are separted by a comma, such as: CD4,CD8A; Also supports: ", paste(data$extra_qc_options, collapse = ", "), ".",sep = "")),style = "font-size:12px;")
   })
 
   # define Cluster Annotation choice
   output$VlnClusterResolution.UI <- renderUI({
+    message("SeuratExplorer: preparing VlnClusterResolution.UI...")
     selectInput("VlnClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
   # define Split Choice UI
   output$VlnSplitBy.UI <- renderUI({
+    message("SeuratExplorer: preparing VlnSplitBy.UI...")
     selectInput("VlnSplitBy","Split by:", choices = c("None" = "None", data$split_options))
   })
 
   # Conditional panel: split.by被勾选，且level数目为2时，显示此panel
   output$Vlnplot_splitoption_twolevels = reactive({
     req(input$VlnSplitBy)
+    message("SeuratExplorer: preparing Vlnplot_splitoption_twolevels...")
     if (input$VlnSplitBy == "None"){
       return(FALSE)
     }else if(length(levels(data$obj@meta.data[,input$VlnSplitBy])) == 2) {
@@ -146,6 +162,7 @@ explorer_server <- function(input, output, session, data){
   # Conditional panel: symbol输入为多个基因时，显示此panel
   output$Vlnplot_multiple_genes = reactive({
     req(input$VlnGeneSymbol)
+    message("SeuratExplorer: preparing Vlnplot_multiple_genes...")
     if (length(Vlnplot.Gene.Revised()) > 1) {
       return(TRUE)
     }else{
@@ -161,6 +178,7 @@ explorer_server <- function(input, output, session, data){
   output$Vlnplot_StackPlot = reactive({
     req(input$VlnStackPlot)
     req(input$VlnGeneSymbol)
+    message("SeuratExplorer: preparing Vlnplot_StackPlot...")
     if (length(Vlnplot.Gene.Revised()) > 1 & input$VlnStackPlot) {
       return(TRUE)
     }else{
@@ -173,6 +191,7 @@ explorer_server <- function(input, output, session, data){
 
   # Revise Split selection which will be appropriate for DimPlot, FeaturePlot and Vlnplot functions.
   VlnSplit.Revised <- reactive({
+    message("SeuratExplorer: preparing VlnSplit.Revised...")
     req(input$VlnSplitBy) # split值出现后，才会执行的代码
     # Revise the Split choice
     if(is.na(input$VlnSplitBy) | input$VlnSplitBy == "None") {
@@ -185,6 +204,7 @@ explorer_server <- function(input, output, session, data){
   # reset VlnSplitPlot value to FALSE when change the split options
   observe({
     req(input$VlnSplitBy)
+    message("SeuratExplorer: vlnplot update UI...")
     updateCheckboxInput(session, "VlnSplitPlot", value = FALSE)
     updateCheckboxInput(session, "VlnStackPlot", value = FALSE)
     updateCheckboxInput(session, "VlnFlipPlot", value = FALSE)
@@ -208,6 +228,7 @@ explorer_server <- function(input, output, session, data){
   # 经测试，与ggplot2,pathcwork,rlang等R包的版本无关！
 
   output$vlnplot <- renderPlot({
+    message("SeuratExplorer: preparing vlnplot...")
     req(Vlnplot.Gene.Revised())
     if (any(is.na(Vlnplot.Gene.Revised()))) { # NA 值时
       ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
@@ -230,23 +251,27 @@ explorer_server <- function(input, output, session, data){
 
   # Check the input gene
   Dotplot.Gene.Revised <- reactive({
+    message("SeuratExplorer: preparing Dotplot.Gene.Revised...")
     req(input$DotGeneSymbol)
     ifelse(is.na(input$DotGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$DotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
   })
 
   # 提示可用的qc选项作为Gene symbol
   output$Dothints.UI <- renderUI({
+    message("SeuratExplorer: preparing Dothints.UI...")
     helpText(strong(paste("Multiple genes are separted by a comma, such as: CD4,CD8A; Also supports: ", paste(data$extra_qc_options, collapse = ", "), ".",sep = "")),style = "font-size:12px;")
   })
 
   # define Cluster Annotation choice
   output$DotClusterResolution.UI <- renderUI({
+    message("SeuratExplorer: preparing DotClusterResolution.UI...")
     selectInput("DotClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
   # define the idents used
   output$DotIdentsSelected.UI <- renderUI({
     req(input$DotClusterResolution)
+    message("SeuratExplorer: preparing DotIdentsSelected.UI...")
     # selectInput("DotIdentsSelected","Idents used:", choices = levels(data$obj@meta.data[,input$DotClusterResolution]))
     shinyWidgets::pickerInput(inputId = "DotIdentsSelected", label = "Idents used:",
                               choices = levels(data$obj@meta.data[,input$DotClusterResolution]), selected = levels(data$obj@meta.data[,input$DotClusterResolution]),
@@ -255,11 +280,13 @@ explorer_server <- function(input, output, session, data){
 
   # define Split Choice UI
   output$DotSplitBy.UI <- renderUI({
+    message("SeuratExplorer: preparing DotSplitBy.UI...")
     selectInput("DotSplitBy","Split by:", choices = c("None" = "None", data$split_options))
   })
 
   # Revise Split selection which will be appropriate for DimPlot, FeaturePlot and Vlnplot functions.
   DotSplit.Revised <- reactive({
+    message("SeuratExplorer: preparing DotSplit.Revised...")
     req(input$DotSplitBy) # split值出现后，才会执行的代码
     # Revise the Split choice
     if(is.na(input$DotSplitBy) | input$DotSplitBy == "None") {
@@ -271,6 +298,7 @@ explorer_server <- function(input, output, session, data){
 
   # Conditional panel: 当split为NULL时，可以自行设定最高和最低表达值对应的颜色。当split不为NULL时，需要软件自动使用ggplot2生成的颜色填充每组的点的颜色。
   output$DotPlot_Split_isNone <- reactive({
+    message("SeuratExplorer: preparing DotPlot_Split_isNone...")
     req(input$DotSplitBy)
     if(is.na(input$DotSplitBy) | input$DotSplitBy == "None") {
       return(TRUE)
@@ -284,7 +312,7 @@ explorer_server <- function(input, output, session, data){
 
   output$dotplot <- renderPlot({
     req(Dotplot.Gene.Revised())
-
+    message("SeuratExplorer: preparing dotplot...")
     if (any(is.na(Dotplot.Gene.Revised()))) { # NA 值时
       ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
@@ -315,24 +343,27 @@ explorer_server <- function(input, output, session, data){
 
   # Check the input gene
   Heatmap.Gene.Revised <- reactive({
+    message("SeuratExplorer: preparing Heatmap.Gene.Revised...")
     req(input$HeatmapGeneSymbol)
     ifelse(is.na(input$HeatmapGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$HeatmapGeneSymbol, GeneLibrary =  rownames(data$obj))))
   })
 
   # 提示可用的qc选项作为Gene symbol
   output$Heatmaphints.UI <- renderUI({
+    message("SeuratExplorer: preparing Heatmaphints.UI...")
     helpText(strong("Multiple genes are separted by a comma, such as: CD4,CD8A."),style = "font-size:12px;")
   })
 
   # define Cluster Annotation choice
   output$HeatmapClusterResolution.UI <- renderUI({
+    message("SeuratExplorer: preparing HeatmapClusterResolution.UI...")
     selectInput("HeatmapClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
 
   output$heatmap <- renderPlot({
     req(Heatmap.Gene.Revised())
-
+    message("SeuratExplorer: preparing heatmap...")
     if (any(is.na(Heatmap.Gene.Revised()))) { # NA 值时
       ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
@@ -352,22 +383,26 @@ explorer_server <- function(input, output, session, data){
 
   # Check the input gene
   Ridgeplot.Gene.Revised <- reactive({
+    message("SeuratExplorer: preparing Ridgeplot.Gene.Revised...")
     req(input$RidgeplotGeneSymbol)
     ifelse(is.na(input$RidgeplotGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$RidgeplotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
   })
 
   # 提示可用的qc选项作为Gene symbol
   output$Ridgeplothints.UI <- renderUI({
+    message("SeuratExplorer: preparing Ridgeplothints.UI...")
     helpText(strong(paste("Multiple genes are separted by a comma, such as: CD4,CD8A; Also supports: ", paste(data$extra_qc_options, collapse = ", "), ".",sep = "")),style = "font-size:12px;")
   })
 
   # define Cluster Annotation choice
   output$RidgeplotClusterResolution.UI <- renderUI({
+    message("SeuratExplorer: preparing RidgeplotClusterResolution.UI...")
     selectInput("RidgeplotClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
   # Conditional panel: 输入为多个基因且stack设为TRUE时，显示此panel
   output$Ridgeplot_stack_show = reactive({
+    message("SeuratExplorer: preparing Ridgeplot_stack_show...")
     req(input$RidgeplotGeneSymbol)
     if (length(Ridgeplot.Gene.Revised()) > 1) {
       return(TRUE)
@@ -380,6 +415,7 @@ explorer_server <- function(input, output, session, data){
 
   # Conditional panel: 输入为多个基因且stack设为TRUE时，显示此panel
   output$Ridgeplot_stack_NotSelected = reactive({
+    message("SeuratExplorer: preparing Ridgeplot_stack_NotSelected...")
     req(input$RidgeplotStackPlot) # new codes
     if (input$RidgeplotStackPlot) {
       return(FALSE)
@@ -393,10 +429,12 @@ explorer_server <- function(input, output, session, data){
   # reset VlnSplitPlot value to FALSE when change the split options
   observe({
     req(input$RidgeplotGeneSymbol)
+    message("SeuratExplorer: update RidgeplotStackPlot...")
     updateCheckboxInput(session, "RidgeplotStackPlot", value = FALSE)
   })
 
   output$ridgeplot <- renderPlot({
+    message("SeuratExplorer: preparing ridgeplot...")
     req(Ridgeplot.Gene.Revised())
     if (any(is.na(Ridgeplot.Gene.Revised()))) { # NA 值时
       ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
@@ -427,10 +465,12 @@ explorer_server <- function(input, output, session, data){
 
   # define Cluster Annotation choice
   output$ClusterMarkersClusterResolution.UI <- renderUI({
+    message("SeuratExplorer: preparing ClusterMarkersClusterResolution.UI...")
     selectInput("ClusterMarkersClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
   observeEvent(input$DEGsClusterMarkersAnalysis, {
+    message("SeuratExplorer: preparing DEGsClusterMarkersAnalysis...")
     showModal(modalDialog(title = "Calculating Cluster Markers...", "Please wait for a few minutes!", footer= NULL, size = "l"))
     isolate(cds <- data$obj)
     Seurat::Idents(cds) <- input$ClusterMarkersClusterResolution
@@ -486,17 +526,20 @@ explorer_server <- function(input, output, session, data){
   # Part-3: IntraClusterDEGs
   # define Cluster Annotation choice
   output$IntraClusterDEGsCustomizedGroups.UI <- renderUI({
+    message("SeuratExplorer: preparing IntraClusterDEGsCustomizedGroups.UI...")
     selectInput("IntraClusterDEGsCustomizedGroups","Group samples by:", choices = data$cluster_options)
   })
 
   # define the idents used
   output$IntraClusterDEGsCustomizedGroupsCase.UI <- renderUI({
+    message("SeuratExplorer: preparing IntraClusterDEGsCustomizedGroupsCase.UI...")
     req(input$IntraClusterDEGsCustomizedGroups)
     selectInput("IntraClusterDEGsCustomizedGroupsCase","Choose Case Samples:", choices = levels(data$obj@meta.data[,input$IntraClusterDEGsCustomizedGroups]), multiple = TRUE)
   })
 
   # define the idents used
   output$IntraClusterDEGsCustomizedGroupsControl.UI <- renderUI({
+    message("SeuratExplorer: preparing IntraClusterDEGsCustomizedGroupsControl.UI...")
     req(input$IntraClusterDEGsCustomizedGroups)
     req(input$IntraClusterDEGsCustomizedGroupsCase)
     selectInput("IntraClusterDEGsCustomizedGroupsControl","Choose control Samples:", multiple = TRUE,
@@ -505,12 +548,14 @@ explorer_server <- function(input, output, session, data){
 
   # define Cluster Annotation choice
   output$IntraClusterDEGsSubsetCells.UI <- renderUI({
+    message("SeuratExplorer: preparing IntraClusterDEGsSubsetCells.UI...")
     req(input$IntraClusterDEGsCustomizedGroups)
     selectInput("IntraClusterDEGsSubsetCells","Subset Cells By:", choices = setdiff(data$cluster_options, input$IntraClusterDEGsCustomizedGroups))
   })
 
   # define Cluster Annotation choice
   output$IntraClusterDEGsSubsetCellsSelectedClusters.UI <- renderUI({
+    message("SeuratExplorer: preparing IntraClusterDEGsSubsetCellsSelectedClusters.UI...")
     req(input$IntraClusterDEGsCustomizedGroups)
     req(input$IntraClusterDEGsSubsetCells)
     shinyWidgets::pickerInput(inputId = "IntraClusterDEGsSubsetCellsSelectedClusters", label = "Select Clusters:",
@@ -520,6 +565,7 @@ explorer_server <- function(input, output, session, data){
 
   # 计算自定义分组的差异基因，支持subset clusters
   observeEvent(input$IntraClusterDEGssAnalysis, {
+    message("SeuratExplorer: calculate DEGs...")
     if (any(is.null(input$IntraClusterDEGsCustomizedGroupsCase), is.null(input$IntraClusterDEGsCustomizedGroupsControl), is.null(input$IntraClusterDEGsSubsetCellsSelectedClusters))) {
       showModal(modalDialog(title = "Error:","Please specify the case & control samples and clusters used. Press ESC to close.",easyClose = TRUE,footer = NULL))
     }else{
@@ -540,6 +586,7 @@ explorer_server <- function(input, output, session, data){
 
   # part-4: 重置参数
   observeEvent(input$SetDefault, {
+    message("SeuratExplorer: reset DEGs parameters...")
     updateSelectInput(session = session, inputId = "testuse", selected = "wilcox")
     updateSliderInput(session, "logfcthreshold", value = 0.1 )
     updateSliderInput(session, "minpct", value = 0.01 )
@@ -549,6 +596,7 @@ explorer_server <- function(input, output, session, data){
   # part-5: 输出结果
   output$dataset_degs <-  DT::renderDT(server=FALSE,{
     req(DEGs$degs)
+    message("SeuratExplorer: preparing dataset_degs...")
     # Show data
     DT::datatable(DEGs$degs, extensions = 'Buttons',
                   options = list(scrollX=TRUE, lengthMenu = c(5,10,15),
