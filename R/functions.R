@@ -86,19 +86,19 @@ check_dependency <- function(test){
       utils::install.packages("devtools")
     }
     if(!require(presto)){
-      devtools::install_github('immunogenomics/presto')
+      devtools::install_github('immunogenomics/presto', upgrade = "never")
     }
   }else if(test == "DESeq2"){
     if (!require("BiocManager", quietly = TRUE))
       utils::install.packages("BiocManager")
     if (!require("DESeq2", quietly = TRUE)) {
-      BiocManager::install("DESeq2")
+      BiocManager::install("DESeq2", update = FALSE, ask = FALSE)
     }
   } else if(test == "MAST"){
     if (!require("BiocManager", quietly = TRUE))
       utils::install.packages("BiocManager")
     if (!require("MAST", quietly = TRUE)) {
-      BiocManager::install("MAST")
+      BiocManager::install("MAST", update = FALSE, ask = FALSE)
     }
   }
 }
