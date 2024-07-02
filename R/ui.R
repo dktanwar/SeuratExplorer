@@ -29,6 +29,8 @@ explorer_body_ui <- function(tab_list){
                                   fluidRow(
                                     box(title = "Dimension Reduction Plot",
                                         shinycssloaders::withSpinner(plotOutput("dimplot",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                        # show the button on right end, refer to: https://stackoverflow.com/questions/28749693/shiny-r-aligning-buttons
+                                        div(style = "display:inline-block; float:right",downloadBttn(outputId = "downloaddimplot",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                         shinycssloaders::withSpinner(uiOutput("DimReductions.UI"), proxy.height = "10px"),
@@ -45,6 +47,7 @@ explorer_body_ui <- function(tab_list){
                                       fluidRow(
                                         box(title = "Visualize 'features' on a dimensional reduction plot",
                                             shinycssloaders::withSpinner(plotOutput("featureplot",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                            div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadfeatureplot",style = "bordered",color = "primary")),
                                             width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                         box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                             textInput("FeatureGeneSymbol", "Gene Symbol:", value = ""),
@@ -66,6 +69,7 @@ explorer_body_ui <- function(tab_list){
                                   fluidRow(
                                     box(title = "Single cell violin plot",
                                         shinycssloaders::withSpinner(plotOutput("vlnplot",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                        div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadvlnplot",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                         textInput("VlnGeneSymbol", "Gene Symbols:", value = ""),
@@ -100,6 +104,7 @@ explorer_body_ui <- function(tab_list){
                                   fluidRow(
                                     box(title = "Dot plot visualization",
                                         shinycssloaders::withSpinner(plotOutput("dotplot",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                        div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloaddotplot",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                         textInput("DotGeneSymbol", "Gene Symbols:", value = ""),
@@ -127,6 +132,7 @@ explorer_body_ui <- function(tab_list){
                                   fluidRow(
                                     box(title = "Feature expression heatmap",
                                         shinycssloaders::withSpinner(plotOutput("heatmap",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                        div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadheatmap",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                         textInput("HeatmapGeneSymbol", "Gene Symbols:", value = ""),
@@ -148,6 +154,7 @@ explorer_body_ui <- function(tab_list){
                                     fluidRow(
                                       box(title = "Single cell ridge plot",
                                           shinycssloaders::withSpinner(plotOutput("ridgeplot",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                          div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadridgeplot",style = "bordered",color = "primary")),
                                           width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                       box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                           textInput("RidgeplotGeneSymbol", "Gene Symbols:", value = ""),

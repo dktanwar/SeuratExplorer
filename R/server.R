@@ -10,6 +10,13 @@
 #' @param data the Seurat object and related parameters
 #' @export
 explorer_server <- function(input, output, session, data){
+  temp_dir_name <- "temp_files" # 临时目录，用于存储plots
+
+  if (dir.exists(temp_dir_name)) {
+    unlink(temp_dir_name, recursive = TRUE)
+  }
+  dir.create(temp_dir_name)
+
   ############################# Dimension Reduction Plot
   # define reductions choices UI
   output$DimReductions.UI <- renderUI({
@@ -41,18 +48,31 @@ explorer_server <- function(input, output, session, data){
     }
   })
 
+  dimplot_width  <- reactive({ session$clientData$output_dimplot_width })
+
+  # Pixel (X) to Centimeter: 1 pixel (X)	= 0.0264583333 cm，若用这个值，不知道为啥图片偏小
+  px2cm <- 0.03
+
   output$dimplot <- renderPlot({
     message("SeuratExplorer: preparing dimplot...")
     if (is.null(DimSplit.Revised())) { # not splited
-      Seurat::DimPlot(data$obj, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
+      p <- Seurat::DimPlot(data$obj, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
                       group.by = input$DimClusterResolution)
-    }else{ # splited
+      }else{ # splited
       plot_numbers <- length(levels(data$obj@meta.data[,DimSplit.Revised()]))
-      Seurat::DimPlot(data$obj, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
+      p <- Seurat::DimPlot(data$obj, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
                       group.by = input$DimClusterResolution, split.by = DimSplit.Revised(), ncol = ceiling(sqrt(plot_numbers)))
-    }
+      }
+    ggplot2::ggsave(paste0(temp_dir_name,"/dimplot.pdf"), p, width = dimplot_width() * px2cm, height = dimplot_width() * input$DimPlotHWRatio * px2cm, units = "cm")
+    return(p)
   }, height = function(){session$clientData$output_dimplot_width * input$DimPlotHWRatio}) # box plot: height = width default
 
+  # refer to: https://stackoverflow.com/questions/14810409/how-to-save-plots-that-are-made-in-a-shiny-app
+  output$downloaddimplot <- downloadHandler(
+    filename = function(){'dimplot.pdf'},
+    content = function(file) {
+      file.copy(paste0(temp_dir_name,"/dimplot.pdf"), file, overwrite=TRUE)
+    })
 
   ################################ Feature Plot
   # define reductions choices UI
@@ -100,12 +120,14 @@ explorer_server <- function(input, output, session, data){
     ifelse(is.na(input$FeatureGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$FeatureGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
   })
 
+  featureplot_width  <- reactive({ session$clientData$output_featureplot_width })
+
   output$featureplot <- renderPlot({
     message("SeuratExplorer: preparing featureplot...")
     if (any(is.na(Featureplot.Gene.Revised()))) { # NA 值时
-      ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+      p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when all wrong input, show a blank pic.
     }else if(is.null(FeatureSplit.Revised())) { # not splited
-      Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
+      p <- Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
                           cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor))
     }else{ # splited
       p <- Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
@@ -113,11 +135,20 @@ explorer_server <- function(input, output, session, data){
       if (length( Featureplot.Gene.Revised()) == 1) { # 仅仅一个基因时
         plot_numbers <- length(levels(data$obj@meta.data[,FeatureSplit.Revised()]))
         p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
-      }else{ # 多个基因时
-        p
       }
     }
+    ggplot2::ggsave(paste0(temp_dir_name,"/featureplot.pdf"), p, width = featureplot_width() * px2cm, height = featureplot_width() * input$FeaturePlotHWRatio * px2cm, units = "cm")
+    return(p)
   }, height = function(){session$clientData$output_featureplot_width * input$FeaturePlotHWRatio}) # box plot: height = width default
+
+
+  output$downloadfeatureplot <- downloadHandler(
+    filename = function(){'featureplot.pdf'},
+    content = function(file) {
+      if (file.exists(paste0(temp_dir_name,"/featureplot.pdf"))) { # 问题： 文件不存在时，会抛出一个下载错误。或者输入错误时，会下载先前输入正确得到的图片。
+        file.copy(paste0(temp_dir_name,"/featureplot.pdf"), file, overwrite=TRUE)
+      }
+    })
 
   ################################ Violin Plot
   # Check the input gene
@@ -231,25 +262,39 @@ explorer_server <- function(input, output, session, data){
   # Run `rlang::last_trace()` to see where the error occurred
   # 经测试，与ggplot2,pathcwork,rlang等R包的版本无关！
 
+  vlnplot_width  <- reactive({ session$clientData$output_vlnplot_width })
+
   output$vlnplot <- renderPlot({
     message("SeuratExplorer: preparing vlnplot...")
     req(Vlnplot.Gene.Revised())
     if (any(is.na(Vlnplot.Gene.Revised()))) { # NA 值时
-      ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+      p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else if(length(Vlnplot.Gene.Revised()) == 1) { # only One Gene
-      Seurat::VlnPlot(data$obj, features = Vlnplot.Gene.Revised(), group.by = input$VlnClusterResolution,
+      p <- Seurat::VlnPlot(data$obj, features = Vlnplot.Gene.Revised(), group.by = input$VlnClusterResolution,
                       split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot, pt.size = input$VlnPointSize, alpha = input$VlnPointAlpha) &
         ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
                        axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
     }else{ # multiple genes
-      Seurat::VlnPlot(data$obj, features = Vlnplot.Gene.Revised(), group.by = input$VlnClusterResolution,
+      p <- Seurat::VlnPlot(data$obj, features = Vlnplot.Gene.Revised(), group.by = input$VlnClusterResolution,
                       split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot, stack = input$VlnStackPlot,
                       flip = input$VlnFlipPlot, fill.by = input$VlnFillBy,
                       pt.size = input$VlnPointSize, alpha = input$VlnPointAlpha) &
         ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
                        axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
     }
+    ggplot2::ggsave(paste0(temp_dir_name,"/vlnplot.pdf"), p, width = vlnplot_width() * px2cm, height = vlnplot_width() * input$VlnPlotHWRatio * px2cm, units = "cm")
+    return(p)
   }, height = function(){session$clientData$output_vlnplot_width * input$VlnPlotHWRatio}) # box plot: height = width default
+
+
+  output$downloadvlnplot <- downloadHandler(
+    filename = function(){'vlnplot.pdf'},
+    content = function(file) {
+      if (file.exists(paste0(temp_dir_name,"/vlnplot.pdf"))) { # 问题： 文件不存在时，会抛出一个下载错误。或者输入错误时，会下载先前输入正确得到的图片。
+        file.copy(paste0(temp_dir_name,"/vlnplot.pdf"), file, overwrite=TRUE)
+      }
+    })
+
 
   ################################ Dot Plot
 
@@ -322,11 +367,13 @@ explorer_server <- function(input, output, session, data){
   # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditional panel所需要要的参数
   outputOptions(output, 'DotPlot_Split_isNone', suspendWhenHidden = FALSE)
 
+  dotplot_width  <- reactive({ session$clientData$output_dotplot_width })
+
   output$dotplot <- renderPlot({
     req(Dotplot.Gene.Revised())
     message("SeuratExplorer: preparing dotplot...")
     if (any(is.na(Dotplot.Gene.Revised()))) { # NA 值时
-      ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+      p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
       Idents(cds) <- input$DotClusterResolution
@@ -346,10 +393,19 @@ explorer_server <- function(input, output, session, data){
       p <- p & ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$DotXlabelSize), axis.text.y = ggplot2::element_text(size = input$DotYlabelSize))
       if (input$DotRotateAxis) { p <- p + Seurat::RotatedAxis() }
       if (input$DotFlipCoordinate) { p <- p + ggplot2::coord_flip() }
-      p
     }
+    ggplot2::ggsave(paste0(temp_dir_name,"/dotplot.pdf"), p, width = dotplot_width() * px2cm, height = dotplot_width() * input$DotPlotHWRatio * px2cm, units = "cm")
+    return(p)
   }, height = function(){session$clientData$output_dotplot_width * input$DotPlotHWRatio}) # box plot: height = width default
 
+
+  output$downloaddotplot <- downloadHandler(
+    filename = function(){'dotplot.pdf'},
+    content = function(file) {
+      if (file.exists(paste0(temp_dir_name,"/dotplot.pdf"))) { # 问题： 文件不存在时，会抛出一个下载错误。或者输入错误时，会下载先前输入正确得到的图片。
+        file.copy(paste0(temp_dir_name,"/dotplot.pdf"), file, overwrite=TRUE)
+      }
+    })
 
   ################################ Heatmap
 
@@ -381,11 +437,13 @@ explorer_server <- function(input, output, session, data){
     shinyjqui::orderInput(inputId = 'HeatmapClusterOrder', label = 'Cluster Order:', items = levels(data$obj@meta.data[,input$HeatmapClusterResolution]),width = '100%')
   })
 
+  heatmap_width  <- reactive({ session$clientData$output_heatmap_width })
+
   output$heatmap <- renderPlot({
     req(Heatmap.Gene.Revised())
     message("SeuratExplorer: preparing heatmap...")
     if (any(is.na(Heatmap.Gene.Revised()))) { # NA 值时
-      ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+      p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
       cds@meta.data[,input$HeatmapClusterResolution] <- factor(cds@meta.data[,input$HeatmapClusterResolution], levels = input$HeatmapClusterOrder)
@@ -393,12 +451,24 @@ explorer_server <- function(input, output, session, data){
         cds <- Seurat::ScaleData(object = cds, features = unique(c(Seurat::VariableFeatures(cds), Heatmap.Gene.Revised()))) # 不能只用一个基因去做scaledata()，会报错。
       }
 
-      Seurat::DoHeatmap(object = cds, features = Heatmap.Gene.Revised(), group.by = input$HeatmapClusterResolution, size = input$HeatmapTextSize,
+      p <- Seurat::DoHeatmap(object = cds, features = Heatmap.Gene.Revised(), group.by = input$HeatmapClusterResolution, size = input$HeatmapTextSize,
                         hjust = input$HeatmapTextHjust, vjust = input$HeatmapTextVjust, angle = input$HeatmapTextRatateAngle,
                         group.bar.height = input$HeatmapGroupBarHeight, lines.width = input$HeatmapLineWidth) &
         ggplot2::theme(axis.text.y = ggplot2::element_text(size = input$HeatmapFeatureTextSize))
     }
+    ggplot2::ggsave(paste0(temp_dir_name,"/heatmap.pdf"), p, width = heatmap_width() * px2cm, height = heatmap_width() * input$HeatmapPlotHWRatio * px2cm, units = "cm")
+    return(p)
   }, height = function(){session$clientData$output_heatmap_width * input$HeatmapPlotHWRatio}) # box plot: height = width default
+
+
+  output$downloadheatmap <- downloadHandler(
+    filename = function(){'heatmap.pdf'},
+    content = function(file) {
+      if (file.exists(paste0(temp_dir_name,"/heatmap.pdf"))) { # 问题： 文件不存在时，会抛出一个下载错误。或者输入错误时，会下载先前输入正确得到的图片。
+        file.copy(paste0(temp_dir_name,"/heatmap.pdf"), file, overwrite=TRUE)
+      }
+    })
+
 
   ################################ Ridge Plot
 
@@ -456,18 +526,32 @@ explorer_server <- function(input, output, session, data){
     updateCheckboxInput(session, "RidgeplotStackPlot", value = FALSE)
   })
 
+  ridgeplot_width  <- reactive({ session$clientData$output_ridgeplot_width })
+
   output$ridgeplot <- renderPlot({
     message("SeuratExplorer: preparing ridgeplot...")
     req(Ridgeplot.Gene.Revised())
     if (any(is.na(Ridgeplot.Gene.Revised()))) { # NA 值时
-      ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+      p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
-      Seurat::RidgePlot(object = data$obj, features = Ridgeplot.Gene.Revised(), group.by = input$RidgeplotClusterResolution, ncol = input$RidgeplotNumberOfColumns,
+      p <- Seurat::RidgePlot(object = data$obj, features = Ridgeplot.Gene.Revised(), group.by = input$RidgeplotClusterResolution, ncol = input$RidgeplotNumberOfColumns,
                         stack = input$RidgeplotStackPlot, fill.by = input$RidgeplotFillBy) &
         ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$RidgeplotXlabelSize),
                        axis.text.y = ggplot2::element_text(size = input$RidgeplotYlabelSize))
     }
+    ggplot2::ggsave(paste0(temp_dir_name,"/ridgeplot.pdf"), p, width = ridgeplot_width() * px2cm, height = ridgeplot_width() * input$RidgeplotHWRatio * px2cm, units = "cm")
+    return(p)
   }, height = function(){session$clientData$output_ridgeplot_width * input$RidgeplotHWRatio}) # box plot: height = width default
+
+
+  output$downloadridgeplot <- downloadHandler(
+    filename = function(){'ridgeplot.pdf'},
+    content = function(file) {
+      if (file.exists(paste0(temp_dir_name,"/ridgeplot.pdf"))) { # 问题： 文件不存在时，会抛出一个下载错误。或者输入错误时，会下载先前输入正确得到的图片。
+        file.copy(paste0(temp_dir_name,"/ridgeplot.pdf"), file, overwrite=TRUE)
+      }
+    })
+
 
   ################################ DEGs analysis
   # Warning
