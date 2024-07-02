@@ -184,9 +184,9 @@ Support Rds file size no more than 5GB.
 
 ## Session Info
 
-    #> R version 4.3.0 (2023-04-21 ucrt)
-    #> Platform: x86_64-w64-mingw32/x64 (64-bit)
-    #> Running under: Windows 10 x64 (build 19045)
+    #> R version 4.4.1 (2024-06-14 ucrt)
+    #> Platform: x86_64-w64-mingw32/x64
+    #> Running under: Windows 11 x64 (build 22631)
     #> 
     #> Matrix products: default
     #> 
@@ -205,7 +205,7 @@ Support Rds file size no more than 5GB.
     #> [1] stats     graphics  grDevices utils     datasets  methods   base     
     #> 
     #> loaded via a namespace (and not attached):
-    #>  [1] compiler_4.3.0  fastmap_1.1.1   cli_3.6.1       tools_4.3.0    
-    #>  [5] htmltools_0.5.5 rstudioapi_0.14 yaml_2.3.7      rmarkdown_2.22 
-    #>  [9] highr_0.10      knitr_1.43      xfun_0.39       digest_0.6.31  
-    #> [13] rlang_1.1.3     evaluate_0.21
+    #>  [1] compiler_4.4.1    fastmap_1.2.0     cli_3.6.3         tools_4.4.1      
+    #>  [5] htmltools_0.5.8.1 rstudioapi_0.16.0 yaml_2.3.8        rmarkdown_2.27   
+    #>  [9] highr_0.11        knitr_1.47        xfun_0.45         digest_0.6.36    
+    #> [13] rlang_1.1.4       evaluate_0.24.0
