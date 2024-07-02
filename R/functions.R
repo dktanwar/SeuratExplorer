@@ -61,7 +61,8 @@ prepare_qc_options <- function(df, types = c("double","integer","numeric")){
 
 # Check the input gene, return the revised gene, which can be used for FeaturePlot, Vlnplot ect.
 CheckGene <- function(InputGene, GeneLibrary){
-  InputGenes <- trimws(unlist(strsplit(InputGene,split = ",")))
+  InputGenes <- unlist(strsplit(InputGene,split = " "))
+  InputGenes <- InputGenes[InputGenes != ""]
   revised.genes <- sapply(InputGenes, FUN = function(x)ReviseGene(x, GeneLibrary = GeneLibrary))
   revised.genes <- unique(unname(revised.genes[!is.na(revised.genes)]))
   message("SeuratExplorer: CheckGene runs successfully!")

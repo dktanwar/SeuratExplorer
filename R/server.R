@@ -75,7 +75,9 @@ explorer_server <- function(input, output, session, data){
   # 提示可用的qc选项作为Gene symbol
   output$Featurehints.UI <- renderUI({
     message("SeuratExplorer: preparing Featurehints.UI...")
-    helpText(strong(paste("Multiple genes are separted by a comma, such as: CD4,CD8A; Also supports: ", paste(data$extra_qc_options, collapse = ", "), ".",sep = "")),style = "font-size:12px;")
+    helpText(strong(paste("Multiple genes are separted by a space, such as: CD4 CD8A; Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
+             br(),
+             strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
 
 
@@ -128,7 +130,9 @@ explorer_server <- function(input, output, session, data){
   # 提示可用的qc选项作为Gene symbol
   output$Vlnhints.UI <- renderUI({
     message("SeuratExplorer: preparing Vlnhints.UI...")
-    helpText(strong(paste("Multiple genes are separted by a comma, such as: CD4,CD8A; Also supports: ", paste(data$extra_qc_options, collapse = ", "), ".",sep = "")),style = "font-size:12px;")
+    helpText(strong(paste("Multiple genes are separted by a space, such as: CD4 CD8A; Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
+             br(),
+             strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
 
   # define Cluster Annotation choice
@@ -259,7 +263,9 @@ explorer_server <- function(input, output, session, data){
   # 提示可用的qc选项作为Gene symbol
   output$Dothints.UI <- renderUI({
     message("SeuratExplorer: preparing Dothints.UI...")
-    helpText(strong(paste("Multiple genes are separted by a comma, such as: CD4,CD8A; Also supports: ", paste(data$extra_qc_options, collapse = ", "), ".",sep = "")),style = "font-size:12px;")
+    helpText(strong(paste("Multiple genes are separted by a space, such as: CD4 CD8A; Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
+             br(),
+             strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
 
   # define Cluster Annotation choice
@@ -268,11 +274,17 @@ explorer_server <- function(input, output, session, data){
     selectInput("DotClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
+  # define Cluster order
+  output$DotClusterOrder.UI <- renderUI({
+    message("SeuratExplorer: preparing DotClusterOrder.UI...")
+    req(input$DotClusterResolution)
+    shinyjqui::orderInput(inputId = 'DotClusterOrder', label = 'Cluster Order:', items = levels(data$obj@meta.data[,input$DotClusterResolution]),width = '100%')
+  })
+
   # define the idents used
   output$DotIdentsSelected.UI <- renderUI({
     req(input$DotClusterResolution)
     message("SeuratExplorer: preparing DotIdentsSelected.UI...")
-    # selectInput("DotIdentsSelected","Idents used:", choices = levels(data$obj@meta.data[,input$DotClusterResolution]))
     shinyWidgets::pickerInput(inputId = "DotIdentsSelected", label = "Idents used:",
                               choices = levels(data$obj@meta.data[,input$DotClusterResolution]), selected = levels(data$obj@meta.data[,input$DotClusterResolution]),
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
@@ -318,7 +330,7 @@ explorer_server <- function(input, output, session, data){
     }else{
       isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
       Idents(cds) <- input$DotClusterResolution
-
+      cds@meta.data[,input$DotClusterResolution] <- factor(cds@meta.data[,input$DotClusterResolution], levels = input$DotClusterOrder)
       if (is.null(DotSplit.Revised())) {
         p <- Seurat::DotPlot(cds, features = Dotplot.Gene.Revised(), group.by = input$DotClusterResolution,
                              idents = input$DotIdentsSelected, #不支持使用Group.by参数所定义的cluster，所以需要新见变量cds，修改Idents
@@ -351,7 +363,9 @@ explorer_server <- function(input, output, session, data){
   # 提示可用的qc选项作为Gene symbol
   output$Heatmaphints.UI <- renderUI({
     message("SeuratExplorer: preparing Heatmaphints.UI...")
-    helpText(strong("Multiple genes are separted by a comma, such as: CD4,CD8A."),style = "font-size:12px;")
+    helpText(strong("Multiple genes are separted by a space, such as: CD4 CD8A."),
+             br(),
+             strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
 
   # define Cluster Annotation choice
@@ -360,6 +374,12 @@ explorer_server <- function(input, output, session, data){
     selectInput("HeatmapClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
+  # define Cluster order
+  output$HeatmapClusterOrder.UI <- renderUI({
+    message("SeuratExplorer: preparing HeatmapClusterOrder.UI...")
+    req(input$HeatmapClusterResolution)
+    shinyjqui::orderInput(inputId = 'HeatmapClusterOrder', label = 'Cluster Order:', items = levels(data$obj@meta.data[,input$HeatmapClusterResolution]),width = '100%')
+  })
 
   output$heatmap <- renderPlot({
     req(Heatmap.Gene.Revised())
@@ -368,8 +388,9 @@ explorer_server <- function(input, output, session, data){
       ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
+      cds@meta.data[,input$HeatmapClusterResolution] <- factor(cds@meta.data[,input$HeatmapClusterResolution], levels = input$HeatmapClusterOrder)
       if (!all(Heatmap.Gene.Revised() %in% Seurat::VariableFeatures(cds))) { #问题： 每次修改任何绘图参数，都得要执行此代码！！！
-        cds <- Seurat::ScaleData(object = cds, features = unique(c(Seurat::VariableFeatures(cds), Heatmap.Gene.Revised()))) # 不能只用一个基因去做scaledata，会报错。
+        cds <- Seurat::ScaleData(object = cds, features = unique(c(Seurat::VariableFeatures(cds), Heatmap.Gene.Revised()))) # 不能只用一个基因去做scaledata()，会报错。
       }
 
       Seurat::DoHeatmap(object = cds, features = Heatmap.Gene.Revised(), group.by = input$HeatmapClusterResolution, size = input$HeatmapTextSize,
@@ -391,7 +412,9 @@ explorer_server <- function(input, output, session, data){
   # 提示可用的qc选项作为Gene symbol
   output$Ridgeplothints.UI <- renderUI({
     message("SeuratExplorer: preparing Ridgeplothints.UI...")
-    helpText(strong(paste("Multiple genes are separted by a comma, such as: CD4,CD8A; Also supports: ", paste(data$extra_qc_options, collapse = ", "), ".",sep = "")),style = "font-size:12px;")
+    helpText(strong(paste("Multiple genes are separted by a space, such as: CD4 CD8A; Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
+             br(),
+             strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
 
   # define Cluster Annotation choice

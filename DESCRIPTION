@@ -23,7 +23,8 @@ Imports:
     shinyWidgets,
     scales,
     SeuratObject,
-    devtools
+    devtools,
+    shinyjqui
 Depends: R (>= 4.1.0)
 Suggests:
     BiocManager,

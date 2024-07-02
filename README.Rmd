@@ -34,6 +34,7 @@ if(!require(devtools)){install.packages("devtools")}
 install_github("fentouxungui/SeuratExplorer")
 ```
 
+
 **建议将各个软件包升级到最新版本！否则可能出现兼容问题**
 
 Run App:
