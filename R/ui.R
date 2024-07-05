@@ -53,8 +53,10 @@ explorer_body_ui <- function(tab_list){
                                             textInput("FeatureGeneSymbol", "Gene Symbol:", value = ""),
                                             shinycssloaders::withSpinner(uiOutput("Featurehints.UI"), proxy.height = "10px"),
                                             shinycssloaders::withSpinner(uiOutput("FeatureReductions.UI"), proxy.height = "10px"),
-                                            # shinycssloaders::withSpinner(uiOutput("FeatureClusterResolution.UI"), proxy.height = "10px"),
+                                            shinycssloaders::withSpinner(uiOutput("FeatureClusterResolution.UI"), proxy.height = "10px"),
+                                            checkboxInput("FeatureShowLabel",label = "Show Cluster Label", FALSE),
                                             shinycssloaders::withSpinner(uiOutput("FeatureSplit.UI"), proxy.height = "10px"),
+                                            sliderInput("FeatureLabelSize", label = "Label Size:", min = 1, max = 12, value = 4),
                                             # 拾色器参考： https://daattali.com/shiny/colourInput/
                                             colourpicker::colourInput("FeaturePlotLowestExprColor", "Pick Color for lowest expression:", "#E5E5E5", palette = "limited"),
                                             colourpicker::colourInput("FeaturePlotHighestExprColor", "Pick Color for highest expression:", "#FF0000",palette = "limited"),

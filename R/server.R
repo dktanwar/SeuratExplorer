@@ -81,10 +81,10 @@ explorer_server <- function(input, output, session, data){
     selectInput("FeatureDimensionReduction", "Dimension Reduction:", choices = data$reduction_options, selected = data$reduction_default) # set default reduction
   })
 
-  # # define Cluster Annotation choice
-  # output$FeatureClusterResolution.UI <- renderUI({
-  #   selectInput("FeatureClusterResolution","Cluster Resolution:", choices = data$cluster_options)
-  # })
+  # define Cluster Annotation choice
+  output$FeatureClusterResolution.UI <- renderUI({
+    selectInput("FeatureClusterResolution","Cluster Resolution:", choices = data$cluster_options)
+  })
 
   # define Split Choice UI
   output$FeatureSplit.UI <- renderUI({
@@ -126,15 +126,32 @@ explorer_server <- function(input, output, session, data){
     message("SeuratExplorer: preparing featureplot...")
     if (any(is.na(Featureplot.Gene.Revised()))) { # NA 值时
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when all wrong input, show a blank pic.
-    }else if(is.null(FeatureSplit.Revised())) { # not splited
-      p <- Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
-                          cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor))
-    }else{ # splited
-      p <- Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
-                               cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), split.by = FeatureSplit.Revised())
-      if (length( Featureplot.Gene.Revised()) == 1) { # 仅仅一个基因时
-        plot_numbers <- length(levels(data$obj@meta.data[,FeatureSplit.Revised()]))
-        p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
+    }else if (input$FeatureShowLabel) { # show label
+      isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
+      Idents(cds) <- input$FeatureClusterResolution
+      if(is.null(FeatureSplit.Revised())) { # not splited
+        p <- Seurat::FeaturePlot(cds, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
+                                 cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), label = TRUE, label.size = input$FeatureLabelSize)
+      }else{ # splited
+        p <- Seurat::FeaturePlot(cds, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
+                                 cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), split.by = FeatureSplit.Revised(), label = TRUE,
+                                 label.size = input$FeatureLabelSize)
+        if (length( Featureplot.Gene.Revised()) == 1) { # 仅仅一个基因时
+          plot_numbers <- length(levels(cds@meta.data[,FeatureSplit.Revised()]))
+          p <- p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
+        }
+      }
+    }else{ # not show label
+      if(is.null(FeatureSplit.Revised())) { # not splited
+        p <- Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
+                                 cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor))
+      }else{ # splited
+        p <- Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
+                                 cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), split.by = FeatureSplit.Revised())
+        if (length( Featureplot.Gene.Revised()) == 1) { # 仅仅一个基因时
+          plot_numbers <- length(levels(data$obj@meta.data[,FeatureSplit.Revised()]))
+          p <- p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
+        }
       }
     }
     ggplot2::ggsave(paste0(temp_dir_name,"/featureplot.pdf"), p, width = featureplot_width() * px2cm, height = featureplot_width() * input$FeaturePlotHWRatio * px2cm, units = "cm")
