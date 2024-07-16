@@ -60,10 +60,10 @@ explorer_body_ui <- function(tab_list){
                                             # 拾色器参考： https://daattali.com/shiny/colourInput/
                                             colourpicker::colourInput("FeaturePlotLowestExprColor", "Pick Color for lowest expression:", "#E5E5E5", palette = "limited"),
                                             colourpicker::colourInput("FeaturePlotHighestExprColor", "Pick Color for highest expression:", "#FF0000",palette = "limited"),
-                                            sliderInput("FeaturePlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 2, value = 0.9), # adjust the Ratio of width and height of plot.
+                                            sliderInput("FeaturePlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 10, value = 0.9), # adjust the Ratio of width and height of plot.
                                             # checkboxInput("FeatureShowLabel",label = "Show cluster label", TRUE),
                                             # sliderInput("FeatureLabelSize", label = "Label Size:", min = 0, max = 10, value = 7),
-                                            sliderInput("FeaturePointSize", label = "Point Size:", min = 0.001, max = 2, value = 0.8),
+                                            sliderInput("FeaturePointSize", label = "Point Size:", min = 0.001, max = 5, value = 0.8),
                                         )
                                       )
   )
