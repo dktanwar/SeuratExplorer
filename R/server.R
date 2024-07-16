@@ -63,7 +63,7 @@ explorer_server <- function(input, output, session, data){
       p <- Seurat::DimPlot(data$obj, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
                       group.by = input$DimClusterResolution, split.by = DimSplit.Revised(), ncol = ceiling(sqrt(plot_numbers)))
       }
-    ggplot2::ggsave(paste0(temp_dir_name,"/dimplot.pdf"), p, width = dimplot_width() * px2cm, height = dimplot_width() * input$DimPlotHWRatio * px2cm, units = "cm")
+    ggplot2::ggsave(paste0(temp_dir_name,"/dimplot.pdf"), p, width = dimplot_width() * px2cm, height = dimplot_width() * input$DimPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
     return(p)
   }, height = function(){session$clientData$output_dimplot_width * input$DimPlotHWRatio}) # box plot: height = width default
 
@@ -154,7 +154,7 @@ explorer_server <- function(input, output, session, data){
         }
       }
     }
-    ggplot2::ggsave(paste0(temp_dir_name,"/featureplot.pdf"), p, width = featureplot_width() * px2cm, height = featureplot_width() * input$FeaturePlotHWRatio * px2cm, units = "cm")
+    ggplot2::ggsave(paste0(temp_dir_name,"/featureplot.pdf"), p, width = featureplot_width() * px2cm, height = featureplot_width() * input$FeaturePlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
     return(p)
   }, height = function(){session$clientData$output_featureplot_width * input$FeaturePlotHWRatio}) # box plot: height = width default
 
@@ -299,7 +299,7 @@ explorer_server <- function(input, output, session, data){
         ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
                        axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
     }
-    ggplot2::ggsave(paste0(temp_dir_name,"/vlnplot.pdf"), p, width = vlnplot_width() * px2cm, height = vlnplot_width() * input$VlnPlotHWRatio * px2cm, units = "cm")
+    ggplot2::ggsave(paste0(temp_dir_name,"/vlnplot.pdf"), p, width = vlnplot_width() * px2cm, height = vlnplot_width() * input$VlnPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
     return(p)
   }, height = function(){session$clientData$output_vlnplot_width * input$VlnPlotHWRatio}) # box plot: height = width default
 
@@ -411,7 +411,7 @@ explorer_server <- function(input, output, session, data){
       if (input$DotRotateAxis) { p <- p + Seurat::RotatedAxis() }
       if (input$DotFlipCoordinate) { p <- p + ggplot2::coord_flip() }
     }
-    ggplot2::ggsave(paste0(temp_dir_name,"/dotplot.pdf"), p, width = dotplot_width() * px2cm, height = dotplot_width() * input$DotPlotHWRatio * px2cm, units = "cm")
+    ggplot2::ggsave(paste0(temp_dir_name,"/dotplot.pdf"), p, width = dotplot_width() * px2cm, height = dotplot_width() * input$DotPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
     return(p)
   }, height = function(){session$clientData$output_dotplot_width * input$DotPlotHWRatio}) # box plot: height = width default
 
@@ -473,7 +473,7 @@ explorer_server <- function(input, output, session, data){
                         group.bar.height = input$HeatmapGroupBarHeight, lines.width = input$HeatmapLineWidth) &
         ggplot2::theme(axis.text.y = ggplot2::element_text(size = input$HeatmapFeatureTextSize))
     }
-    ggplot2::ggsave(paste0(temp_dir_name,"/heatmap.pdf"), p, width = heatmap_width() * px2cm, height = heatmap_width() * input$HeatmapPlotHWRatio * px2cm, units = "cm")
+    ggplot2::ggsave(paste0(temp_dir_name,"/heatmap.pdf"), p, width = heatmap_width() * px2cm, height = heatmap_width() * input$HeatmapPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
     return(p)
   }, height = function(){session$clientData$output_heatmap_width * input$HeatmapPlotHWRatio}) # box plot: height = width default
 
@@ -556,7 +556,7 @@ explorer_server <- function(input, output, session, data){
         ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$RidgeplotXlabelSize),
                        axis.text.y = ggplot2::element_text(size = input$RidgeplotYlabelSize))
     }
-    ggplot2::ggsave(paste0(temp_dir_name,"/ridgeplot.pdf"), p, width = ridgeplot_width() * px2cm, height = ridgeplot_width() * input$RidgeplotHWRatio * px2cm, units = "cm")
+    ggplot2::ggsave(paste0(temp_dir_name,"/ridgeplot.pdf"), p, width = ridgeplot_width() * px2cm, height = ridgeplot_width() * input$RidgeplotHWRatio * px2cm, units = "cm", limitsize = FALSE)
     return(p)
   }, height = function(){session$clientData$output_ridgeplot_width * input$RidgeplotHWRatio}) # box plot: height = width default
 

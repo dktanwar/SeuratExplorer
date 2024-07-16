@@ -36,10 +36,10 @@ explorer_body_ui <- function(tab_list){
                                         shinycssloaders::withSpinner(uiOutput("DimReductions.UI"), proxy.height = "10px"),
                                         shinycssloaders::withSpinner(uiOutput("DimClusterResolution.UI"), proxy.height = "10px"),
                                         shinycssloaders::withSpinner(uiOutput("DimSplit.UI"), proxy.height = "10px"),
-                                        sliderInput("DimPlotHWRatio", label = "Adjust H/W Ratio of DimPlot", min = 0.1, max = 2, value = 0.9),# adjust the Ratio of width and height of plot.
                                         checkboxInput("DimShowLabel",label = "Show cluster label", TRUE),
                                         sliderInput("DimLabelSize", label = "Label Size:", min = 0, max = 10, value = 7),
-                                        sliderInput("DimPointSize", label = "Point Size", min = 0.001, max = 2, value = 0.8)
+                                        sliderInput("DimPointSize", label = "Point Size", min = 0.001, max = 2, value = 0.8),
+                                        sliderInput("DimPlotHWRatio", label = "Adjust H/W Ratio of DimPlot", min = 0.1, max = 4, value = 0.9) # adjust the Ratio of width and height of plot.
                                     )
                                   )
   )
@@ -60,10 +60,10 @@ explorer_body_ui <- function(tab_list){
                                             # 拾色器参考： https://daattali.com/shiny/colourInput/
                                             colourpicker::colourInput("FeaturePlotLowestExprColor", "Pick Color for lowest expression:", "#E5E5E5", palette = "limited"),
                                             colourpicker::colourInput("FeaturePlotHighestExprColor", "Pick Color for highest expression:", "#FF0000",palette = "limited"),
-                                            sliderInput("FeaturePlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 10, value = 0.9), # adjust the Ratio of width and height of plot.
                                             # checkboxInput("FeatureShowLabel",label = "Show cluster label", TRUE),
                                             # sliderInput("FeatureLabelSize", label = "Label Size:", min = 0, max = 10, value = 7),
                                             sliderInput("FeaturePointSize", label = "Point Size:", min = 0.001, max = 5, value = 0.8),
+                                            sliderInput("FeaturePlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 10, value = 0.9) # adjust the Ratio of width and height of plot.
                                         )
                                       )
   )
@@ -98,7 +98,7 @@ explorer_body_ui <- function(tab_list){
                                         sliderInput("VlnPointAlpha", label = "Point Alpha:", min = 0, max = 1, value = 1),
                                         sliderInput("VlnXlabelSize", label = "x Axis Label Size:", min = 0, max = 20, value = 14),
                                         sliderInput("VlnYlabelSize", label = "Y Axis Label Size:", min = 0, max = 20, value = 10),
-                                        sliderInput("VlnPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 2, value = 0.9)# adjust the Ratio of width and height of plot.
+                                        sliderInput("VlnPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 8, value = 0.9)# adjust the Ratio of width and height of plot.
                                     )
                                   )
   )
@@ -126,7 +126,7 @@ explorer_body_ui <- function(tab_list){
                                         sliderInput("DotDotScale", label = "Dot Scale:", min = 1, max = 12, value = 6),
                                         sliderInput("DotXlabelSize", label = "x Axis Label Size:", min = 0, max = 20, value = 14),
                                         sliderInput("DotYlabelSize", label = "Y Axis Label Size:", min = 0, max = 20, value = 10),
-                                        sliderInput("DotPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 2, value = 0.9) # adjust the Ratio of width and height of plot.
+                                        sliderInput("DotPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 8, value = 0.9) # adjust the Ratio of width and height of plot.
                                     )
                                   )
   )
@@ -148,7 +148,7 @@ explorer_body_ui <- function(tab_list){
                                         sliderInput("HeatmapGroupBarHeight", label = "Cluster Group Bar Height:", min = 0, max = 0.1, value = 0.05),
                                         sliderInput("HeatmapLineWidth", label = "Line Width:", min = 1, max = 10, value = 1),
                                         sliderInput("HeatmapFeatureTextSize", label = "Feature Text Size:", min = 0, max = 20, value = 10),
-                                        sliderInput("HeatmapPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 2, value = 0.9) # adjust the Ratio of width and height of plot.
+                                        sliderInput("HeatmapPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9) # adjust the Ratio of width and height of plot.
                                     )
                                   )
   )
@@ -176,7 +176,7 @@ explorer_body_ui <- function(tab_list){
                                           ),
                                           sliderInput("RidgeplotXlabelSize", label = "x Axis Label Size:", min = 0, max = 20, value = 14),
                                           sliderInput("RidgeplotYlabelSize", label = "Y Axis Label Size:", min = 0, max = 20, value = 10),
-                                          sliderInput("RidgeplotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 2, value = 0.9) # adjust the Ratio of width and height of plot.
+                                          sliderInput("RidgeplotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9) # adjust the Ratio of width and height of plot.
                                       )
                                     )
   )
