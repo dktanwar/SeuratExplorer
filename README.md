@@ -9,12 +9,21 @@
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
+## 为什么做这个R包
+
+> 目前还没有很好的用于可视化Seurat分析结果的工具，当生物信息分析员将结果交给用户后，用户如果没有任何R语言基础，还是比较难去自行进行结果检索和再分析，这个R包可以帮助此类用户进行交互，实现分析结果的可视化，方便用户自行出图。用户仅需要在自己电脑上配置好R和Rstudio，然后安装运行此软件即可，无需其他操作。
+
+> **本质上就是把R包`Seurat`里的部分绘图工具和差异分析工具进行可视化！**
+
 > 此R包参考了开源程序[Hla-Lab/SeuratExplorer](https://github.com/rwcrocker/SeuratExplorer/).
 
 > An interactive R shiny application for exploring scRNAseq data
 > processed in Seurat
 
-> **本质上就是把R包`Seurat`里的部分绘图工具和差异分析工具进行可视化！**
+## A Live Demo
+
+Support Rds file size no more than 5GB.
+[Open](http://www.nibs.ac.cn:666/SeuratExplorer/)
 
 ## Installation
 
@@ -65,13 +74,15 @@ launchSeuratExplorer()
 
 - 支持调整点的大小
 
+- 支持pdf下载，所见即所得
+
 Example plots:
 
 <img src="inst/extdata/www/dimplot.png" width="100%" /><img src="inst/extdata/www/Dimplot-splited.png" width="100%" />
 
 ### FeaturePlot
 
-- 支持输入多个基因名，以逗号分割，基因名可不区分大小写。
+- 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
 
 - 支持选择Dimension Reductions
 
@@ -83,11 +94,13 @@ Example plots:
 
 - 支持调整点的大小
 
-<img src="inst/extdata/www/featureplot-1.png" width="100%" /><img src="inst/extdata/www/Featureplot-split.png" width="100%" />
+- 支持pdf下载，所见即所得
+
+<img src="inst/extdata/www/featureplot-1.png" width="100%" /><img src="inst/extdata/www/featureplot-1-with-label.png" width="100%" /><img src="inst/extdata/www/Featureplot-split.png" width="100%" />
 
 ### VlnPlot
 
-- 支持输入多个基因名，以逗号分割，基因名可不区分大小写。
+- 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
 
 - 支持选择不同的细胞分群方案
 
@@ -103,11 +116,13 @@ Example plots:
 
 - 支持调整图像长宽比
 
+- 支持pdf下载，所见即所得
+
 <img src="inst/extdata/www/Vlnplot-1.png" width="100%" /><img src="inst/extdata/www/Vlnplot-2.png" width="100%" /><img src="inst/extdata/www/vlnplot-splited-1.png" width="100%" /><img src="inst/extdata/www/vlnplot-splited-2.png" width="100%" />
 
 ### DotPlot
 
-- 支持输入多个基因名，以逗号分割，基因名可不区分大小写。
+- 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
 
 - 支持选择不同的细胞分群方案和指定所使用的clusters
 
@@ -123,11 +138,13 @@ Example plots:
 
 - 支持调整图像长宽比
 
+- 支持pdf下载，所见即所得
+
 <img src="inst/extdata/www/Dotplot-1.png" width="100%" /><img src="inst/extdata/www/dotplot-splited-1.png" width="100%" />
 
 ### DoHeatmap
 
-- 支持输入多个基因名，以逗号分割，基因名可不区分大小写。
+- 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
 
 - 支持选择不同的细胞分群方案
 
@@ -141,11 +158,13 @@ Example plots:
 
 - 支持调整图像长宽比
 
+- 支持pdf下载，所见即所得
+
 <img src="inst/extdata/www/Heatmap-1.png" width="100%" />
 
 ### RidgePlot
 
-- 支持输入多个基因名，以逗号分割，基因名可不区分大小写。
+- 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
 
 - 支持选择不同的细胞分群方案
 
@@ -156,6 +175,8 @@ Example plots:
 - 支持调整x轴和y轴label的字体大小
 
 - 支持调整图像长宽比
+
+- 支持pdf下载，所见即所得
 
 <img src="inst/extdata/www/ridgeplot-1.png" width="100%" /><img src="inst/extdata/www/Ridgeplot-2.png" width="100%" /><img src="inst/extdata/www/Ridgeplot-3.png" width="100%" />
 
@@ -172,15 +193,6 @@ Example plots:
 - 支持结果下载
 
 <img src="inst/extdata/www/DEGs-1.png" width="100%" /><img src="inst/extdata/www/DEGs-2.png" width="100%" /><img src="inst/extdata/www/DEGs-3.png" width="100%" /><img src="inst/extdata/www/DEGs-4.png" width="100%" />
-
-## A Live Demo
-
-Support Rds file size no more than 5GB.
-[Open](http://www.nibs.ac.cn:666/SeuratExplorer/)
-
-## 为什么做这个R包
-
-> 目前还没有很好的用于可视化Seurat分析结果的工具，当生物信息分析员将结果交给用户后，用户如果没有任何R语言基础，还是比较难去自行进行结果检索和再分析，这个R包可以帮助此类用户进行交互，实现分析结果的可视化，方便用户自行出图。用户仅需要在自己电脑上配置好R和Rstudio，然后安装运行此软件即可，无需其他操作。
 
 ## Session Info
 

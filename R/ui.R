@@ -35,6 +35,7 @@ explorer_body_ui <- function(tab_list){
                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                         shinycssloaders::withSpinner(uiOutput("DimReductions.UI"), proxy.height = "10px"),
                                         shinycssloaders::withSpinner(uiOutput("DimClusterResolution.UI"), proxy.height = "10px"),
+                                        shinycssloaders::withSpinner(uiOutput("DimClusterOrder.UI"), proxy.height = "10px"),
                                         shinycssloaders::withSpinner(uiOutput("DimSplit.UI"), proxy.height = "10px"),
                                         checkboxInput("DimShowLabel",label = "Show cluster label", TRUE),
                                         sliderInput("DimLabelSize", label = "Label Size:", min = 0, max = 10, value = 7),
@@ -77,6 +78,8 @@ explorer_body_ui <- function(tab_list){
                                         textInput("VlnGeneSymbol", "Gene Symbols:", value = ""),
                                         shinycssloaders::withSpinner(uiOutput("Vlnhints.UI"), proxy.height = "10px"),
                                         shinycssloaders::withSpinner(uiOutput("VlnClusterResolution.UI"), proxy.height = "10px"),
+                                        shinycssloaders::withSpinner(uiOutput("VlnClusterOrder.UI"), proxy.height = "10px"),
+                                        shinycssloaders::withSpinner(uiOutput("VlnIdentsSelected.UI"), proxy.height = "10px"),
                                         shinycssloaders::withSpinner(uiOutput("VlnSplitBy.UI"), proxy.height = "10px"),
                                         conditionalPanel(
                                           condition = "output.Vlnplot_splitoption_twolevels",
@@ -162,6 +165,8 @@ explorer_body_ui <- function(tab_list){
                                           textInput("RidgeplotGeneSymbol", "Gene Symbols:", value = ""),
                                           shinycssloaders::withSpinner(uiOutput("Ridgeplothints.UI"), proxy.height = "10px"),
                                           shinycssloaders::withSpinner(uiOutput("RidgeplotClusterResolution.UI"), proxy.height = "10px"),
+                                          shinycssloaders::withSpinner(uiOutput("RidgeplotClusterOrder.UI"), proxy.height = "10px"),
+                                          shinycssloaders::withSpinner(uiOutput("RidgeplotIdentsSelected.UI"), proxy.height = "10px"),
                                           conditionalPanel(
                                             condition = "output.Ridgeplot_stack_NotSelected",
                                             sliderInput("RidgeplotNumberOfColumns", label = "Number of columns:", min = 1, max = 10, value = 1),

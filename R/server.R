@@ -30,6 +30,13 @@ explorer_server <- function(input, output, session, data){
     selectInput("DimClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
+  # define Cluster order
+  output$DimClusterOrder.UI <- renderUI({
+    message("SeuratExplorer: preparing DimClusterOrder.UI...")
+    req(input$DimClusterResolution)
+    shinyjqui::orderInput(inputId = 'DimClusterOrder', label = 'Cluster Order:', items = levels(data$obj@meta.data[,input$DimClusterResolution]),width = '100%')
+  })
+
   # define Split Choice UI
   output$DimSplit.UI <- renderUI({
     message("SeuratExplorer: preparing DimSplit.UI...")
@@ -55,12 +62,14 @@ explorer_server <- function(input, output, session, data){
 
   output$dimplot <- renderPlot({
     message("SeuratExplorer: preparing dimplot...")
+    isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
+    cds@meta.data[,input$DimClusterResolution] <- factor(cds@meta.data[,input$DimClusterResolution], levels = input$DimClusterOrder)
     if (is.null(DimSplit.Revised())) { # not splited
-      p <- Seurat::DimPlot(data$obj, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
+      p <- Seurat::DimPlot(cds, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
                       group.by = input$DimClusterResolution)
       }else{ # splited
-      plot_numbers <- length(levels(data$obj@meta.data[,DimSplit.Revised()]))
-      p <- Seurat::DimPlot(data$obj, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
+      plot_numbers <- length(levels(cds@meta.data[,DimSplit.Revised()]))
+      p <- Seurat::DimPlot(cds, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
                       group.by = input$DimClusterResolution, split.by = DimSplit.Revised(), ncol = ceiling(sqrt(plot_numbers)))
       }
     ggplot2::ggsave(paste0(temp_dir_name,"/dimplot.pdf"), p, width = dimplot_width() * px2cm, height = dimplot_width() * input$DimPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
@@ -189,6 +198,22 @@ explorer_server <- function(input, output, session, data){
     selectInput("VlnClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
+  # define Cluster order
+  output$VlnClusterOrder.UI <- renderUI({
+    message("SeuratExplorer: preparing VlnClusterOrder.UI...")
+    req(input$VlnClusterResolution)
+    shinyjqui::orderInput(inputId = 'VlnClusterOrder', label = 'Cluster Order:', items = levels(data$obj@meta.data[,input$VlnClusterResolution]),width = '100%')
+  })
+
+  # define the idents used
+  output$VlnIdentsSelected.UI <- renderUI({
+    req(input$VlnClusterResolution)
+    message("SeuratExplorer: preparing VlnIdentsSelected.UI...")
+    shinyWidgets::pickerInput(inputId = "VlnIdentsSelected", label = "Idents used:",
+                              choices = levels(data$obj@meta.data[,input$VlnClusterResolution]), selected = levels(data$obj@meta.data[,input$VlnClusterResolution]),
+                              options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
+  })
+
   # define Split Choice UI
   output$VlnSplitBy.UI <- renderUI({
     message("SeuratExplorer: preparing VlnSplitBy.UI...")
@@ -286,21 +311,25 @@ explorer_server <- function(input, output, session, data){
     req(Vlnplot.Gene.Revised())
     if (any(is.na(Vlnplot.Gene.Revised()))) { # NA 值时
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
-    }else if(length(Vlnplot.Gene.Revised()) == 1) { # only One Gene
-      p <- Seurat::VlnPlot(data$obj, features = Vlnplot.Gene.Revised(), group.by = input$VlnClusterResolution,
-                      split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot, pt.size = input$VlnPointSize, alpha = input$VlnPointAlpha) &
-        ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
-                       axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
-    }else{ # multiple genes
-      p <- Seurat::VlnPlot(data$obj, features = Vlnplot.Gene.Revised(), group.by = input$VlnClusterResolution,
-                      split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot, stack = input$VlnStackPlot,
-                      flip = input$VlnFlipPlot, fill.by = input$VlnFillBy,
-                      pt.size = input$VlnPointSize, alpha = input$VlnPointAlpha) &
-        ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
-                       axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
+    }else{
+      isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
+      cds@meta.data[,input$VlnClusterResolution] <- factor(cds@meta.data[,input$VlnClusterResolution], levels = input$VlnClusterOrder)
+      SeuratObject::Idents(cds) <- input$VlnClusterResolution
+      if(length(Vlnplot.Gene.Revised()) == 1) { # only One Gene
+        p <- Seurat::VlnPlot(cds, features = Vlnplot.Gene.Revised(), split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot,
+                             pt.size = input$VlnPointSize, alpha = input$VlnPointAlpha, idents = input$VlnIdentsSelected) &
+          ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
+                         axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
+      }else{ # multiple genes
+        p <- Seurat::VlnPlot(cds, features = Vlnplot.Gene.Revised(), split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot,
+                             stack = input$VlnStackPlot,flip = input$VlnFlipPlot, fill.by = input$VlnFillBy, idents = input$VlnIdentsSelected,
+                             pt.size = input$VlnPointSize, alpha = input$VlnPointAlpha) &
+          ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
+                         axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
+      }
+      ggplot2::ggsave(paste0(temp_dir_name,"/vlnplot.pdf"), p, width = vlnplot_width() * px2cm, height = vlnplot_width() * input$VlnPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
+      return(p)
     }
-    ggplot2::ggsave(paste0(temp_dir_name,"/vlnplot.pdf"), p, width = vlnplot_width() * px2cm, height = vlnplot_width() * input$VlnPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
-    return(p)
   }, height = function(){session$clientData$output_vlnplot_width * input$VlnPlotHWRatio}) # box plot: height = width default
 
 
@@ -510,6 +539,22 @@ explorer_server <- function(input, output, session, data){
     selectInput("RidgeplotClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
+  # define Cluster order
+  output$RidgeplotClusterOrder.UI <- renderUI({
+    message("SeuratExplorer: preparing RidgeplotClusterOrder.UI...")
+    req(input$RidgeplotClusterResolution)
+    shinyjqui::orderInput(inputId = 'RidgeplotClusterOrder', label = 'Cluster Order:', items = levels(data$obj@meta.data[,input$RidgeplotClusterResolution]),width = '100%')
+  })
+
+  # define the idents used
+  output$RidgeplotIdentsSelected.UI <- renderUI({
+    req(input$RidgeplotClusterResolution)
+    message("SeuratExplorer: preparing RidgeplotIdentsSelected.UI...")
+    shinyWidgets::pickerInput(inputId = "RidgeplotIdentsSelected", label = "Idents used:",
+                              choices = levels(data$obj@meta.data[,input$RidgeplotClusterResolution]), selected = levels(data$obj@meta.data[,input$RidgeplotClusterResolution]),
+                              options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
+  })
+
   # Conditional panel: 输入为多个基因且stack设为TRUE时，显示此panel
   output$Ridgeplot_stack_show = reactive({
     message("SeuratExplorer: preparing Ridgeplot_stack_show...")
@@ -526,17 +571,12 @@ explorer_server <- function(input, output, session, data){
   # Conditional panel: 输入为多个基因且stack设为TRUE时，显示此panel
   output$Ridgeplot_stack_NotSelected = reactive({
     message("SeuratExplorer: preparing Ridgeplot_stack_NotSelected...")
-    req(input$RidgeplotStackPlot) # new codes
-    if (input$RidgeplotStackPlot) {
-      return(FALSE)
-    }else{
-      return(TRUE)
-    }
+    !input$RidgeplotStackPlot
   })
 
   outputOptions(output, 'Ridgeplot_stack_NotSelected', suspendWhenHidden = FALSE)
 
-  # reset VlnSplitPlot value to FALSE when change the split options
+  # reset VlnSplitPlot value to FALSE when change the input gene symbols
   observe({
     req(input$RidgeplotGeneSymbol)
     message("SeuratExplorer: update RidgeplotStackPlot...")
@@ -551,8 +591,11 @@ explorer_server <- function(input, output, session, data){
     if (any(is.na(Ridgeplot.Gene.Revised()))) { # NA 值时
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
-      p <- Seurat::RidgePlot(object = data$obj, features = Ridgeplot.Gene.Revised(), group.by = input$RidgeplotClusterResolution, ncol = input$RidgeplotNumberOfColumns,
-                        stack = input$RidgeplotStackPlot, fill.by = input$RidgeplotFillBy) &
+      isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
+      cds@meta.data[,input$RidgeplotClusterResolution] <- factor(cds@meta.data[,input$RidgeplotClusterResolution], levels = input$RidgeplotClusterOrder)
+      Idents(cds) <- input$RidgeplotClusterResolution
+      p <- Seurat::RidgePlot(object = cds, features = Ridgeplot.Gene.Revised(), ncol = input$RidgeplotNumberOfColumns,stack = input$RidgeplotStackPlot,
+                             fill.by = input$RidgeplotFillBy, idents = input$RidgeplotIdentsSelected) &
         ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$RidgeplotXlabelSize),
                        axis.text.y = ggplot2::element_text(size = input$RidgeplotYlabelSize))
     }
