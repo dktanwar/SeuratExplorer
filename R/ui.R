@@ -7,6 +7,9 @@ explorer_sidebar_ui <- function(){
   requireNamespace("shinydashboard")
   requireNamespace("shinyWidgets")
   requireNamespace("shinyBS")
+  # to make updateCollapse() runs correctly, refer to: https://github.com/ebailey78/shinyBS/issues/92
+  shiny::addResourcePath("sbs", system.file("www", package="shinyBS"))
+
   conditionalPanel(
     condition = "output.file_loaded",
     sidebarMenu(menuItem(text = "Explorer", tabName = "explorer", icon = icon("dashboard"), startExpanded = TRUE,
@@ -37,10 +40,10 @@ explorer_body_ui <- function(tab_list){
                                         shinycssloaders::withSpinner(uiOutput("DimReductions.UI"), proxy.height = "10px"),
                                         shinycssloaders::withSpinner(uiOutput("DimClusterResolution.UI"), proxy.height = "10px"),
                                         # refer to: https://ebailey78.github.io/shinyBS/docs/Collapses.html
-                                        shinyBS::bsCollapse(id = "collapseDimplot", open = "0",
+                                        shinyBS::bsCollapse(id = "collapseDimplot", open = "Change Cluster Order",
                                                    shinyBS::bsCollapsePanel(title = "Change Cluster Order",
                                                                             shinycssloaders::withSpinner(uiOutput("DimClusterOrder.UI"), proxy.height = "10px"),
-                                                                            style = "info", value = "0")),
+                                                                            style = "info")),
                                         shinycssloaders::withSpinner(uiOutput("DimSplit.UI"), proxy.height = "10px"),
                                         checkboxInput("DimShowLabel",label = "Show cluster label", TRUE),
                                         sliderInput("DimLabelSize", label = "Label Size:", min = 0, max = 10, value = 7),

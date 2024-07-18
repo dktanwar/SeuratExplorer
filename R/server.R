@@ -17,6 +17,9 @@ explorer_server <- function(input, output, session, data){
   }
   dir.create(temp_dir_name)
 
+  # to make updateCollapse() runs correctly, refer to: https://github.com/ebailey78/shinyBS/issues/92
+  shiny::addResourcePath("sbs", system.file("www", package="shinyBS"))
+
   ############################# Dimension Reduction Plot
   # define reductions choices UI
   output$DimReductions.UI <- renderUI({
@@ -40,7 +43,7 @@ explorer_server <- function(input, output, session, data){
   # 不太好的效果是，每次切换resolution选项，都会使得cluster order ui展开。
   observeEvent(input$DimClusterResolution, ({
     message("SeuratExplorer: updateCollapse for collapseDimplot...")
-    shinyBS::updateCollapse(session, "collapseDimplot", open = "0")
+    shinyBS::updateCollapse(session, "collapseDimplot", open = "Change Cluster Order")
   }))
 
   # define Split Choice UI
