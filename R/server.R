@@ -33,9 +33,15 @@ explorer_server <- function(input, output, session, data){
   # define Cluster order
   output$DimClusterOrder.UI <- renderUI({
     message("SeuratExplorer: preparing DimClusterOrder.UI...")
-    req(input$DimClusterResolution)
-    shinyjqui::orderInput(inputId = 'DimClusterOrder', label = 'Cluster Order:', items = levels(data$obj@meta.data[,input$DimClusterResolution]),width = '100%')
+    shinyjqui::orderInput(inputId = 'DimClusterOrder', label = 'Drag to order:', items = levels(data$obj@meta.data[,input$DimClusterResolution]),width = '100%')
   })
+
+  # when change cluster resolution, open the shinyBS::bsCollapsePanel, otherwise will cause cluster order not update
+  # 不太好的效果是，每次切换resolution选项，都会使得cluster order ui展开。
+  observeEvent(input$DimClusterResolution, ({
+    message("SeuratExplorer: updateCollapse for collapseDimplot...")
+    shinyBS::updateCollapse(session, "collapseDimplot", open = "0")
+  }))
 
   # define Split Choice UI
   output$DimSplit.UI <- renderUI({
@@ -201,9 +207,15 @@ explorer_server <- function(input, output, session, data){
   # define Cluster order
   output$VlnClusterOrder.UI <- renderUI({
     message("SeuratExplorer: preparing VlnClusterOrder.UI...")
-    req(input$VlnClusterResolution)
-    shinyjqui::orderInput(inputId = 'VlnClusterOrder', label = 'Cluster Order:', items = levels(data$obj@meta.data[,input$VlnClusterResolution]),width = '100%')
+    shinyjqui::orderInput(inputId = 'VlnClusterOrder', label = 'Drag to order:', items = levels(data$obj@meta.data[,input$VlnClusterResolution]),width = '100%')
   })
+
+  # when change cluster resolution, open the shinyBS::bsCollapsePanel, otherwise will cause cluster order not update
+  # 不太好的效果是，每次切换resolution选项，都会使得cluster order ui展开。
+  observeEvent(input$VlnClusterResolution, ({
+    message("SeuratExplorer: updateCollapse for collapseVlnplot...")
+    shinyBS::updateCollapse(session, "collapseVlnplot", open = "0")
+  }))
 
   # define the idents used
   output$VlnIdentsSelected.UI <- renderUI({
@@ -368,9 +380,15 @@ explorer_server <- function(input, output, session, data){
   # define Cluster order
   output$DotClusterOrder.UI <- renderUI({
     message("SeuratExplorer: preparing DotClusterOrder.UI...")
-    req(input$DotClusterResolution)
-    shinyjqui::orderInput(inputId = 'DotClusterOrder', label = 'Cluster Order:', items = levels(data$obj@meta.data[,input$DotClusterResolution]),width = '100%')
+    shinyjqui::orderInput(inputId = 'DotClusterOrder', label = 'Drag to order:', items = levels(data$obj@meta.data[,input$DotClusterResolution]),width = '100%')
   })
+
+  # when change cluster resolution, open the shinyBS::bsCollapsePanel, otherwise will cause cluster order not update
+  # 不太好的效果是，每次切换resolution选项，都会使得cluster order ui展开。
+  observeEvent(input$DotClusterResolution, ({
+    message("SeuratExplorer: updateCollapse for collapseDotplot...")
+    shinyBS::updateCollapse(session, "collapseDotplot", open = "0")
+  }))
 
   # define the idents used
   output$DotIdentsSelected.UI <- renderUI({
@@ -479,9 +497,15 @@ explorer_server <- function(input, output, session, data){
   # define Cluster order
   output$HeatmapClusterOrder.UI <- renderUI({
     message("SeuratExplorer: preparing HeatmapClusterOrder.UI...")
-    req(input$HeatmapClusterResolution)
-    shinyjqui::orderInput(inputId = 'HeatmapClusterOrder', label = 'Cluster Order:', items = levels(data$obj@meta.data[,input$HeatmapClusterResolution]),width = '100%')
+    shinyjqui::orderInput(inputId = 'HeatmapClusterOrder', label = 'Drag to order:', items = levels(data$obj@meta.data[,input$HeatmapClusterResolution]),width = '100%')
   })
+
+  # when change cluster resolution, open the shinyBS::bsCollapsePanel, otherwise will cause cluster order not update
+  # 不太好的效果是，每次切换resolution选项，都会使得cluster order ui展开。
+  observeEvent(input$HeatmapClusterResolution, ({
+    message("SeuratExplorer: updateCollapse for collapseHeatmap...")
+    shinyBS::updateCollapse(session, "collapseHeatmap", open = "0")
+  }))
 
   heatmap_width  <- reactive({ session$clientData$output_heatmap_width })
 
@@ -542,9 +566,15 @@ explorer_server <- function(input, output, session, data){
   # define Cluster order
   output$RidgeplotClusterOrder.UI <- renderUI({
     message("SeuratExplorer: preparing RidgeplotClusterOrder.UI...")
-    req(input$RidgeplotClusterResolution)
-    shinyjqui::orderInput(inputId = 'RidgeplotClusterOrder', label = 'Cluster Order:', items = levels(data$obj@meta.data[,input$RidgeplotClusterResolution]),width = '100%')
+    shinyjqui::orderInput(inputId = 'RidgeplotClusterOrder', label = 'Drag to order:', items = levels(data$obj@meta.data[,input$RidgeplotClusterResolution]),width = '100%')
   })
+
+  # when change cluster resolution, open the shinyBS::bsCollapsePanel, otherwise will cause cluster order not update
+  # 不太好的效果是，每次切换resolution选项，都会使得cluster order ui展开。
+  observeEvent(input$RidgeplotClusterResolution, ({
+    message("SeuratExplorer: updateCollapse for collapseRidgeplot...")
+    shinyBS::updateCollapse(session, "collapseRidgeplot", open = "0")
+  }))
 
   # define the idents used
   output$RidgeplotIdentsSelected.UI <- renderUI({

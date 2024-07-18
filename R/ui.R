@@ -6,6 +6,7 @@
 explorer_sidebar_ui <- function(){
   requireNamespace("shinydashboard")
   requireNamespace("shinyWidgets")
+  requireNamespace("shinyBS")
   conditionalPanel(
     condition = "output.file_loaded",
     sidebarMenu(menuItem(text = "Explorer", tabName = "explorer", icon = icon("dashboard"), startExpanded = TRUE,
@@ -35,7 +36,11 @@ explorer_body_ui <- function(tab_list){
                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                         shinycssloaders::withSpinner(uiOutput("DimReductions.UI"), proxy.height = "10px"),
                                         shinycssloaders::withSpinner(uiOutput("DimClusterResolution.UI"), proxy.height = "10px"),
-                                        shinycssloaders::withSpinner(uiOutput("DimClusterOrder.UI"), proxy.height = "10px"),
+                                        # refer to: https://ebailey78.github.io/shinyBS/docs/Collapses.html
+                                        shinyBS::bsCollapse(id = "collapseDimplot", open = "0",
+                                                   shinyBS::bsCollapsePanel(title = "Change Cluster Order",
+                                                                            shinycssloaders::withSpinner(uiOutput("DimClusterOrder.UI"), proxy.height = "10px"),
+                                                                            style = "info", value = "0")),
                                         shinycssloaders::withSpinner(uiOutput("DimSplit.UI"), proxy.height = "10px"),
                                         checkboxInput("DimShowLabel",label = "Show cluster label", TRUE),
                                         sliderInput("DimLabelSize", label = "Label Size:", min = 0, max = 10, value = 7),
@@ -78,7 +83,10 @@ explorer_body_ui <- function(tab_list){
                                         textInput("VlnGeneSymbol", "Gene Symbols:", value = ""),
                                         shinycssloaders::withSpinner(uiOutput("Vlnhints.UI"), proxy.height = "10px"),
                                         shinycssloaders::withSpinner(uiOutput("VlnClusterResolution.UI"), proxy.height = "10px"),
-                                        shinycssloaders::withSpinner(uiOutput("VlnClusterOrder.UI"), proxy.height = "10px"),
+                                        shinyBS::bsCollapse(id = "collapseVlnplot", open = "0",
+                                                            shinyBS::bsCollapsePanel(title = "Change Cluster Order",
+                                                                                     shinycssloaders::withSpinner(uiOutput("VlnClusterOrder.UI"), proxy.height = "10px"),
+                                                                                     style = "info", value = "0")),
                                         shinycssloaders::withSpinner(uiOutput("VlnIdentsSelected.UI"), proxy.height = "10px"),
                                         shinycssloaders::withSpinner(uiOutput("VlnSplitBy.UI"), proxy.height = "10px"),
                                         conditionalPanel(
@@ -115,7 +123,10 @@ explorer_body_ui <- function(tab_list){
                                         textInput("DotGeneSymbol", "Gene Symbols:", value = ""),
                                         shinycssloaders::withSpinner(uiOutput("Dothints.UI"), proxy.height = "10px"),
                                         shinycssloaders::withSpinner(uiOutput("DotClusterResolution.UI"), proxy.height = "10px"),
-                                        shinycssloaders::withSpinner(uiOutput("DotClusterOrder.UI"), proxy.height = "10px"),
+                                        shinyBS::bsCollapse(id = "collapseDotplot", open = "0",
+                                                            shinyBS::bsCollapsePanel(title = "Change Cluster Order",
+                                                                                     shinycssloaders::withSpinner(uiOutput("DotClusterOrder.UI"), proxy.height = "10px"),
+                                                                                     style = "info", value = "0")),
                                         shinycssloaders::withSpinner(uiOutput("DotIdentsSelected.UI"), proxy.height = "10px"),
                                         shinycssloaders::withSpinner(uiOutput("DotSplitBy.UI"), proxy.height = "10px"),
                                         checkboxInput("DotClusterIdents",label = "Cluster Idents", FALSE),
@@ -143,7 +154,10 @@ explorer_body_ui <- function(tab_list){
                                         textInput("HeatmapGeneSymbol", "Gene Symbols:", value = ""),
                                         shinycssloaders::withSpinner(uiOutput("Heatmaphints.UI"), proxy.height = "10px"),
                                         shinycssloaders::withSpinner(uiOutput("HeatmapClusterResolution.UI"), proxy.height = "10px"),
-                                        shinycssloaders::withSpinner(uiOutput("HeatmapClusterOrder.UI"), proxy.height = "10px"),
+                                        shinyBS::bsCollapse(id = "collapseHeatmap", open = "0",
+                                                            shinyBS::bsCollapsePanel(title = "Change Cluster Order",
+                                                                                     shinycssloaders::withSpinner(uiOutput("HeatmapClusterOrder.UI"), proxy.height = "10px"),
+                                                                                     style = "info", value = "0")),
                                         sliderInput("HeatmapTextSize", label = "Cluster Text Size:", min = 1, max = 12, value = 6),
                                         sliderInput("HeatmapTextHjust", label = "Cluster Text Hjust:", min = -10, max = 20, value = 0),
                                         sliderInput("HeatmapTextVjust", label = "Cluster Text Vjust:", min = -0.55, max = 0.55, value = 0),
@@ -165,7 +179,10 @@ explorer_body_ui <- function(tab_list){
                                           textInput("RidgeplotGeneSymbol", "Gene Symbols:", value = ""),
                                           shinycssloaders::withSpinner(uiOutput("Ridgeplothints.UI"), proxy.height = "10px"),
                                           shinycssloaders::withSpinner(uiOutput("RidgeplotClusterResolution.UI"), proxy.height = "10px"),
-                                          shinycssloaders::withSpinner(uiOutput("RidgeplotClusterOrder.UI"), proxy.height = "10px"),
+                                          shinyBS::bsCollapse(id = "collapseRidgeplot", open = "0",
+                                                              shinyBS::bsCollapsePanel(title = "Change Cluster Order",
+                                                                                       shinycssloaders::withSpinner(uiOutput("RidgeplotClusterOrder.UI"), proxy.height = "10px"),
+                                                                                       style = "info", value = "0")),
                                           shinycssloaders::withSpinner(uiOutput("RidgeplotIdentsSelected.UI"), proxy.height = "10px"),
                                           conditionalPanel(
                                             condition = "output.Ridgeplot_stack_NotSelected",

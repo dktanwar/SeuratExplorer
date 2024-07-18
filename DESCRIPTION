@@ -24,7 +24,8 @@ Imports:
     scales,
     SeuratObject,
     devtools,
-    shinyjqui
+    shinyjqui,
+    shinyBS
 Depends: R (>= 4.1.0)
 Suggests:
     BiocManager,

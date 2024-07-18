@@ -12,12 +12,17 @@ prepare_seurat_object <- function(obj){
   return(obj)
 }
 
-# 把符合条件的非因子列，转为因子类型
+# 把符合条件的非因子列，转为因子类型, 并且把可能是数字的字符串转为数字
 modify_columns_types <- function(df, types_to_check = c("numeric", "character"), unique_max_counts = 50, unique_max_percent = 0.05){
   candidates.types.logic <- sapply(df, class) %in% types_to_check
   cutoff <- min(unique_max_counts, round(nrow(df) * unique_max_percent))
   candidates.unique.logic <- sapply(df, FUN = function(x)length(unique(x))) <= cutoff
   candidates.logic <- candidates.types.logic & candidates.unique.logic & !sapply(df, is.factor)
+  # before trans to factor, trans numeric character vector to numeric vector: c('1','2','1') to c(1,2,1)
+  char2numeric_columns.logic <- suppressWarnings(unlist(lapply(df[candidates.logic], function(x)any(!is.na(as.numeric(unique(x)))))))
+  char2numeric_columns <- names(char2numeric_columns.logic)[char2numeric_columns.logic]
+  df[char2numeric_columns] <- lapply(df[char2numeric_columns], as.numeric)
+  # finally trans all char and numeric to factor
   df[candidates.logic] <- lapply(df[candidates.logic], as.factor)
   message("SeuratExplorer: modify_columns_types runs successfully!")
   return(df)
