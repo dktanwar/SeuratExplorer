@@ -19,6 +19,7 @@ explorer_sidebar_ui <- function(){
                          menuSubItem(text = "DotPlot", tabName = "dotplot", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "HeatmapPlot", tabName = "heatmap", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "RidgePlot", tabName = "ridgeplot", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "CellRatioPlot", tabName = "cellratioplot", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "DEG Analysis", tabName = "degs", icon = shiny::icon("angle-double-right"))))
   )
 }
@@ -202,6 +203,38 @@ explorer_body_ui <- function(tab_list){
                                           sliderInput("RidgeplotXlabelSize", label = "x Axis Label Size:", min = 0, max = 20, value = 14),
                                           sliderInput("RidgeplotYlabelSize", label = "Y Axis Label Size:", min = 0, max = 20, value = 10),
                                           sliderInput("RidgeplotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9) # adjust the Ratio of width and height of plot.
+                                      )
+                                    )
+  )
+  tab_list[["cellratioplot"]] = tabItem(tabName = "cellratioplot",
+                                    fluidRow(
+                                      box(title = "Cell ratio plot",
+                                          shinycssloaders::withSpinner(plotOutput("cellratioplot",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                          div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadcellratioplot",style = "bordered",color = "primary")),
+                                          width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
+                                      box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
+                                          # Fill in part
+                                          shinycssloaders::withSpinner(uiOutput("CellratioFillChoice.UI"), proxy.height = "10px"),
+                                          shinyBS::bsCollapse(id = "collapseCellratioFillplot", open = "0",
+                                                              shinyBS::bsCollapsePanel(title = "Change Order",
+                                                                                       shinycssloaders::withSpinner(uiOutput("CellratioplotFillOrder.UI"), proxy.height = "10px"),
+                                                                                       style = "info", value = "0")),
+                                          # X axis part
+                                          shinycssloaders::withSpinner(uiOutput("CellratioXChoice.UI"), proxy.height = "10px"),
+                                          shinyBS::bsCollapse(id = "collapseCellratioXplot", open = "0",
+                                                              shinyBS::bsCollapsePanel(title = "Change Order",
+                                                                                       shinycssloaders::withSpinner(uiOutput("CellratioplotXOrder.UI"), proxy.height = "10px"),
+                                                                                       style = "info", value = "0")),
+                                          # facet part
+                                          shinycssloaders::withSpinner(uiOutput("CellratioFacetChoice.UI"), proxy.height = "10px"),
+                                          shinyBS::bsCollapse(id = "collapseCellratioFacetplot", open = "0",
+                                                              shinyBS::bsCollapsePanel(title = "Change Order",
+                                                                                       shinycssloaders::withSpinner(uiOutput("CellratioplotFacetOrder.UI"), proxy.height = "10px"),
+                                                                                       style = "info", value = "0")),
+                                          sliderInput("CellratioColumnWidth", label = "Column width:", min = 0, max = 1, value = 0.7),
+                                          sliderInput("CellratioFlowAlpha", label = "Flow alpha:", min = 0, max = 1, value = 0.3),
+                                          sliderInput("CellratioFlowCurve", label = "Flow curve:", min = 0, max = 1, value = 0.3),
+                                          sliderInput("CellratioplotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9) # adjust the Ratio of width and height of plot.
                                       )
                                     )
   )

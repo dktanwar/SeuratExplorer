@@ -645,6 +645,100 @@ explorer_server <- function(input, output, session, data){
       }
     })
 
+  ################################ Cell ratio Plot
+  # define Fill choices
+  output$CellratioFillChoice.UI <- renderUI({
+    message("SeuratExplorer: preparing CellratioFillChoice.UI...")
+    selectInput("CellratioFillChoice","Fill in choice:", choices = data$cluster_options, selected = data$cluster_default)
+  })
+
+  # define Fill order
+  output$CellratioplotFillOrder.UI <- renderUI({
+    message("SeuratExplorer: preparing CellratioplotFillOrder.UI...")
+    shinyjqui::orderInput(inputId = 'CellratioFillOrder', label = 'Drag to order:', items = levels(data$obj@meta.data[,input$CellratioFillChoice]),width = '100%')
+  })
+
+
+  # define X choices
+  output$CellratioXChoice.UI <- renderUI({
+    req(input$CellratioFillChoice)
+    message("SeuratExplorer: preparing CellratioXChoice.UI...")
+    selectInput("CellratioXChoice","X axis choice:", choices = data$cluster_options[!data$cluster_options %in% input$CellratioFillChoice])
+  })
+
+
+  # define x choice order
+  output$CellratioplotXOrder.UI <- renderUI({
+    message("SeuratExplorer: preparing CellratioplotXOrder.UI...")
+    shinyjqui::orderInput(inputId = 'CellratioXOrder', label = 'Drag to order:', items = levels(data$obj@meta.data[,input$CellratioXChoice]),width = '100%')
+  })
+
+  # define Facet choices
+  output$CellratioFacetChoice.UI <- renderUI({
+    req(input$CellratioXChoice)
+    message("SeuratExplorer: preparing CellratioFacetChoice.UI...")
+    selectInput("CellratioFacetChoice","Facet choice:", choices = c("None" = "None", data$cluster_options[!data$cluster_options %in% c(input$CellratioFillChoice, input$CellratioXChoice)]), selected = "None")
+  })
+
+  # Revise FacetChoice which will be appropriate for plot
+  FacetChoice.Revised <- reactive({
+    message("SeuratExplorer: FacetChoice.Revised...")
+    req(input$CellratioFacetChoice)
+    # Revise the Split choice
+    if(is.na(input$CellratioFacetChoice) | input$CellratioFacetChoice == "None") {
+      return(NULL)
+    }else{
+      return(input$CellratioFacetChoice)
+    }
+  })
+
+  # define Facet order
+  output$CellratioplotFacetOrder.UI <- renderUI({
+    message("SeuratExplorer: preparing CellratioplotFacetOrder.UI...")
+    if (!is.null(FacetChoice.Revised())) {
+      shinyjqui::orderInput(inputId = 'CellratioFacetOrder', label = 'Drag to order:', items = levels(data$obj@meta.data[,input$CellratioFacetChoice]),width = '100%')
+    }else{
+
+    }
+  })
+
+  cellratioplot_width  <- reactive({ session$clientData$output_cellratioplot_width})
+
+
+  # plot
+  output$cellratioplot <- renderPlot({
+    message("SeuratExplorer: preparing cellratioplot...")
+    req(input$CellratioXChoice)
+    req(input$CellratioXOrder)
+    req(input$CellratioFillChoice)
+    req(input$CellratioFillOrder)
+    isolate(cds <- data$obj)
+    if (is.null(FacetChoice.Revised())) { # not facet
+      p <- cellRatioPlot(object = cds, sample.name = input$CellratioXChoice, sample.order = input$CellratioXOrder,
+                         celltype.name = input$CellratioFillChoice, celltype.order = input$CellratioFillOrder,
+                         facet.name = NULL, facet.order = NULL,
+                         col.width = input$CellratioColumnWidth, flow.alpha = input$CellratioFlowAlpha,
+                         flow.curve = input$CellratioFlowCurve, fill.col = NULL)
+    }else{
+      p <- cellRatioPlot(object = cds, sample.name = input$CellratioXChoice, sample.order = input$CellratioXOrder,
+                         celltype.name = input$CellratioFillChoice, celltype.order = input$CellratioFillOrder,
+                         facet.name = FacetChoice.Revised(),
+                         facet.order = input$CellratioFacetOrder,
+                         col.width = input$CellratioColumnWidth, flow.alpha = input$CellratioFlowAlpha,
+                         flow.curve = input$CellratioFlowCurve, fill.col = NULL)
+    }
+    ggplot2::ggsave(paste0(temp_dir_name,"/cellratioplot.pdf"), p, width = cellratioplot_width() * px2cm, height = cellratioplot_width() * input$CellratioplotHWRatio * px2cm, units = "cm", limitsize = FALSE)
+    return(p)
+  }, height = function(){session$clientData$output_cellratioplot_width * input$CellratioplotHWRatio}) # box plot: height = width default
+
+  # download
+  output$downloadcellratioplot <- downloadHandler(
+    filename = function(){'cellratioplot.pdf'},
+    content = function(file) {
+      if (file.exists(paste0(temp_dir_name,"/cellratioplot.pdf"))) { # 问题： 文件不存在时，会抛出一个下载错误。或者输入错误时，会下载先前输入正确得到的图片。
+        file.copy(paste0(temp_dir_name,"/cellratioplot.pdf"), file, overwrite=TRUE)
+      }
+    })
 
   ################################ DEGs analysis
   # Warning

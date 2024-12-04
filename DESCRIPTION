@@ -25,7 +25,9 @@ Imports:
     SeuratObject,
     devtools,
     shinyjqui,
-    shinyBS
+    shinyBS,
+    ggalluvial,
+    dplyr
 Depends: R (>= 4.1.0)
 Suggests:
     BiocManager,
