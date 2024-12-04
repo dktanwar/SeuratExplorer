@@ -44,3 +44,6 @@ cellRatioPlot(
 \description{
 绘制细胞比例柱状图，支持分面，源代码参考了: https://github.com/junjunlab/scRNAtoolVis/blob/master/R/cellRatioPlot.R，并做了修改。
 }
+\examples{
+#NULL
+}

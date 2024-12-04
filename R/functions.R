@@ -356,7 +356,7 @@ useMyCol <- function(platte = NULL,
 #' @param fill.col fill by所用的颜色
 #' @import dplyr
 #' @importFrom dplyr %>%
-#' @return
+#' @return a ggplot2 object
 #' @export
 #'
 #' @examples
@@ -444,7 +444,7 @@ cellRatioPlot <- function(object = NULL,
     ggplot2::xlab("") +
     ggplot2::ylab("Cell percent ratio")
   if (!is.null(facet.name)) {
-    p <- p + ggplot2::facet_grid(stats::as.formula(paste0(facet.name, "~ .")))
+    p <- p + ggplot2::facet_grid(stats::as.formula(paste0(facet.name, "~ .")) + ggplot2::theme(panel.spacing = unit(0.8, "cm", data = NULL)))
   }
   return(p)
 }

@@ -231,6 +231,7 @@ explorer_body_ui <- function(tab_list){
                                                               shinyBS::bsCollapsePanel(title = "Change Order",
                                                                                        shinycssloaders::withSpinner(uiOutput("CellratioplotFacetOrder.UI"), proxy.height = "10px"),
                                                                                        style = "info", value = "0")),
+                                          checkboxInput("CellratioRotateAxis",label = "Rotate X Axis", FALSE),
                                           sliderInput("CellratioColumnWidth", label = "Column width:", min = 0, max = 1, value = 0.7),
                                           sliderInput("CellratioFlowAlpha", label = "Flow alpha:", min = 0, max = 1, value = 0.3),
                                           sliderInput("CellratioFlowCurve", label = "Flow curve:", min = 0, max = 1, value = 0.3),
