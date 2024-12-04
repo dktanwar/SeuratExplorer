@@ -215,6 +215,19 @@ knitr::include_graphics("inst/extdata/www/Ridgeplot-2.png")
 knitr::include_graphics("inst/extdata/www/Ridgeplot-3.png")
 ```
 
+### CellratioPlot
+
+- 支持调整图像长宽比
+
+- 支持分面
+
+- 支持pdf下载，所见即所得
+
+```{r echo = FALSE}
+knitr::include_graphics("inst/extdata/www/cellratio-1.png")
+knitr::include_graphics("inst/extdata/www/cellratio-2.png")
+```
+
 ### DEGs Analysis
 
 - 支持同时计算所有群的marker基因

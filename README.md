@@ -180,6 +180,16 @@ Example plots:
 
 <img src="inst/extdata/www/ridgeplot-1.png" width="100%" /><img src="inst/extdata/www/Ridgeplot-2.png" width="100%" /><img src="inst/extdata/www/Ridgeplot-3.png" width="100%" />
 
+### CellratioPlot
+
+- 支持调整图像长宽比
+
+- 支持分面
+
+- 支持pdf下载，所见即所得
+
+<img src="inst/extdata/www/cellratio-1.png" width="100%" /><img src="inst/extdata/www/cellratio-2.png" width="100%" />
+
 ### DEGs Analysis
 
 - 支持同时计算所有群的marker基因

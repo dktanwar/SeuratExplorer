@@ -354,7 +354,7 @@ useMyCol <- function(platte = NULL,
 #' @param flow.curve 中间连接线的弯曲度
 
 #' @param fill.col fill by所用的颜色
-#'
+#' @import dplyr
 #' @importFrom dplyr %>%
 #' @return
 #' @export
@@ -391,12 +391,12 @@ cellRatioPlot <- function(object = NULL,
   if (is.null(facet.name)) {
     ratio.info <- meta %>%
       dplyr::group_by(.data[[sample.name]], .data[[celltype.name]]) %>%
-      dplyr::summarise(num = n()) %>%
+      dplyr::summarise(num = dplyr::n()) %>%
       dplyr::mutate(rel_num = num / sum(num))
   }else{
     ratio.info <- meta %>%
       dplyr::group_by(.data[[sample.name]], .data[[facet.name]],.data[[celltype.name]]) %>%
-      dplyr::summarise(num = n()) %>%
+      dplyr::summarise(num = dplyr::n()) %>%
       dplyr::mutate(rel_num = num / sum(num))
   }
 
