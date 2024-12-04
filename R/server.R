@@ -727,7 +727,7 @@ explorer_server <- function(input, output, session, data){
                          col.width = input$CellratioColumnWidth, flow.alpha = input$CellratioFlowAlpha,
                          flow.curve = input$CellratioFlowCurve, fill.col = NULL)
     }
-    if (input$CellratioRotateAxis) { p <- p & ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 0.5, hjust=1)) }
+    if (input$CellratioRotateAxis) { p <- p & ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1, hjust=1)) }
     ggplot2::ggsave(paste0(temp_dir_name,"/cellratioplot.pdf"), p, width = cellratioplot_width() * px2cm, height = cellratioplot_width() * input$CellratioplotHWRatio * px2cm, units = "cm", limitsize = FALSE)
     return(p)
   }, height = function(){session$clientData$output_cellratioplot_width * input$CellratioplotHWRatio}) # box plot: height = width default
