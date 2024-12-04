@@ -718,14 +718,14 @@ explorer_server <- function(input, output, session, data){
                          celltype.name = input$CellratioFillChoice, celltype.order = input$CellratioFillOrder,
                          facet.name = NULL, facet.order = NULL,
                          col.width = input$CellratioColumnWidth, flow.alpha = input$CellratioFlowAlpha,
-                         flow.curve = input$CellratioFlowCurve, fill.col = NULL)
+                         flow.curve = input$CellratioFlowCurve, color.choice = input$fillcolorplatte)
     }else{
       p <- cellRatioPlot(object = cds, sample.name = input$CellratioXChoice, sample.order = input$CellratioXOrder,
                          celltype.name = input$CellratioFillChoice, celltype.order = input$CellratioFillOrder,
                          facet.name = FacetChoice.Revised(),
                          facet.order = input$CellratioFacetOrder,
                          col.width = input$CellratioColumnWidth, flow.alpha = input$CellratioFlowAlpha,
-                         flow.curve = input$CellratioFlowCurve, fill.col = NULL)
+                         flow.curve = input$CellratioFlowCurve, color.choice = input$fillcolorplatte)
     }
     if (input$CellratioRotateAxis) { p <- p & ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1, hjust=1)) }
     ggplot2::ggsave(paste0(temp_dir_name,"/cellratioplot.pdf"), p, width = cellratioplot_width() * px2cm, height = cellratioplot_width() * input$CellratioplotHWRatio * px2cm, units = "cm", limitsize = FALSE)

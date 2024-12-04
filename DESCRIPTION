@@ -1,6 +1,6 @@
 Package: SeuratExplorer
 Title: An interactive R shiny application for exploring scRNAseq data processed in Seurat
-Version: 0.0.6.0001
+Version: 0.0.6.1000
 Authors@R: 
   person("Yongchao", "Zhang", , "zhangyongchao@nibs.ac.cn", role = c("aut", "cre"),
            comment = c(Github = "https://github.com/fentouxungui"))
@@ -34,4 +34,5 @@ Suggests:
     DESeq2,
     MAST,
     roxygen2
+    
     

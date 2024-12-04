@@ -15,7 +15,7 @@ cellRatioPlot(
   col.width = 0.7,
   flow.alpha = 0.25,
   flow.curve = 0,
-  fill.col = NULL
+  color.choice = NULL
 )
 }
 \arguments{
@@ -39,13 +39,14 @@ cellRatioPlot(
 
 \item{flow.curve}{中间连接线的弯曲度}
 
-\item{fill.col}{fill by所用的颜色}
+\item{color.choice}{fill by所用的颜色系列}
 }
 \value{
 a ggplot2 object
 }
 \description{
-绘制细胞比例柱状图，支持分面，源代码参考了: https://github.com/junjunlab/scRNAtoolVis/blob/master/R/cellRatioPlot.R，并做了修改。
+绘制细胞比例柱状图，支持分面，源代码参考了: https://github.com/junjunlab/scRNAtoolVis/blob/master/R/cellRatioPlot.R
+并做了修改。
 }
 \examples{
 #NULL
