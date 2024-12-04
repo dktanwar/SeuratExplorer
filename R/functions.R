@@ -444,7 +444,9 @@ cellRatioPlot <- function(object = NULL,
     ggplot2::xlab("") +
     ggplot2::ylab("Cell percent ratio")
   if (!is.null(facet.name)) {
-    p <- p + ggplot2::facet_grid(stats::as.formula(paste0(facet.name, "~ .")) + ggplot2::theme(panel.spacing = unit(0.8, "cm", data = NULL)))
+    p <- p +
+      ggplot2::facet_grid(stats::as.formula(paste0(facet.name, "~ ."))) +
+      ggplot2::theme(panel.spacing = grid::unit(0.8, "cm", data = NULL))
   }
   return(p)
 }
