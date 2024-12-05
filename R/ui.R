@@ -13,14 +13,15 @@ explorer_sidebar_ui <- function(){
   conditionalPanel(
     condition = "output.file_loaded",
     sidebarMenu(menuItem(text = "Explorer", tabName = "explorer", icon = icon("dashboard"), startExpanded = TRUE,
-                         menuSubItem(text = "DimPlot", tabName = "dimplot", icon = shiny::icon("angle-double-right")),
-                         menuSubItem(text = "FeaturePlot", tabName = "featureplot", icon = shiny::icon("angle-double-right")),
-                         menuSubItem(text = "VlnPlot", tabName = "vlnplot", icon = shiny::icon("angle-double-right")),
-                         menuSubItem(text = "DotPlot", tabName = "dotplot", icon = shiny::icon("angle-double-right")),
-                         menuSubItem(text = "HeatmapPlot", tabName = "heatmap", icon = shiny::icon("angle-double-right")),
-                         menuSubItem(text = "RidgePlot", tabName = "ridgeplot", icon = shiny::icon("angle-double-right")),
-                         menuSubItem(text = "CellRatioPlot", tabName = "cellratioplot", icon = shiny::icon("angle-double-right")),
-                         menuSubItem(text = "DEG Analysis", tabName = "degs", icon = shiny::icon("angle-double-right"))))
+                         menuSubItem(text = "Dimensional reduction Plot", tabName = "dimplot", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Feature Plot", tabName = "featureplot", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Violin Plot", tabName = "vlnplot", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Dot Plot", tabName = "dotplot", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Heatmap Plot", tabName = "heatmap", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Ridge Plot", tabName = "ridgeplot", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Cell Ratio Plot", tabName = "cellratioplot", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "DEG Analysis", tabName = "degs", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Top Expressed Genes", tabName = "topgenes", icon = shiny::icon("angle-double-right"))))
   )
 }
 
@@ -32,7 +33,7 @@ explorer_body_ui <- function(tab_list){
   requireNamespace("shinyWidgets")
   tab_list[["dimplot"]] = tabItem(tabName = "dimplot",
                                   fluidRow(
-                                    box(title = "Dimension Reduction Plot",
+                                    box(title = "Dimensional Reduction Plot",
                                         shinycssloaders::withSpinner(plotOutput("dimplot",height = "auto")), # Add a spinner that shows when an output is recalculating
                                         # show the button on right end, refer to: https://stackoverflow.com/questions/28749693/shiny-r-aligning-buttons
                                         div(style = "display:inline-block; float:right",downloadBttn(outputId = "downloaddimplot",style = "bordered",color = "primary")),
@@ -55,7 +56,7 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["featureplot"]] = tabItem(tabName = "featureplot",
                                       fluidRow(
-                                        box(title = "Visualize 'features' on a dimensional reduction plot",
+                                        box(title = "Features on Dimensional Reduction Plot",
                                             shinycssloaders::withSpinner(plotOutput("featureplot",height = "auto")), # Add a spinner that shows when an output is recalculating
                                             div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadfeatureplot",style = "bordered",color = "primary")),
                                             width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
@@ -79,7 +80,7 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["vlnplot"]] = tabItem(tabName = "vlnplot",
                                   fluidRow(
-                                    box(title = "Single cell violin plot",
+                                    box(title = "Features Violin Plot",
                                         shinycssloaders::withSpinner(plotOutput("vlnplot",height = "auto")), # Add a spinner that shows when an output is recalculating
                                         div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadvlnplot",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
@@ -119,7 +120,7 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["dotplot"]] = tabItem(tabName = "dotplot",
                                   fluidRow(
-                                    box(title = "Dot plot visualization",
+                                    box(title = "Features Dot Plot",
                                         shinycssloaders::withSpinner(plotOutput("dotplot",height = "auto")), # Add a spinner that shows when an output is recalculating
                                         div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloaddotplot",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
@@ -150,7 +151,7 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["heatmap"]] = tabItem(tabName = "heatmap",
                                   fluidRow(
-                                    box(title = "Feature expression heatmap",
+                                    box(title = "Features Heatmap Plot",
                                         shinycssloaders::withSpinner(plotOutput("heatmap",height = "auto")), # Add a spinner that shows when an output is recalculating
                                         div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadheatmap",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
@@ -175,7 +176,7 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["ridgeplot"]] = tabItem(tabName = "ridgeplot",
                                     fluidRow(
-                                      box(title = "Single cell ridge plot",
+                                      box(title = "Features Ridge Plot",
                                           shinycssloaders::withSpinner(plotOutput("ridgeplot",height = "auto")), # Add a spinner that shows when an output is recalculating
                                           div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadridgeplot",style = "bordered",color = "primary")),
                                           width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
@@ -208,7 +209,7 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["cellratioplot"]] = tabItem(tabName = "cellratioplot",
                                     fluidRow(
-                                      box(title = "Cell ratio plot",
+                                      box(title = "Cell Percentage Plot",
                                           shinycssloaders::withSpinner(plotOutput("cellratioplot",height = "auto")), # Add a spinner that shows when an output is recalculating
                                           div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadcellratioplot",style = "bordered",color = "primary")),
                                           width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
@@ -286,6 +287,27 @@ explorer_body_ui <- function(tab_list){
                                    condition = "output.DEGs_ready",
                                    box(title = "Analysis Results:", collapsible = TRUE, width = 12,
                                        shinycssloaders::withSpinner(DT::dataTableOutput('dataset_degs')))
+                                 )
+                               )
+  )
+  tab_list[["topgenes"]] = tabItem(tabName = "topgenes",
+                               fluidRow(
+                                 box(textOutput("topgenes_warning"), title = "WARNING：", background = "orange", width = 6),
+                                 tags$style(".nav-tabs {background: #f4f4f4;}
+                                 .nav-tabs-custom .nav-tabs li.active:hover a, .nav-tabs-custom .nav-tabs li.active a {background-color: #fff;
+                                 border-color: #fff;
+                                 }
+                                 .nav-tabs-custom .nav-tabs li.active {border-top-color:
+                                 #314a6d;
+                                 }"), # refer to: https://stackoverflow.com/questions/45247290/shiny-dashboard-tabbox-tabpanel-css
+                                 box(title = "Settings", solidHeader = TRUE, status = "primary", width = 12,
+                                 shinycssloaders::withSpinner(uiOutput("TopGenesClusteResolution.UI"), proxy.height = "10px"),
+                                 sliderInput("percentcut","UMI percentage cutoff(%):",min = 1,  max = 10, value = 1, step = 1),
+                                 actionButton("TopGenesAnalysis", "Analyze", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
+                                 conditionalPanel(
+                                   condition = "output.TopGenes_ready",
+                                   box(title = "Analysis Results:", collapsible = TRUE, width = 12,
+                                       shinycssloaders::withSpinner(DT::dataTableOutput('dataset_topgenes')))
                                  )
                                )
   )

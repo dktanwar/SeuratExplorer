@@ -340,3 +340,74 @@ cellRatioPlot <- function(object = NULL,
   return(p)
 }
 
+
+
+
+#' @title 各个细胞内的高表达基因
+#' @description
+#'  对各群里的各个单细胞，分别统计top表达的基因，即基因的reads比例大于所设定的阈值expr.cut。
+#'
+#'
+#' @param SeuratObj Seurat object
+#' @param expr.cut 在单个细胞中，如果某个基因的UMI比例高于此值，则会被认为是被高表达的基因。
+#' @param group.by 细胞分群参数
+#'
+#' @return data frame
+#' @export
+#'
+#' @examples
+#' # top_genes(cds, expr.cut = 0.01, group.by = "orig.ident")
+#' # top_genes(cds, expr.cut = 0.1, group.by = "res.0.4")
+#' # top_genes(cds, expr.cut = 0.1, group.by = "RandomGroup")
+top_genes <- function(SeuratObj, expr.cut = 0.01, group.by) {
+  requireNamespace("dplyr")
+  requireNamespace("Seurat")
+  # 如果是assay5类型
+  if (class(SeuratObj@assays$RNA)[1] == "Assay5") {
+    SeuratObj <- JoinLayers(SeuratObj)
+    counts.expr <- as.matrix(SeuratObj@assays$RNA@layers$counts)
+  } else { # 如果是assay类型
+    counts.expr <- as.matrix(SeuratObj@assays$RNA$counts)
+  }
+  colnames(counts.expr) <- colnames(SeuratObj)
+  rownames(counts.expr) <- rownames(SeuratObj)
+  all.cell.types <- unique(SeuratObj@meta.data[,group.by])
+  for (celltype in all.cell.types) {
+    for (i in 1:ncol(SeuratObj)) {
+      values <- sort(counts.expr[, i], decreasing = TRUE)
+      rates <- values/sum(values)
+      top <- rates[rates > expr.cut]
+      if (i == 1) {
+        res <- data.frame(Gene = names(top), Expr = unname(top))
+      }else{
+        res <- rbind(res, data.frame(Gene = names(top), Expr = unname(top)))
+      }
+    }
+    genes.statics <- dplyr::group_by(res, Gene) %>%
+      dplyr::summarise(cut.pct.mean = mean(Expr), cut.pct.median = median(Expr), cut.Cells = length(Expr))
+
+    genes.statics$total.pos.cells <- apply(counts.expr[genes.statics$Gene,] > 0, 1, sum)
+    genes.statics$total.UMI.pct <- round(apply(counts.expr[genes.statics$Gene,], 1, sum)/sum(counts.expr),digits = 4)
+    genes.statics$total.cells <- ncol(SeuratObj)
+    genes.statics$celltype <- celltype
+    genes.statics <- genes.statics[,c("celltype", "total.cells", "Gene", "total.pos.cells", "total.UMI.pct", "cut.Cells", "cut.pct.mean", "cut.pct.median")]
+    genes.statics <- genes.statics[order(genes.statics$total.UMI.pct, decreasing = TRUE),]
+    if (celltype == all.cell.types[1]) {
+      results.statics <- genes.statics
+    }else{
+      results.statics <- rbind(results.statics, genes.statics)
+    }
+  }
+  return(results.statics)
+}
+
+
+
+
+
+
+
+
+
+
+

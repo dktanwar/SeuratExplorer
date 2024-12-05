@@ -744,7 +744,7 @@ explorer_server <- function(input, output, session, data){
   ################################ DEGs analysis
   # Warning
   output$degs_warning = renderText({
-    paste0('Differential Expression testing is computationally intensive and may take some time. 注意，请在点击"Analyze"之前，保存好先前的分析结果！')
+    paste0('Differential expression testing is computationally intensive, so it takes longer. 注意，请在点击"Analyze"之前，保存好先前的分析结果！')
   })
 
   DEGs <- reactiveValues(degs = NULL, degs_ready = FALSE)
@@ -894,6 +894,51 @@ explorer_server <- function(input, output, session, data){
     message("SeuratExplorer: preparing dataset_degs...")
     # Show data
     DT::datatable(DEGs$degs, extensions = 'Buttons',
+                  options = list(scrollX=TRUE, lengthMenu = c(5,10,15),
+                                 paging = TRUE, searching = TRUE,
+                                 fixedColumns = TRUE, autoWidth = TRUE,
+                                 ordering = TRUE, dom = 'Bfrtip',
+                                 buttons = c('copy', 'csv', 'excel')))
+  })
+
+  ################################ Top genes analysis
+  # Warning
+  output$topgenes_warning = renderText({
+    paste0('Calculate top expressed genes is computationally intensive, so it takes longer. 注意，请在点击"Analyze"之前，保存好先前的分析结果！计算过程：
+           按照选择的分群分别对每群计算，对于该群的每一个细胞，依据设定的UMI percent cutoff计算出高表达的基因，然后再把所有细胞的计算结果汇总到一起，从而得出每群的高表达基因。')
+  })
+
+  TopGenes <- reactiveValues(topgenes = NULL, topgenes_ready = FALSE)
+
+  output$TopGenes_ready <- reactive({
+    return(TopGenes$topgenes_ready)
+  })
+
+  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditional panel所需要要的参数
+  outputOptions(output, 'TopGenes_ready', suspendWhenHidden=FALSE)
+
+  # define Cluster Annotation choice
+  output$TopGenesClusteResolution.UI <- renderUI({
+    message("SeuratExplorer: preparing TopGenesClusteResolution.UI...")
+    selectInput("TopGenesClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
+  })
+
+  observeEvent(input$TopGenesAnalysis, {
+    message("SeuratExplorer: preparing TopGenesAnalysis...")
+    showModal(modalDialog(title = "Calculating Top Genes...", "Please wait for a few minutes!", footer= NULL, size = "l"))
+    isolate(cds <- data$obj)
+    TopGenes$topgenes <<- top_genes(SeuratObj = cds, expr.cut = input$percentcut/100, group.by = input$TopGenesClusterResolution)
+    removeModal()
+     #修改全局变量，需不需要改为 <<-
+    TopGenes$topgenes_ready <<- TRUE
+  })
+
+  # 输出结果
+  output$dataset_topgenes <-  DT::renderDT(server=FALSE,{
+    req(TopGenes$topgenes)
+    message("SeuratExplorer: preparing topgenes...")
+    # Show data
+    DT::datatable(TopGenes$topgenes, extensions = 'Buttons',
                   options = list(scrollX=TRUE, lengthMenu = c(5,10,15),
                                  paging = TRUE, searching = TRUE,
                                  fixedColumns = TRUE, autoWidth = TRUE,
