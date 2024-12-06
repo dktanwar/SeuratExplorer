@@ -71,6 +71,7 @@ CheckGene <- function(InputGene, GeneLibrary){
   revised.genes <- sapply(InputGenes, FUN = function(x)ReviseGene(x, GeneLibrary = GeneLibrary))
   revised.genes <- unique(unname(revised.genes[!is.na(revised.genes)]))
   message("SeuratExplorer: CheckGene runs successfully!")
+  print(revised.genes)
   ifelse(length(revised.genes) == 0, yes = return(NA), no = return(revised.genes))
 }
 
@@ -371,10 +372,13 @@ top_genes <- function(SeuratObj, expr.cut = 0.01, group.by) {
   }
   colnames(counts.expr) <- colnames(SeuratObj)
   rownames(counts.expr) <- rownames(SeuratObj)
+  # 分celltype计算统计值
   all.cell.types <- unique(SeuratObj@meta.data[,group.by])
   for (celltype in all.cell.types) {
-    for (i in 1:ncol(SeuratObj)) {
-      values <- sort(counts.expr[, i], decreasing = TRUE)
+    cells.sub <- colnames(SeuratObj)[as.character(SeuratObj@meta.data[,group.by]) == celltype]
+    counts.expr.sub <- counts.expr[,cells.sub]
+    for (i in 1:ncol(counts.expr.sub)) {
+      values <- sort(counts.expr.sub[, i], decreasing = TRUE)
       rates <- values/sum(values)
       top <- rates[rates > expr.cut]
       if (i == 1) {
@@ -386,9 +390,9 @@ top_genes <- function(SeuratObj, expr.cut = 0.01, group.by) {
     genes.statics <- dplyr::group_by(res, Gene) %>%
       dplyr::summarise(cut.pct.mean = mean(Expr), cut.pct.median = median(Expr), cut.Cells = length(Expr))
 
-    genes.statics$total.pos.cells <- apply(counts.expr[genes.statics$Gene,] > 0, 1, sum)
-    genes.statics$total.UMI.pct <- round(apply(counts.expr[genes.statics$Gene,], 1, sum)/sum(counts.expr),digits = 4)
-    genes.statics$total.cells <- ncol(SeuratObj)
+    genes.statics$total.pos.cells <- apply(counts.expr.sub[genes.statics$Gene,] > 0, 1, sum)
+    genes.statics$total.UMI.pct <- round(apply(counts.expr.sub[genes.statics$Gene,], 1, sum)/sum(counts.expr),digits = 4)
+    genes.statics$total.cells <- ncol(counts.expr.sub)
     genes.statics$celltype <- celltype
     genes.statics <- genes.statics[,c("celltype", "total.cells", "Gene", "total.pos.cells", "total.UMI.pct", "cut.Cells", "cut.pct.mean", "cut.pct.median")]
     genes.statics <- genes.statics[order(genes.statics$total.UMI.pct, decreasing = TRUE),]
@@ -402,7 +406,36 @@ top_genes <- function(SeuratObj, expr.cut = 0.01, group.by) {
 }
 
 
-
+summary_features <- function(SeuratObj, features, group.by){
+  requireNamespace("dplyr")
+  requireNamespace("Seurat")
+  # 如果是assay5类型
+  if (class(SeuratObj@assays$RNA)[1] == "Assay5") {
+    SeuratObj <- JoinLayers(SeuratObj)
+    normalized.expr <- as.matrix(SeuratObj@assays$RNA@layers$data)
+  } else { # 如果是assay类型
+    normalized.expr <- as.matrix(SeuratObj@assays$RNA$data)
+  }
+  all.cell.types <- unique(SeuratObj@meta.data[,group.by])
+  for (celltype in all.cell.types) {
+    cells.sub <- colnames(SeuratObj)[as.character(SeuratObj@meta.data[,group.by]) == celltype]
+    normalized.expr.sub <- normalized.expr[,cells.sub]
+    mean.expr <- apply(normalized.expr[features,,drop = FALSE], 1, mean)
+    median.expr <- apply(normalized.expr[features,,drop = FALSE], 1, median)
+    pct <- apply(normalized.expr[features,,drop = FALSE] > 0, 1, mean)
+    single.res <- data.frame(Gene = features, Expr.mean = mean.expr, Expr.median = median.expr, PCT = pct)
+    single.res$CellType <- celltype
+    single.res$TotalCells <- ncol(normalized.expr.sub)
+    single.res <- single.res[,c("CellType", "TotalCells","Gene", "PCT", "Expr.mean", "Expr.median")]
+    rownames(single.res) <- NULL
+    if (celltype == all.cell.types[1]) {
+      res <- single.res
+    }else{
+      res <- rbind(res, single.res)
+    }
+  }
+  return(res)
+}
 
 
 

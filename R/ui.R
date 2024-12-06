@@ -13,7 +13,7 @@ explorer_sidebar_ui <- function(){
   conditionalPanel(
     condition = "output.file_loaded",
     sidebarMenu(menuItem(text = "Explorer", tabName = "explorer", icon = icon("dashboard"), startExpanded = TRUE,
-                         menuSubItem(text = "Dimensional reduction Plot", tabName = "dimplot", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Dimensional Reduction Plot", tabName = "dimplot", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Feature Plot", tabName = "featureplot", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Violin Plot", tabName = "vlnplot", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Dot Plot", tabName = "dotplot", icon = shiny::icon("angle-double-right")),
@@ -21,8 +21,12 @@ explorer_sidebar_ui <- function(){
                          menuSubItem(text = "Ridge Plot", tabName = "ridgeplot", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Cell Ratio Plot", tabName = "cellratioplot", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "DEG Analysis", tabName = "degs", icon = shiny::icon("angle-double-right")),
-                         menuSubItem(text = "Top Expressed Genes", tabName = "topgenes", icon = shiny::icon("angle-double-right"))))
-  )
+                         menuSubItem(text = "Top Expressed Genes", tabName = "topgenes", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Feature Summary", tabName = "featuresummary", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Feature correlation[coming]", tabName = "featurecorrelation", icon = shiny::icon("angle-double-right"))
+                         )
+                )
+    )
 }
 
 #' body - ui functions for Seurat explorer functions
@@ -292,7 +296,7 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["topgenes"]] = tabItem(tabName = "topgenes",
                                fluidRow(
-                                 box(textOutput("topgenes_warning"), title = "WARNING：", background = "orange", width = 6),
+                                 box(textOutput("topgenes_warning"), title = "WARNING：", background = "orange", width = 12),
                                  tags$style(".nav-tabs {background: #f4f4f4;}
                                  .nav-tabs-custom .nav-tabs li.active:hover a, .nav-tabs-custom .nav-tabs li.active a {background-color: #fff;
                                  border-color: #fff;
@@ -300,16 +304,29 @@ explorer_body_ui <- function(tab_list){
                                  .nav-tabs-custom .nav-tabs li.active {border-top-color:
                                  #314a6d;
                                  }"), # refer to: https://stackoverflow.com/questions/45247290/shiny-dashboard-tabbox-tabpanel-css
-                                 box(title = "Settings", solidHeader = TRUE, status = "primary", width = 12,
+                                 box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                  shinycssloaders::withSpinner(uiOutput("TopGenesClusteResolution.UI"), proxy.height = "10px"),
                                  sliderInput("percentcut","UMI percentage cutoff(%):",min = 1,  max = 10, value = 1, step = 1),
                                  actionButton("TopGenesAnalysis", "Analyze", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
+                                 box(title = "Analysis Results:", collapsible = TRUE, width = 9,
                                  conditionalPanel(
                                    condition = "output.TopGenes_ready",
-                                   box(title = "Analysis Results:", collapsible = TRUE, width = 12,
                                        shinycssloaders::withSpinner(DT::dataTableOutput('dataset_topgenes')))
                                  )
                                )
+  )
+  tab_list[["featuresummary"]] = tabItem(tabName = "featuresummary",
+                                   fluidRow(
+                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 12,
+                                         textInput("FeatureSummarySymbol", "Input Gene Symbols:", value = ""),
+                                         shinycssloaders::withSpinner(uiOutput("FeatureSummaryClusteResolution.UI"), proxy.height = "10px"),
+                                         actionButton("FeatureSummaryAnalysis", "Submit", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
+                                     box(title = "Gene Short Summary:", collapsible = TRUE, width = 12,
+                                         conditionalPanel(
+                                           condition = "output.FeatureSummary_ready",
+                                           shinycssloaders::withSpinner(DT::dataTableOutput('dataset_featuresummary')))
+                                     )
+                                   )
   )
   return(tab_list)
 }

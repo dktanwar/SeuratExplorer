@@ -945,6 +945,55 @@ explorer_server <- function(input, output, session, data){
                                  ordering = TRUE, dom = 'Bfrtip',
                                  buttons = c('copy', 'csv', 'excel')))
   })
+
+  ################################ Feature Summary
+  FeatureSummary <- reactiveValues(summary = NULL, summary_ready = FALSE)
+
+  output$FeatureSummary_ready <- reactive({
+    return(FeatureSummary$summary_ready)
+  })
+
+  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditional panel所需要要的参数
+  outputOptions(output, 'FeatureSummary_ready', suspendWhenHidden=FALSE)
+
+  # define Cluster Annotation choice
+  output$FeatureSummaryClusteResolution.UI <- renderUI({
+    message("SeuratExplorer: preparing FeatureSummaryClusteResolution.UI...")
+    selectInput("FeatureSummaryClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default, width = '30%')
+  })
+
+  observeEvent(input$FeatureSummaryAnalysis, {
+    message("SeuratExplorer: preparing FeatureSummaryAnalysis...")
+    if(is.na(input$FeatureSummarySymbol)){
+      GeneRevised <- NA
+    }else{
+      GeneRevised <- CheckGene(InputGene = input$FeatureSummarySymbol, GeneLibrary =  rownames(data$obj))
+    }
+    print(GeneRevised)
+    if (any(is.na(GeneRevised))) {
+      showModal(modalDialog(title = "Error", "None of the input genes can be found!", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+    }else{
+      showModal(modalDialog(title = "Summarizing features...", "Please wait for a few minutes!", footer= NULL, size = "l"))
+      isolate(cds <- data$obj)
+      FeatureSummary$summary <<- summary_features(SeuratObj = cds, features = GeneRevised, group.by = input$FeatureSummaryClusterResolution)
+      removeModal()
+      #修改全局变量，需不需要改为 <<-
+      FeatureSummary$summary_ready <<- TRUE
+    }
+  })
+
+  # 输出结果
+  output$dataset_featuresummary <-  DT::renderDT(server=FALSE,{
+    req(FeatureSummary$summary)
+    message("SeuratExplorer: preparing dataset_featuresummary...")
+    # Show data
+    DT::datatable(FeatureSummary$summary, extensions = 'Buttons',
+                  options = list(scrollX=TRUE, lengthMenu = c(5,10,15),
+                                 paging = TRUE, searching = TRUE,
+                                 fixedColumns = TRUE, autoWidth = TRUE,
+                                 ordering = TRUE, dom = 'Bfrtip',
+                                 buttons = c('copy', 'csv', 'excel')))
+  })
 }
 
 
