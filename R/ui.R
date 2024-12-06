@@ -23,7 +23,7 @@ explorer_sidebar_ui <- function(){
                          menuSubItem(text = "DEG Analysis", tabName = "degs", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Top Expressed Genes", tabName = "topgenes", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Feature Summary", tabName = "featuresummary", icon = shiny::icon("angle-double-right")),
-                         menuSubItem(text = "Feature correlation[coming]", tabName = "featurecorrelation", icon = shiny::icon("angle-double-right"))
+                         menuSubItem(text = "Feature Correlation", tabName = "featurecorrelation", icon = shiny::icon("angle-double-right"))
                          )
                 )
     )
@@ -255,19 +255,14 @@ explorer_body_ui <- function(tab_list){
                                  .nav-tabs-custom .nav-tabs li.active {border-top-color:
                                  #314a6d;
                                  }"), # refer to: https://stackoverflow.com/questions/45247290/shiny-dashboard-tabbox-tabpanel-css
+                                 # 注意，所有的tabBox都会使用以上style
                                  tabBox(
                                    title = "Find Markers or DEGs",
                                    id = "tabset_degs", width = 12, # height = "250px",
-                                   tabPanel("ClusterMarkers", strong(h3("Find Markers for All Clusters")),
+                                   tabPanel("Find Markers for All Clusters",
                                             shinycssloaders::withSpinner(uiOutput("ClusterMarkersClusterResolution.UI"), proxy.height = "10px"),
                                             actionButton("DEGsClusterMarkersAnalysis", "Analyze", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
-                                   # 功能冗余
-                                   # tabPanel("InterClusterDEGs", strong(h3("Find DEGs Between two Cluster Groups")),
-                                   #          shinycssloaders::withSpinner(uiOutput("InterClusterDEGsClusterResolution.UI"), proxy.height = "10px"),
-                                   #          shinycssloaders::withSpinner(uiOutput("InterClusterDEGsGroupCase.UI"), proxy.height = "10px"),
-                                   #          shinycssloaders::withSpinner(uiOutput("InterClusterDEGsGroupControl.UI"), proxy.height = "10px"),
-                                   #          actionButton("InterClusterDEGsAnalysis", "Analyze")),
-                                   tabPanel("IntraClusterDEGs", strong(h3("Find DEGs by Customized Groups Within Selected Clusters")),
+                                   tabPanel("Find DEGs for two groups",
                                             shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsCustomizedGroups.UI"), proxy.height = "10px"),
                                             shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsCustomizedGroupsCase.UI"), proxy.height = "10px"),
                                             shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsCustomizedGroupsControl.UI"), proxy.height = "10px"),
@@ -277,7 +272,7 @@ explorer_body_ui <- function(tab_list){
                                             shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsSubsetCellsSelectedClusters.UI"), proxy.height = "10px"),
                                             tags$hr(style="border: none; border-top: 1px dashed #ccc;"),
                                             actionButton("IntraClusterDEGssAnalysis", "Analyze", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
-                                   tabPanel("Parameters", strong(h3("Set Parameters")),
+                                   tabPanel("Custom Parameters",
                                             sliderInput("logfcthreshold", label = "Logfc Threshold:", min = 0, max = 1, value = 0.1),
                                             selectInput("testuse","Test use:", choices = c(wilcox = "wilcox", wilcox_limma = "wilcox_limma",
                                                                                            T_test = "t", negbinom = "negbinom", poisson = "poisson",
@@ -297,18 +292,11 @@ explorer_body_ui <- function(tab_list){
   tab_list[["topgenes"]] = tabItem(tabName = "topgenes",
                                fluidRow(
                                  box(textOutput("topgenes_warning"), title = "WARNING：", background = "orange", width = 12),
-                                 tags$style(".nav-tabs {background: #f4f4f4;}
-                                 .nav-tabs-custom .nav-tabs li.active:hover a, .nav-tabs-custom .nav-tabs li.active a {background-color: #fff;
-                                 border-color: #fff;
-                                 }
-                                 .nav-tabs-custom .nav-tabs li.active {border-top-color:
-                                 #314a6d;
-                                 }"), # refer to: https://stackoverflow.com/questions/45247290/shiny-dashboard-tabbox-tabpanel-css
                                  box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                  shinycssloaders::withSpinner(uiOutput("TopGenesClusteResolution.UI"), proxy.height = "10px"),
                                  sliderInput("percentcut","UMI percentage cutoff(%):",min = 1,  max = 10, value = 1, step = 1),
                                  actionButton("TopGenesAnalysis", "Analyze", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
-                                 box(title = "Analysis Results:", collapsible = TRUE, width = 9,
+                                 box(title = "Analysis Results:", collapsible = TRUE, width = 9,solidHeader = TRUE, status = "primary",
                                  conditionalPanel(
                                    condition = "output.TopGenes_ready",
                                        shinycssloaders::withSpinner(DT::dataTableOutput('dataset_topgenes')))
@@ -317,20 +305,45 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["featuresummary"]] = tabItem(tabName = "featuresummary",
                                    fluidRow(
-                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 12,
-                                         textInput("FeatureSummarySymbol", "Input Gene Symbols:", value = ""),
+                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
+                                         textAreaInput("FeatureSummarySymbol", "Input Gene Symbols:", value = "", height = '100px'),
                                          shinycssloaders::withSpinner(uiOutput("FeatureSummaryClusteResolution.UI"), proxy.height = "10px"),
                                          actionButton("FeatureSummaryAnalysis", "Submit", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
-                                     box(title = "Gene Short Summary:", collapsible = TRUE, width = 12,
+                                     box(title = "Gene Short Summary:", collapsible = TRUE, width = 9,solidHeader = TRUE, status = "primary",
                                          conditionalPanel(
                                            condition = "output.FeatureSummary_ready",
                                            shinycssloaders::withSpinner(DT::dataTableOutput('dataset_featuresummary')))
                                      )
                                    )
   )
+  tab_list[["featurecorrelation"]] = tabItem(tabName = "featurecorrelation",
+                                         fluidRow(
+                                           box(title = "Common Settings", solidHeader = TRUE, status = "primary", width = 3,
+                                               shinycssloaders::withSpinner(uiOutput("FeatureCorrelationClusteResolution.UI"), proxy.height = "10px"),
+                                               shinycssloaders::withSpinner(uiOutput("FeatureCorrelationIdentsSelected.UI"), proxy.height = "10px"),
+                                               selectInput("correlationmethod","Method Use:", choices = c(pearson = "pearson", spearman = "spearman"))),
+                                           tabBox(
+                                             title = "Calcuate Correlation",
+                                             id = "tabset_featurecorrelation", width = 9, # height = "250px",
+                                             tabPanel("Find Top Correlated Gene Pairs", # strong(h3("Top Correlated Genes")),
+                                                      actionButton("TopCorrelationAnalysis", "Analyze", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
+                                             tabPanel("Find Correlated Genes for A Gene", # strong(h3("Find correlated genes for a gene")),
+                                                      textInput(inputId = "MostCorrelatedAGene", label = "Input a gene:"),
+                                                      actionButton("MostCorrelatedAnalysis", "Analyze", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
+                                             tabPanel("Calculate Correlation for A Gene List", # strong(h3("Calculate correlation for a gene group")),
+                                                      textAreaInput(inputId = "CorrelationGeneList", label = "Input a group of genes:", width = '30%', height = '100px'),
+                                                      actionButton("calculatecorrelation", "Analyze", icon = icon("save"), class = "btn-primary"))
+
+                                           ),
+                                           conditionalPanel(
+                                             condition = "output.FeatureCorrelation_ready",
+                                             box(title = "Analysis Results:", collapsible = TRUE, width = 12, solidHeader = TRUE, status = "primary",
+                                                 shinycssloaders::withSpinner(DT::dataTableOutput('dataset_correlation')))
+                                           )
+                                         )
+  )
   return(tab_list)
 }
-
 
 
 #' UI for shiny App interface
@@ -372,9 +385,10 @@ ui <-  function(){
                                     # 上传文件
                                     box(status = "primary", title = "Upload Data", width = 12, collapsible = TRUE, solidHeader = TRUE,
                                         fileInput("dataset_file", "Choose A Seurat .rds file:", accept = '.rds')),
+                                    # 把conditionalPanel写在box里面，还是把box写在conditionalPanel里面，取决于你想不想在加载时，要不需要显示一个空box.
                                     conditionalPanel(
                                       condition = "output.file_loaded",
-                                      box(title = "Metadata of Cells", collapsible = TRUE, width = 12,
+                                      box(title = "Metadata of Cells", collapsible = TRUE, width = 12,solidHeader = TRUE, status = "primary",
                                           shinycssloaders::withSpinner(DT::dataTableOutput('dataset_meta')))
                                     ))
                                   )

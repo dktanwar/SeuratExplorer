@@ -224,7 +224,7 @@ explorer_server <- function(input, output, session, data){
   output$VlnIdentsSelected.UI <- renderUI({
     req(input$VlnClusterResolution)
     message("SeuratExplorer: preparing VlnIdentsSelected.UI...")
-    shinyWidgets::pickerInput(inputId = "VlnIdentsSelected", label = "Idents used:",
+    shinyWidgets::pickerInput(inputId = "VlnIdentsSelected", label = "Clusters Used:",
                               choices = levels(data$obj@meta.data[,input$VlnClusterResolution]), selected = levels(data$obj@meta.data[,input$VlnClusterResolution]),
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
   })
@@ -756,7 +756,7 @@ explorer_server <- function(input, output, session, data){
   # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditionalpanel所需要要的参数
   outputOptions(output, 'DEGs_ready', suspendWhenHidden=FALSE)
 
-  # Part-1: ClusterMarkers
+  # Part-1: Cluster Markers
 
   # define Cluster Annotation choice
   output$ClusterMarkersClusterResolution.UI <- renderUI({
@@ -777,52 +777,11 @@ explorer_server <- function(input, output, session, data){
     DEGs$degs_ready <<- TRUE
   })
 
-  # 功能冗余
-  # # Part-2: InterClusterDEGs
-  #
-  # # define Cluster Annotation choice
-  # output$InterClusterDEGsClusterResolution.UI <- renderUI({
-  #   selectInput("InterClusterDEGsClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options)
-  # })
-  #
-  # # define the idents used
-  # output$InterClusterDEGsGroupCase.UI <- renderUI({
-  #   req(input$InterClusterDEGsClusterResolution)
-  #   selectInput("InterClusterDEGsGroupCase","Choose Case Clusters:", choices = levels(data$obj@meta.data[,input$InterClusterDEGsClusterResolution]), multiple = TRUE)
-  # })
-  #
-  # # define the idents used
-  # output$InterClusterDEGsGroupControl.UI <- renderUI({
-  #   req(input$InterClusterDEGsClusterResolution)
-  #   req(input$InterClusterDEGsGroupCase)
-  #   selectInput("InterClusterDEGsGroupControl","Choose control Clusters:", multiple = TRUE,
-  #               choices = setdiff(levels(data$obj@meta.data[,input$InterClusterDEGsClusterResolution]),input$InterClusterDEGsGroupCase))
-  # })
-  #
-  #
-  # observeEvent(input$InterClusterDEGsAnalysis, {
-  #   if (any(is.null(input$InterClusterDEGsGroupCase), is.null(input$InterClusterDEGsGroupControl))) {
-  #     showModal(modalDialog(title = "Error:","Please specify the case and control clusters. Press ESC to close.",easyClose = TRUE,footer = NULL))
-  #   }else{
-  #     showModal(modalDialog(title = "Calculating Cluster Markers...", "Please wait for a few minutes!", footer= NULL, size = "l"))
-  #     isolate(cds <- data$obj)
-  #     Seurat::Idents(cds) <- input$InterClusterDEGsClusterResolution
-  #     check_dependency(test = input$testuse)
-  #     cluster.markers <- Seurat::FindMarkers(cds, ident.1 = input$InterClusterDEGsGroupCase, ident.2 = input$InterClusterDEGsGroupControl,
-  #                                            test.use = input$testuse, logfc.threshold = input$logfcthreshold,
-  #                                            min.pct = input$minpct, min.diff.pct = ifelse(input$mindiffpct, input$mindiffpct, -Inf))
-  #     removeModal()
-  #     DEGs$degs <<- cluster.markers #修改全局变量，需不需要改为 <<-
-  #     DEGs$degs_ready <<- TRUE
-  #   }
-  # })
-
-
-  # Part-3: IntraClusterDEGs
+  # Part-2: Find DEGs for two groups
   # define Cluster Annotation choice
   output$IntraClusterDEGsCustomizedGroups.UI <- renderUI({
     message("SeuratExplorer: preparing IntraClusterDEGsCustomizedGroups.UI...")
-    selectInput("IntraClusterDEGsCustomizedGroups","Group samples by:", choices = data$cluster_options)
+    selectInput("IntraClusterDEGsCustomizedGroups","Group Cells By:", choices = data$cluster_options)
   })
 
   # define the idents used
@@ -959,7 +918,7 @@ explorer_server <- function(input, output, session, data){
   # define Cluster Annotation choice
   output$FeatureSummaryClusteResolution.UI <- renderUI({
     message("SeuratExplorer: preparing FeatureSummaryClusteResolution.UI...")
-    selectInput("FeatureSummaryClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default, width = '30%')
+    selectInput("FeatureSummaryClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
   observeEvent(input$FeatureSummaryAnalysis, {
@@ -989,6 +948,85 @@ explorer_server <- function(input, output, session, data){
     # Show data
     DT::datatable(FeatureSummary$summary, extensions = 'Buttons',
                   options = list(scrollX=TRUE, lengthMenu = c(5,10,15),
+                                 paging = TRUE, searching = TRUE,
+                                 fixedColumns = TRUE, autoWidth = TRUE,
+                                 ordering = TRUE, dom = 'Bfrtip',
+                                 buttons = c('copy', 'csv', 'excel')))
+  })
+
+  ################################ Feature Correlation
+  FeatureCorrelation <- reactiveValues(summary = NULL, summary_ready = FALSE)
+
+  output$FeatureCorrelation_ready <- reactive({
+    return(FeatureCorrelation$summary_ready)
+  })
+
+  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditional panel所需要要的参数
+  outputOptions(output, 'FeatureCorrelation_ready', suspendWhenHidden=FALSE)
+
+  # define Cluster Annotation choice
+  output$FeatureCorrelationClusteResolution.UI <- renderUI({
+    message("SeuratExplorer: preparing FeatureCorrelationClusteResolution.UI...")
+    selectInput("FeatureCorrelationClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
+  })
+
+  # define the idents used
+  output$FeatureCorrelationIdentsSelected.UI <- renderUI({
+    req(input$FeatureCorrelationClusterResolution)
+    message("SeuratExplorer: preparing FeatureCorrelationIdentsSelected.UI...")
+    shinyWidgets::pickerInput(inputId = "FeatureCorrelationIdentsSelected", label = "Clusters Used:",
+                              choices = levels(data$obj@meta.data[,input$FeatureCorrelationClusterResolution]), selected = levels(data$obj@meta.data[,input$FeatureCorrelationClusterResolution]),
+                              options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
+  })
+
+
+
+  observeEvent(input$TopCorrelationAnalysis, {
+    message("SeuratExplorer: preparing TopCorrelationAnalysis...")
+    showModal(modalDialog(title = "Calculating", "Calculate top correlated gene pairs, which usually takes longer...", footer= NULL, size = "l"))
+    isolate(cds <- data$obj)
+    Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
+    cds <- SeuratObject:::subset.Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
+    FeatureCorrelation$summary <<- calculate_top_correlations(SeuratObj = cds, method = input$correlationmethod)
+    removeModal()
+    #修改全局变量，需不需要改为 <<-
+    FeatureCorrelation$summary_ready <<- TRUE
+  })
+
+
+  observeEvent(input$MostCorrelatedAnalysis, {
+    message("SeuratExplorer: preparing MostCorrelatedAnalysis...")
+    showModal(modalDialog(title = "Calculating", "Calculate the most correlated genes for the input gene, which usually takes longer...", footer= NULL, size = "l"))
+    isolate(cds <- data$obj)
+    Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
+    cds <- SeuratObject:::subset.Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
+    FeatureCorrelation$summary <<- calculate_most_correlated(SeuratObj = cds, method = input$correlationmethod)
+    removeModal()
+    #修改全局变量，需不需要改为 <<-
+    FeatureCorrelation$summary_ready <<- TRUE
+  })
+
+  observeEvent(input$CalculateCorrelation, {
+    message("SeuratExplorer: preparing CalculateCorrelation...")
+    showModal(modalDialog(title = "Calculating", "Calculate the correlation for specified gene list...", footer= NULL, size = "l"))
+    isolate(cds <- data$obj)
+    Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
+    cds <- SeuratObject:::subset.Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
+    FeatureCorrelation$summary <<- calculate_correlation(SeuratObj = cds, method = input$correlationmethod)
+    removeModal()
+    #修改全局变量，需不需要改为 <<-
+    FeatureCorrelation$summary_ready <<- TRUE
+  })
+
+
+  # 输出结果
+  output$dataset_correlation <-  DT::renderDT(server=FALSE,{
+    req(FeatureCorrelation$summary)
+    message("SeuratExplorer: preparing dataset_featuresummary...")
+    # Show data
+    DT::datatable(FeatureCorrelation$summary, extensions = 'Buttons',
+                  options = list(scrollX=TRUE,
+                                 # lengthMenu = c(5,10,15),
                                  paging = TRUE, searching = TRUE,
                                  fixedColumns = TRUE, autoWidth = TRUE,
                                  ordering = TRUE, dom = 'Bfrtip',
