@@ -113,7 +113,7 @@ explorer_server <- function(input, output, session, data){
   # 提示可用的qc选项作为Gene symbol
   output$Featurehints.UI <- renderUI({
     message("SeuratExplorer: preparing Featurehints.UI...")
-    helpText(strong(paste("Multiple genes are separted by a space, such as: CD4 CD8A; Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
+    helpText(strong(paste("Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
              br(),
              strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
@@ -196,7 +196,7 @@ explorer_server <- function(input, output, session, data){
   # 提示可用的qc选项作为Gene symbol
   output$Vlnhints.UI <- renderUI({
     message("SeuratExplorer: preparing Vlnhints.UI...")
-    helpText(strong(paste("Multiple genes are separted by a space, such as: CD4 CD8A; Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
+    helpText(strong(paste("Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
              br(),
              strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
@@ -369,7 +369,7 @@ explorer_server <- function(input, output, session, data){
   # 提示可用的qc选项作为Gene symbol
   output$Dothints.UI <- renderUI({
     message("SeuratExplorer: preparing Dothints.UI...")
-    helpText(strong(paste("Multiple genes are separted by a space, such as: CD4 CD8A; Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
+    helpText(strong(paste("Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
              br(),
              strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
@@ -486,9 +486,7 @@ explorer_server <- function(input, output, session, data){
   # 提示可用的qc选项作为Gene symbol
   output$Heatmaphints.UI <- renderUI({
     message("SeuratExplorer: preparing Heatmaphints.UI...")
-    helpText(strong("Multiple genes are separted by a space, such as: CD4 CD8A."),
-             br(),
-             strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
+    helpText(strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
 
   # define Cluster Annotation choice
@@ -555,7 +553,7 @@ explorer_server <- function(input, output, session, data){
   # 提示可用的qc选项作为Gene symbol
   output$Ridgeplothints.UI <- renderUI({
     message("SeuratExplorer: preparing Ridgeplothints.UI...")
-    helpText(strong(paste("Multiple genes are separted by a space, such as: CD4 CD8A; Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
+    helpText(strong(paste("Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
              br(),
              strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
@@ -928,7 +926,6 @@ explorer_server <- function(input, output, session, data){
     }else{
       GeneRevised <- CheckGene(InputGene = input$FeatureSummarySymbol, GeneLibrary =  rownames(data$obj))
     }
-    print(GeneRevised)
     if (any(is.na(GeneRevised))) {
       showModal(modalDialog(title = "Error", "None of the input genes can be found!", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
     }else{
@@ -996,26 +993,42 @@ explorer_server <- function(input, output, session, data){
 
   observeEvent(input$MostCorrelatedAnalysis, {
     message("SeuratExplorer: preparing MostCorrelatedAnalysis...")
-    showModal(modalDialog(title = "Calculating", "Calculate the most correlated genes for the input gene, which usually takes longer...", footer= NULL, size = "l"))
-    isolate(cds <- data$obj)
-    Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
-    cds <- SeuratObject:::subset.Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
-    FeatureCorrelation$summary <<- calculate_most_correlated(SeuratObj = cds, method = input$correlationmethod)
-    removeModal()
-    #修改全局变量，需不需要改为 <<-
-    FeatureCorrelation$summary_ready <<- TRUE
+    feature.revised <- ReviseGene(Agene = trimws(input$MostCorrelatedAGene), GeneLibrary = rownames(data$obj))
+    if(is.na(feature.revised)){
+      showModal(modalDialog(title = "Error", "the input gene can not be found, please check...", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+    }else{
+      showModal(modalDialog(title = "Calculating", "Calculate the most correlated genes for the input gene, which usually takes longer...", footer= NULL, size = "l"))
+      isolate(cds <- data$obj)
+      Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
+      cds <- SeuratObject:::subset.Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
+      FeatureCorrelation$summary <<- calculate_most_correlated(SeuratObj = cds, feature = feature.revised, method = input$correlationmethod)
+      removeModal()
+      #修改全局变量，需不需要改为 <<-
+      FeatureCorrelation$summary_ready <<- TRUE
+    }
   })
 
-  observeEvent(input$CalculateCorrelation, {
-    message("SeuratExplorer: preparing CalculateCorrelation...")
-    showModal(modalDialog(title = "Calculating", "Calculate the correlation for specified gene list...", footer= NULL, size = "l"))
-    isolate(cds <- data$obj)
-    Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
-    cds <- SeuratObject:::subset.Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
-    FeatureCorrelation$summary <<- calculate_correlation(SeuratObj = cds, method = input$correlationmethod)
-    removeModal()
-    #修改全局变量，需不需要改为 <<-
-    FeatureCorrelation$summary_ready <<- TRUE
+  observeEvent(input$calculatecorrelation, {
+    message("SeuratExplorer: preparing calculatecorrelation...")
+    if(is.na(input$CorrelationGeneList)){
+      GeneRevised <- NA
+    }else{
+      GeneRevised <- CheckGene(InputGene = input$CorrelationGeneList, GeneLibrary =  rownames(data$obj))
+    }
+    if (any(is.na(GeneRevised))) {
+      showModal(modalDialog(title = "Error", "None of the input genes can be found!", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+    }else if(length(GeneRevised) < 2){
+      showModal(modalDialog(title = "Error", "Please input at least two genes!", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+    }else{
+      showModal(modalDialog(title = "Calculating", "Calculate the correlation for the specified gene list...", footer= NULL, size = "l"))
+      isolate(cds <- data$obj)
+      Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
+      cds <- SeuratObject:::subset.Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
+      FeatureCorrelation$summary <<- calculate_correlation(SeuratObj = cds, features = GeneRevised, method = input$correlationmethod)
+      removeModal()
+      #修改全局变量，需不需要改为 <<-
+      FeatureCorrelation$summary_ready <<- TRUE
+    }
   })
 
 
