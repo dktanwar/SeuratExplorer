@@ -376,6 +376,9 @@ top_genes <- function(SeuratObj, expr.cut = 0.01, group.by) {
   all.cell.types <- unique(SeuratObj@meta.data[,group.by])
   for (celltype in all.cell.types) {
     cells.sub <- colnames(SeuratObj)[as.character(SeuratObj@meta.data[,group.by]) == celltype]
+    if (length(cells.sub) < 3) {
+      next
+    }
     counts.expr.sub <- counts.expr[,cells.sub]
     for (i in 1:ncol(counts.expr.sub)) {
       values <- sort(counts.expr.sub[, i], decreasing = TRUE)
@@ -389,7 +392,6 @@ top_genes <- function(SeuratObj, expr.cut = 0.01, group.by) {
     }
     genes.statics <- dplyr::group_by(res, Gene) %>%
       dplyr::summarise(cut.pct.mean = mean(Expr), cut.pct.median = median(Expr), cut.Cells = length(Expr))
-    print(genes.statics$Gene)
     genes.statics$total.pos.cells <- apply(counts.expr.sub[genes.statics$Gene,,drop = FALSE] > 0, 1, sum)
     genes.statics$total.UMI.pct <- round(apply(counts.expr.sub[genes.statics$Gene,,drop = FALSE], 1, sum)/sum(counts.expr),digits = 4)
     genes.statics$total.cells <- ncol(counts.expr.sub)
@@ -419,6 +421,9 @@ summary_features <- function(SeuratObj, features, group.by){
   all.cell.types <- unique(SeuratObj@meta.data[,group.by])
   for (celltype in all.cell.types) {
     cells.sub <- colnames(SeuratObj)[as.character(SeuratObj@meta.data[,group.by]) == celltype]
+    if (length(cells.sub) < 3) {
+      next
+    }
     normalized.expr.sub <- normalized.expr[,cells.sub]
     mean.expr <- apply(normalized.expr[features,,drop = FALSE], 1, mean)
     median.expr <- apply(normalized.expr[features,,drop = FALSE], 1, median)
