@@ -389,9 +389,9 @@ top_genes <- function(SeuratObj, expr.cut = 0.01, group.by) {
     }
     genes.statics <- dplyr::group_by(res, Gene) %>%
       dplyr::summarise(cut.pct.mean = mean(Expr), cut.pct.median = median(Expr), cut.Cells = length(Expr))
-
-    genes.statics$total.pos.cells <- apply(counts.expr.sub[genes.statics$Gene,] > 0, 1, sum)
-    genes.statics$total.UMI.pct <- round(apply(counts.expr.sub[genes.statics$Gene,], 1, sum)/sum(counts.expr),digits = 4)
+    print(genes.statics$Gene)
+    genes.statics$total.pos.cells <- apply(counts.expr.sub[genes.statics$Gene,,drop = FALSE] > 0, 1, sum)
+    genes.statics$total.UMI.pct <- round(apply(counts.expr.sub[genes.statics$Gene,,drop = FALSE], 1, sum)/sum(counts.expr),digits = 4)
     genes.statics$total.cells <- ncol(counts.expr.sub)
     genes.statics$celltype <- celltype
     genes.statics <- genes.statics[,c("celltype", "total.cells", "Gene", "total.pos.cells", "total.UMI.pct", "cut.Cells", "cut.pct.mean", "cut.pct.median")]
