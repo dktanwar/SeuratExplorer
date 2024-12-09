@@ -851,7 +851,8 @@ explorer_server <- function(input, output, session, data){
     message("SeuratExplorer: preparing dataset_degs...")
     # Show data
     DT::datatable(DEGs$degs, extensions = 'Buttons',
-                  options = list(scrollX=TRUE, lengthMenu = c(5,10,15),
+                  options = list(scrollX=TRUE,
+                                 # lengthMenu = c(5,10,15),
                                  paging = TRUE, searching = TRUE,
                                  fixedColumns = TRUE, autoWidth = TRUE,
                                  ordering = TRUE, dom = 'Bfrtip',
@@ -896,7 +897,8 @@ explorer_server <- function(input, output, session, data){
     message("SeuratExplorer: preparing topgenes...")
     # Show data
     DT::datatable(TopGenes$topgenes, extensions = 'Buttons',
-                  options = list(scrollX=TRUE, lengthMenu = c(5,10,15),
+                  options = list(scrollX=TRUE,
+                                 # lengthMenu = c(5,10,15),
                                  paging = TRUE, searching = TRUE,
                                  fixedColumns = TRUE, autoWidth = TRUE,
                                  ordering = TRUE, dom = 'Bfrtip',
@@ -944,7 +946,8 @@ explorer_server <- function(input, output, session, data){
     message("SeuratExplorer: preparing dataset_featuresummary...")
     # Show data
     DT::datatable(FeatureSummary$summary, extensions = 'Buttons',
-                  options = list(scrollX=TRUE, lengthMenu = c(5,10,15),
+                  options = list(scrollX=TRUE,
+                                 # lengthMenu = c(5,10,15),
                                  paging = TRUE, searching = TRUE,
                                  fixedColumns = TRUE, autoWidth = TRUE,
                                  ordering = TRUE, dom = 'Bfrtip',
@@ -1102,7 +1105,8 @@ server <- function(input, output, session) {
     req(data$obj)
     # Show data
     DT::datatable(data$obj@meta.data, extensions = 'Buttons',
-              options = list(scrollX=TRUE, lengthMenu = c(5,10,15),
+              options = list(scrollX=TRUE,
+                             # lengthMenu = c(5,10,15),
                              paging = TRUE, searching = TRUE,
                              fixedColumns = TRUE, autoWidth = TRUE,
                              ordering = TRUE, dom = 'Bfrtip',

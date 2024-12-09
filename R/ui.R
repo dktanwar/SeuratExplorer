@@ -284,7 +284,7 @@ explorer_body_ui <- function(tab_list){
                                  ),
                                  conditionalPanel(
                                    condition = "output.DEGs_ready",
-                                   box(title = "Analysis Results:", collapsible = TRUE, width = 12,
+                                   box(title = "Analysis Results:", collapsible = TRUE, width = 12,align = "center",
                                        shinycssloaders::withSpinner(DT::dataTableOutput('dataset_degs')))
                                  )
                                )
@@ -296,7 +296,7 @@ explorer_body_ui <- function(tab_list){
                                  shinycssloaders::withSpinner(uiOutput("TopGenesClusteResolution.UI"), proxy.height = "10px"),
                                  sliderInput("percentcut","UMI percentage cutoff(%):",min = 1,  max = 10, value = 1, step = 1),
                                  actionButton("TopGenesAnalysis", "Analyze", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
-                                 box(title = "Analysis Results:", collapsible = TRUE, width = 9,solidHeader = TRUE, status = "primary",
+                                 box(title = "Analysis Results:", collapsible = TRUE, width = 9,solidHeader = TRUE, status = "primary",align = "center",
                                  conditionalPanel(
                                    condition = "output.TopGenes_ready",
                                        shinycssloaders::withSpinner(DT::dataTableOutput('dataset_topgenes')))
@@ -309,7 +309,7 @@ explorer_body_ui <- function(tab_list){
                                          textAreaInput("FeatureSummarySymbol", "Input Gene Symbols:", value = "", height = '100px', resize = "vertical"),
                                          shinycssloaders::withSpinner(uiOutput("FeatureSummaryClusteResolution.UI"), proxy.height = "10px"),
                                          actionButton("FeatureSummaryAnalysis", "Submit", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
-                                     box(title = "Gene Short Summary:", collapsible = TRUE, width = 9,solidHeader = TRUE, status = "primary",
+                                     box(title = "Gene Short Summary:", collapsible = TRUE, width = 9,solidHeader = TRUE, status = "primary",align = "center",
                                          conditionalPanel(
                                            condition = "output.FeatureSummary_ready",
                                            shinycssloaders::withSpinner(DT::dataTableOutput('dataset_featuresummary')))
@@ -337,7 +337,7 @@ explorer_body_ui <- function(tab_list){
                                            ),
                                            conditionalPanel(
                                              condition = "output.FeatureCorrelation_ready",
-                                             box(title = "Analysis Results:", collapsible = TRUE, width = 12, solidHeader = TRUE, status = "primary",
+                                             box(title = "Analysis Results:", collapsible = TRUE, width = 12, solidHeader = TRUE, status = "primary",align = "center",
                                                  shinycssloaders::withSpinner(DT::dataTableOutput('dataset_correlation')))
                                            )
                                          )
@@ -388,7 +388,7 @@ ui <-  function(){
                                     # 把conditionalPanel写在box里面，还是把box写在conditionalPanel里面，取决于你想不想在加载时，要不需要显示一个空box.
                                     conditionalPanel(
                                       condition = "output.file_loaded",
-                                      box(title = "Metadata of Cells", collapsible = TRUE, width = 12,solidHeader = TRUE, status = "primary",
+                                      box(title = "Metadata of Cells", collapsible = TRUE, width = 12,solidHeader = TRUE, status = "primary",align = "center",
                                           shinycssloaders::withSpinner(DT::dataTableOutput('dataset_meta')))
                                     ))
                                   )
