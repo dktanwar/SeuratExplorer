@@ -66,12 +66,11 @@ prepare_qc_options <- function(df, types = c("double","integer","numeric")){
 
 # Check the input gene, return the revised gene, which can be used for FeaturePlot, Vlnplot ect.
 CheckGene <- function(InputGene, GeneLibrary){
-  InputGenes <- unlist(strsplit(InputGene,split = "\n"))
+  InputGenes <- trimws(unlist(strsplit(InputGene,split = "\n")))
   InputGenes <- InputGenes[InputGenes != ""]
   revised.genes <- sapply(InputGenes, FUN = function(x)ReviseGene(x, GeneLibrary = GeneLibrary))
   revised.genes <- unique(unname(revised.genes[!is.na(revised.genes)]))
   message("SeuratExplorer: CheckGene runs successfully!")
-  print(revised.genes)
   ifelse(length(revised.genes) == 0, yes = return(NA), no = return(revised.genes))
 }
 
@@ -450,13 +449,13 @@ calculate_top_correlations <- function(SeuratObj, method, top = 1000){
     normalized.expr <- as.matrix(SeuratObj@assays$RNA$data)
   }
   # 过滤细胞，表达值的和要大于细胞数目的1/10，设置比较随意！
-  normalized.expr <- normalized.expr[apply(normalized.expr, 1, sum) > 0.1 * ncol(SeuratObj),]
+  normalized.expr <- normalized.expr[apply(normalized.expr, 1, sum) > 0.1 * ncol(SeuratObj),,drop = FALSE]
   cor.res = cor(t(as.matrix(normalized.expr)), method = method)
   cor.res[lower.tri(cor.res, diag = TRUE)] <- 0
   cor.res <- reshape2::melt(cor.res)
   colnames(cor.res) <- c("GeneA","GeneB","correlation")
   cor.res <- cor.res[order(abs(cor.res$correlation),decreasing = TRUE),]
-  cor.res <- cor.res[cor.res$correlation != 0, ]
+  cor.res <- cor.res[cor.res$correlation != 0,,drop = FALSE]
   if (nrow(cor.res) > top) {
     cor.res <- cor.res[1:top, ]
   }
@@ -472,9 +471,9 @@ calculate_most_correlated <- function(SeuratObj, feature, method){
     normalized.expr <- as.matrix(SeuratObj@assays$RNA$data)
   }
   x <- normalized.expr[feature, ,drop = FALSE]
-  y <- normalized.expr[rownames(normalized.expr)[rownames(normalized.expr) != feature], ]
+  y <- normalized.expr[rownames(normalized.expr)[rownames(normalized.expr) != feature],,drop = FALSE]
   # 过滤细胞，表达值的和要大于细胞数目的1/10，设置比较随意！
-  y <- y[apply(y, 1, sum) > 0.1 * ncol(SeuratObj),]
+  y <- y[apply(y, 1, sum) > 0.1 * ncol(SeuratObj),,drop = FALSE]
   cor.res = cor(x = t(as.matrix(x)), y =  t(as.matrix(y)), method = method)
   cor.res <- reshape2::melt(cor.res)
   colnames(cor.res) <- c("GeneA","GeneB","correlation")
@@ -490,17 +489,18 @@ calculate_correlation <- function(SeuratObj, features, method){
   } else { # 如果是assay类型
     normalized.expr <- as.matrix(SeuratObj@assays$RNA$data)
   }
-  normalized.expr <- normalized.expr[rownames(normalized.expr) %in% features,]
+  normalized.expr <- normalized.expr[rownames(normalized.expr) %in% features,,drop = FALSE]
   # 过滤细胞，表达值的和要大于细胞数目的1/10，设置比较随意！
-  normalized.expr <- normalized.expr[apply(normalized.expr, 1, sum) > 0.1 * ncol(SeuratObj),]
+  normalized.expr <- normalized.expr[apply(normalized.expr, 1, sum) > 0.1 * ncol(SeuratObj),,drop = FALSE]
   cor.res = cor(t(as.matrix(normalized.expr)), method = method)
   cor.res[lower.tri(cor.res, diag = TRUE)] <- 0
   cor.res <- reshape2::melt(cor.res)
   colnames(cor.res) <- c("GeneA","GeneB","correlation")
   cor.res <- cor.res[order(abs(cor.res$correlation),decreasing = TRUE),]
-  cor.res <- cor.res[cor.res$correlation != 0, ]
+  cor.res <- cor.res[cor.res$correlation != 0, ,drop = FALSE]
   rownames(cor.res) <- NULL
   return(cor.res)
+
 }
 
 

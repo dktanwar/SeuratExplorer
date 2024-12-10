@@ -19,8 +19,8 @@ explorer_sidebar_ui <- function(){
                          menuSubItem(text = "Dot Plot", tabName = "dotplot", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Heatmap Plot", tabName = "heatmap", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Ridge Plot", tabName = "ridgeplot", icon = shiny::icon("angle-double-right")),
-                         menuSubItem(text = "Cell Ratio Plot", tabName = "cellratioplot", icon = shiny::icon("angle-double-right")),
-                         menuSubItem(text = "DEG Analysis", tabName = "degs", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Cell Percentage Plot", tabName = "cellratioplot", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "DEGs Analysis", tabName = "degs", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Top Expressed Genes", tabName = "topgenes", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Feature Summary", tabName = "featuresummary", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Feature Correlation", tabName = "featurecorrelation", icon = shiny::icon("angle-double-right"))
@@ -247,7 +247,8 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["degs"]] = tabItem(tabName = "degs",
                                fluidRow(
-                                 box(textOutput("degs_warning"), title = "WARNING：", background = "orange", width = 12),
+                                 box(textOutput("degs_warning"),background = "orange", width = 12),
+                                 box(textOutput("degs_info"),background = "green", width = 12),
                                  tags$style(".nav-tabs {background: #f4f4f4;}
                                  .nav-tabs-custom .nav-tabs li.active:hover a, .nav-tabs-custom .nav-tabs li.active a {background-color: #fff;
                                  border-color: #fff;
@@ -291,7 +292,8 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["topgenes"]] = tabItem(tabName = "topgenes",
                                fluidRow(
-                                 box(textOutput("topgenes_warning"), title = "WARNING：", background = "orange", width = 12),
+                                 box(textOutput("topgenes_warning"), background = "orange", width = 12),
+                                 box(textOutput("topgenes_info"), background = "green", width = 12),
                                  box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                  shinycssloaders::withSpinner(uiOutput("TopGenesClusteResolution.UI"), proxy.height = "10px"),
                                  sliderInput("percentcut","UMI percentage cutoff(%):",min = 1,  max = 10, value = 1, step = 1),
@@ -305,6 +307,7 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["featuresummary"]] = tabItem(tabName = "featuresummary",
                                    fluidRow(
+                                     box(textOutput("featuresummary_info"), background = "green", width = 12),
                                      box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                          textAreaInput("FeatureSummarySymbol", "Input Gene Symbols:", value = "", height = '100px', resize = "vertical"),
                                          shinycssloaders::withSpinner(uiOutput("FeatureSummaryClusteResolution.UI"), proxy.height = "10px"),
@@ -318,10 +321,12 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["featurecorrelation"]] = tabItem(tabName = "featurecorrelation",
                                          fluidRow(
+                                           box(textOutput("featurecorrelation_warning"), background = "orange", width = 12),
+                                           box(textOutput("featurecorrelation_info"),background = "green", width = 12),
                                            box(title = "Step1: Common Settings", solidHeader = TRUE, status = "primary", width = 3,
                                                shinycssloaders::withSpinner(uiOutput("FeatureCorrelationClusteResolution.UI"), proxy.height = "10px"),
                                                shinycssloaders::withSpinner(uiOutput("FeatureCorrelationIdentsSelected.UI"), proxy.height = "10px"),
-                                               selectInput("correlationmethod","Method Use:", choices = c(pearson = "pearson", spearman = "spearman"))),
+                                               selectInput("correlationmethod","Correlation Method:", choices = c(pearson = "pearson", spearman = "spearman"))),
                                            tabBox(
                                              title = "Step2: Calcuate Correlation",
                                              id = "tabset_featurecorrelation", width = 9, # height = "250px",

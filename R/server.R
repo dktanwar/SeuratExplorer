@@ -742,7 +742,11 @@ explorer_server <- function(input, output, session, data){
   ################################ DEGs analysis
   # Warning
   output$degs_warning = renderText({
-    paste0('Differential expression testing is computationally intensive, so it takes longer. 注意，请在点击"Analyze"之前，保存好先前的分析结果！')
+    paste0('注意： 差异分析用时较长，请耐心等待；请在点击"Analyze"之前，请先保存好先前的分析结果！')
+  })
+  # info
+  output$degs_info = renderText({
+    paste0('关于： 1. “FindMarkers for All Clusters” 功能用于找出每群里的marker基因；2. “Find DEGs for two groups” 功能用于找出两组的差异基因，支持在subset之后再做比较。')
   })
 
   DEGs <- reactiveValues(degs = NULL, degs_ready = FALSE)
@@ -862,8 +866,13 @@ explorer_server <- function(input, output, session, data){
   ################################ Top genes analysis
   # Warning
   output$topgenes_warning = renderText({
-    paste0('Calculate top expressed genes is computationally intensive, so it takes longer. 注意，请在点击"Analyze"之前，保存好先前的分析结果！计算过程：
-           按照选择的分群分别对每群计算，对于该群的每一个细胞，依据设定的UMI percent cutoff计算出高表达的基因，然后再把所有细胞的计算结果汇总到一起，从而得出每群的高表达基因。')
+    paste0('注意：计算用时较长，请耐心等待；请在点击"Analyze"之前，保存好先前的分析结果！')
+  })
+  # info
+  output$topgenes_info = renderText({
+    paste0('计算过程：
+           1. 首先逐个细胞计算得出每个细胞里的高表达基因[即该基因的UMI比例大于所设定的阈值]；
+           2. 然后分群（celltype列）汇总高表达基因，得到每个高表达基因在每群里发生高表达的细胞数目，以及表达比例的均值和和中位值。')
   })
 
   TopGenes <- reactiveValues(topgenes = NULL, topgenes_ready = FALSE)
@@ -906,6 +915,11 @@ explorer_server <- function(input, output, session, data){
   })
 
   ################################ Feature Summary
+  # info
+  output$featuresummary_info = renderText({
+    paste0('关于：对于感兴趣的基因list分组做简要的统计分析，得到该基因在每群里的表达阳性比例，表达水平的均值和中位值。')
+  })
+
   FeatureSummary <- reactiveValues(summary = NULL, summary_ready = FALSE)
 
   output$FeatureSummary_ready <- reactive({
@@ -955,6 +969,18 @@ explorer_server <- function(input, output, session, data){
   })
 
   ################################ Feature Correlation
+  # Warning
+  output$featurecorrelation_warning = renderText({
+    paste0('注意： 差异分析用时较长，请耐心等待；请在点击"Analyze"之前，请先保存好先前的分析结果！')
+  })
+  # info
+  output$featurecorrelation_info = renderText({
+    paste0('关于： 1. “Find Top Correlated Gene Pairs” 用于找出top 1000 correlated gene pairs；
+           2. “Find Correlated Genes for A Gene” 用于找出对于感兴趣的某个基因，找出与其表达相关性强的基因；
+           3. “Calculate Correlation for A Gene List”用于对一组感兴趣的基因list，计算所有组合的表达相关性;
+           4. 如结果为空，或未找到对应的Gene Pairs，是由于输入基因的表达值太低，被去除了！')
+  })
+
   FeatureCorrelation <- reactiveValues(summary = NULL, summary_ready = FALSE)
 
   output$FeatureCorrelation_ready <- reactive({
