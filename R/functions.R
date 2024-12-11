@@ -424,9 +424,9 @@ summary_features <- function(SeuratObj, features, group.by){
       next
     }
     normalized.expr.sub <- normalized.expr[,cells.sub]
-    mean.expr <- apply(normalized.expr[features,,drop = FALSE], 1, mean)
-    median.expr <- apply(normalized.expr[features,,drop = FALSE], 1, median)
-    pct <- apply(normalized.expr[features,,drop = FALSE] > 0, 1, mean)
+    mean.expr <- apply(normalized.expr.sub[features,,drop = FALSE], 1, mean)
+    median.expr <- apply(normalized.expr.sub[features,,drop = FALSE], 1, median)
+    pct <- apply(normalized.expr.sub[features,,drop = FALSE] > 0, 1, mean)
     single.res <- data.frame(Gene = features, Expr.mean = mean.expr, Expr.median = median.expr, PCT = pct)
     single.res$CellType <- celltype
     single.res$TotalCells <- ncol(normalized.expr.sub)
