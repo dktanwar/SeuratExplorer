@@ -746,7 +746,9 @@ explorer_server <- function(input, output, session, data){
   })
   # info
   output$degs_info = renderText({
-    paste0('关于： 1. “FindMarkers for All Clusters” 功能用于找出每群里的marker基因；2. “Find DEGs for two groups” 功能用于找出两组的差异基因，支持在subset之后再做比较。')
+    paste0('关于：
+    1. “FindMarkers for All Clusters” 用于找出每群里的marker基因；
+    2. “Find DEGs for two groups” 用于找出两组的差异基因，支持在subset之后再做比较。')
   })
 
   DEGs <- reactiveValues(degs = NULL, degs_ready = FALSE)
@@ -860,7 +862,9 @@ explorer_server <- function(input, output, session, data){
                                  paging = TRUE, searching = TRUE,
                                  fixedColumns = TRUE, autoWidth = TRUE,
                                  ordering = TRUE, dom = 'Bfrtip',
-                                 buttons = c('copy', 'csv', 'excel')))
+                                 buttons = c('copy', 'csv', 'excel'))) %>%
+      DT::formatSignif(columns = c("p_val","p_val_adj"), digits = 3) %>%
+      DT::formatRound(columns = "avg_log2FC", digits = 3)
   })
 
   ################################ Top genes analysis

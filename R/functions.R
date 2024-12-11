@@ -390,7 +390,7 @@ top_genes <- function(SeuratObj, expr.cut = 0.01, group.by) {
       }
     }
     genes.statics <- dplyr::group_by(res, Gene) %>%
-      dplyr::summarise(cut.pct.mean = mean(Expr), cut.pct.median = median(Expr), cut.Cells = length(Expr))
+      dplyr::summarise(cut.pct.mean = round(mean(Expr),digits = 4), cut.pct.median = round(median(Expr),digits = 4), cut.Cells = length(Expr))
     genes.statics$total.pos.cells <- apply(counts.expr.sub[genes.statics$Gene,,drop = FALSE] > 0, 1, sum)
     genes.statics$total.UMI.pct <- round(apply(counts.expr.sub[genes.statics$Gene,,drop = FALSE], 1, sum)/sum(counts.expr),digits = 4)
     genes.statics$total.cells <- ncol(counts.expr.sub)
@@ -403,6 +403,7 @@ top_genes <- function(SeuratObj, expr.cut = 0.01, group.by) {
       results.statics <- rbind(results.statics, genes.statics)
     }
   }
+  rownames(results.statics) <- NULL
   return(results.statics)
 }
 
@@ -427,7 +428,7 @@ summary_features <- function(SeuratObj, features, group.by){
     mean.expr <- apply(normalized.expr.sub[features,,drop = FALSE], 1, mean)
     median.expr <- apply(normalized.expr.sub[features,,drop = FALSE], 1, median)
     pct <- apply(normalized.expr.sub[features,,drop = FALSE] > 0, 1, mean)
-    single.res <- data.frame(Gene = features, Expr.mean = mean.expr, Expr.median = median.expr, PCT = pct)
+    single.res <- data.frame(Gene = features, Expr.mean = round(mean.expr,digits = 4), Expr.median = round(median.expr, digits = 4), PCT = round(pct,digits = 4))
     single.res$CellType <- celltype
     single.res$TotalCells <- ncol(normalized.expr.sub)
     single.res <- single.res[,c("CellType", "TotalCells","Gene", "PCT", "Expr.mean", "Expr.median")]
@@ -438,6 +439,7 @@ summary_features <- function(SeuratObj, features, group.by){
       res <- rbind(res, single.res)
     }
   }
+  rownames(res) <- NULL
   return(res)
 }
 
@@ -456,6 +458,7 @@ calculate_top_correlations <- function(SeuratObj, method, top = 1000){
   colnames(cor.res) <- c("GeneA","GeneB","correlation")
   cor.res <- cor.res[order(abs(cor.res$correlation),decreasing = TRUE),]
   cor.res <- cor.res[cor.res$correlation != 0,,drop = FALSE]
+  cor.res$correlation <- round(cor.res$correlation, digits = 4)
   if (nrow(cor.res) > top) {
     cor.res <- cor.res[1:top, ]
   }
@@ -478,6 +481,7 @@ calculate_most_correlated <- function(SeuratObj, feature, method){
   cor.res <- reshape2::melt(cor.res)
   colnames(cor.res) <- c("GeneA","GeneB","correlation")
   cor.res <- cor.res[order(abs(cor.res$correlation),decreasing = TRUE),]
+  cor.res$correlation <- round(cor.res$correlation, digits = 4)
   rownames(cor.res) <- NULL
   return(cor.res)
 }
@@ -498,9 +502,9 @@ calculate_correlation <- function(SeuratObj, features, method){
   colnames(cor.res) <- c("GeneA","GeneB","correlation")
   cor.res <- cor.res[order(abs(cor.res$correlation),decreasing = TRUE),]
   cor.res <- cor.res[cor.res$correlation != 0, ,drop = FALSE]
+  cor.res$correlation <- round(cor.res$correlation, digits = 4)
   rownames(cor.res) <- NULL
   return(cor.res)
-
 }
 
 
