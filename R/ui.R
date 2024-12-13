@@ -294,15 +294,21 @@ explorer_body_ui <- function(tab_list){
                                fluidRow(
                                  box(textOutput("topgenes_warning"), background = "orange", width = 12),
                                  box(textOutput("topgenes_info"), background = "green", width = 12),
-                                 box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
-                                 shinycssloaders::withSpinner(uiOutput("TopGenesClusteResolution.UI"), proxy.height = "10px"),
-                                 sliderInput("percentcut","UMI percentage cutoff(%):",min = 1,  max = 10, value = 1, step = 1),
-                                 actionButton("TopGenesAnalysis", "Analyze", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
-                                 box(title = "Analysis Results:", collapsible = TRUE, width = 9,solidHeader = TRUE, status = "primary",align = "center",
+                                 box(title = "Step1: Common Settings", solidHeader = TRUE, status = "primary", width = 3,
+                                 shinycssloaders::withSpinner(uiOutput("TopGenesClusteResolution.UI"), proxy.height = "10px")),
+                                 tabBox(
+                                   title = "Step2: Calcuate Top Genes",
+                                   id = "tabset_topgenes", width = 9, # height = "250px",
+                                   tabPanel("Find Top Genes by Cell", # strong(h3("Top Correlated Genes")),
+                                            sliderInput("percentcut","UMI percentage cutoff(%):",min = 1,  max = 10, value = 1, step = 1),
+                                            actionButton("TopGenesAnalysis", "Analyze", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
+                                   tabPanel("Find Top Genes by Accumulated UMI Counts",
+                                            sliderInput("topcut","Top:",min = 100,  max = 1000, value = 100, step = 100),
+                                            actionButton("TopAccumulatedGenesAnalysis", "Analyze", icon = icon("magnifying-glass-chart"), class = "btn-primary"))),
                                  conditionalPanel(
                                    condition = "output.TopGenes_ready",
-                                       shinycssloaders::withSpinner(DT::dataTableOutput('dataset_topgenes')))
-                                 )
+                                   box(title = "Analysis Results:", collapsible = TRUE, width = 12,solidHeader = TRUE, status = "primary",align = "center",
+                                       shinycssloaders::withSpinner(DT::dataTableOutput('dataset_topgenes'))))
                                )
   )
   tab_list[["featuresummary"]] = tabItem(tabName = "featuresummary",

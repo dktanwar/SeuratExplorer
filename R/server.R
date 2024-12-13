@@ -874,9 +874,10 @@ explorer_server <- function(input, output, session, data){
   })
   # info
   output$topgenes_info = renderText({
-    paste0('计算过程：
-           1. 首先逐个细胞计算得出每个细胞里的高表达基因[即该基因的UMI比例大于所设定的阈值]；
-           2. 然后分群（celltype列）汇总高表达基因，得到每个高表达基因在每群里发生高表达的细胞数目，以及表达比例的均值和和中位值。')
+    paste0('关于：
+           1. “Find Top Genes by Cell”: 首先逐个细胞计算得出每个细胞里的高表达基因[即该基因的UMI比例大于所设定的阈值],然后分群（celltype列）汇总高表达基因，得到每个高表达基因在每群里发生高表达的细胞数目，
+           以及表达比例的均值和和中位值;
+           2. “Find Top Genes by Accumulated UMI Counts”: 通过加和所有细胞的的UMI counts来找出Top expressed genes。')
   })
 
   TopGenes <- reactiveValues(topgenes = NULL, topgenes_ready = FALSE)
@@ -901,6 +902,16 @@ explorer_server <- function(input, output, session, data){
     TopGenes$topgenes <<- top_genes(SeuratObj = cds, expr.cut = input$percentcut/100, group.by = input$TopGenesClusterResolution)
     removeModal()
      #修改全局变量，需不需要改为 <<-
+    TopGenes$topgenes_ready <<- TRUE
+  })
+
+  observeEvent(input$TopAccumulatedGenesAnalysis, {
+    message("SeuratExplorer: preparing TopAccumulatedGenesAnalysis...")
+    showModal(modalDialog(title = "Calculating Top Genes...", "Please wait for a few minutes!", footer= NULL, size = "l"))
+    isolate(cds <- data$obj)
+    TopGenes$topgenes <<- top_accumulated_genes(SeuratObj = cds, top = input$topcut, group.by = input$TopGenesClusterResolution)
+    removeModal()
+    #修改全局变量，需不需要改为 <<-
     TopGenes$topgenes_ready <<- TRUE
   })
 

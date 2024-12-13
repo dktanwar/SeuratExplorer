@@ -407,6 +407,48 @@ top_genes <- function(SeuratObj, expr.cut = 0.01, group.by) {
   return(results.statics)
 }
 
+top_accumulated_genes <- function(SeuratObj, top, group.by){
+  requireNamespace("dplyr")
+  requireNamespace("Seurat")
+  # 如果是assay5类型
+  if (class(SeuratObj@assays$RNA)[1] == "Assay5") {
+    SeuratObj <- JoinLayers(SeuratObj)
+    counts.expr <- as.matrix(SeuratObj@assays$RNA@layers$counts)
+  } else { # 如果是assay类型
+    counts.expr <- as.matrix(SeuratObj@assays$RNA$counts)
+  }
+  colnames(counts.expr) <- colnames(SeuratObj)
+  rownames(counts.expr) <- rownames(SeuratObj)
+  # 分celltype计算统计值
+  all.cell.types <- unique(SeuratObj@meta.data[,group.by])
+  for (celltype in all.cell.types) {
+    cells.sub <- colnames(SeuratObj)[as.character(SeuratObj@meta.data[,group.by]) == celltype]
+    if (length(cells.sub) < 3) {
+      next
+    }
+    counts.expr.sub <- counts.expr[,cells.sub]
+    if (length(counts.expr.sub) > top) {
+      sss <- sort(apply(counts.expr.sub, 1, sum),decreasing = TRUE)[1:top]
+    }else{
+      sss <- sort(apply(counts.expr.sub, 1, sum),decreasing = TRUE)
+    }
+
+    res <- data.frame(Gene = names(sss), AccumulatedUMICounts = unname(sss), PCT = round(unname(sss)/sum(counts.expr.sub),digits = 4))
+    res$total.pos.cells <- apply(counts.expr.sub[res$Gene,,drop = FALSE] > 0, 1, sum)
+    res$total.cells <- ncol(counts.expr.sub)
+    res$celltype <- celltype
+    res <- res[,c("celltype", "total.cells", "Gene", "total.pos.cells", "AccumulatedUMICounts", "PCT")]
+    res <- res[order(res$AccumulatedUMICounts, decreasing = TRUE),]
+    if (celltype == all.cell.types[1]) {
+      results.statics <- res
+    }else{
+      results.statics <- rbind(results.statics, res)
+    }
+  }
+  rownames(results.statics) <- NULL
+  return(results.statics)
+}
+
 
 summary_features <- function(SeuratObj, features, group.by){
   requireNamespace("dplyr")
