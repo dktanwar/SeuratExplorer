@@ -426,13 +426,11 @@ top_accumulated_genes <- function(SeuratObj, top, group.by){
     if (length(cells.sub) < 3) {
       next
     }
-    counts.expr.sub <- counts.expr[,cells.sub]
-    if (length(counts.expr.sub) > top) {
-      sss <- sort(apply(counts.expr.sub, 1, sum),decreasing = TRUE)[1:top]
-    }else{
-      sss <- sort(apply(counts.expr.sub, 1, sum),decreasing = TRUE)
+    counts.expr.sub <- counts.expr[,cells.sub,drop = FALSE]
+    sss <- sort(apply(counts.expr.sub, 1, sum),decreasing = TRUE)
+    if (length(sss) > top) {
+      sss <- sss[1:top]
     }
-
     res <- data.frame(Gene = names(sss), AccumulatedUMICounts = unname(sss), PCT = round(unname(sss)/sum(counts.expr.sub),digits = 4))
     res$total.pos.cells <- apply(counts.expr.sub[res$Gene,,drop = FALSE] > 0, 1, sum)
     res$total.cells <- ncol(counts.expr.sub)
