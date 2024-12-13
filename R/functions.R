@@ -421,8 +421,9 @@ top_accumulated_genes <- function(SeuratObj, top, group.by){
   rownames(counts.expr) <- rownames(SeuratObj)
   # 分celltype计算统计值
   all.cell.types <- unique(SeuratObj@meta.data[,group.by])
+  all.cell.types <- all.cell.types[!is.na(all.cell.types)] # 特殊情况，有些celltype中有NA值
   for (celltype in all.cell.types) {
-    cells.sub <- colnames(SeuratObj)[as.character(SeuratObj@meta.data[,group.by]) == celltype]
+    cells.sub <- Cells(SeuratObj)[(as.character(SeuratObj@meta.data[, group.by]) == as.character(celltype)) & !is.na(SeuratObj@meta.data[, group.by])] # 特殊情况，有些celltype中有NA值
     if (length(cells.sub) < 3) {
       next
     }
@@ -432,7 +433,7 @@ top_accumulated_genes <- function(SeuratObj, top, group.by){
       sss <- sss[1:top]
     }
     res <- data.frame(Gene = names(sss), AccumulatedUMICounts = unname(sss), PCT = round(unname(sss)/sum(counts.expr.sub),digits = 4))
-    res$total.pos.cells <- apply(counts.expr.sub[res$Gene,,drop = FALSE] > 0, 1, sum)
+    res$total.pos.cells <- unname(apply(counts.expr.sub[res$Gene,,drop = FALSE] > 0, 1, sum))
     res$total.cells <- ncol(counts.expr.sub)
     res$celltype <- celltype
     res <- res[,c("celltype", "total.cells", "Gene", "total.pos.cells", "AccumulatedUMICounts", "PCT")]
