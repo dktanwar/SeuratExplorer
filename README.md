@@ -66,7 +66,7 @@ launchSeuratExplorer()
 
 <img src="inst/extdata/www/cell-metadata.png" width="100%" />
 
-### Dimplot
+### Dimensional Reduction Plot
 
 - 支持选择Dimension Reductions
 
@@ -88,7 +88,7 @@ Example plots:
 
 <img src="inst/extdata/www/dimplot.png" width="100%" /><img src="inst/extdata/www/Dimplot-splited.png" width="100%" />
 
-### FeaturePlot
+### Feature Plot
 
 - 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
 
@@ -106,7 +106,7 @@ Example plots:
 
 <img src="inst/extdata/www/featureplot-1.png" width="100%" /><img src="inst/extdata/www/featureplot-1-with-label.png" width="100%" /><img src="inst/extdata/www/Featureplot-split.png" width="100%" />
 
-### VlnPlot
+### Violin Plot
 
 - 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
 
@@ -128,7 +128,7 @@ Example plots:
 
 <img src="inst/extdata/www/Vlnplot-1.png" width="100%" /><img src="inst/extdata/www/Vlnplot-2.png" width="100%" /><img src="inst/extdata/www/vlnplot-splited-1.png" width="100%" /><img src="inst/extdata/www/vlnplot-splited-2.png" width="100%" />
 
-### DotPlot
+### Dot Plot
 
 - 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
 
@@ -150,7 +150,7 @@ Example plots:
 
 <img src="inst/extdata/www/Dotplot-1.png" width="100%" /><img src="inst/extdata/www/dotplot-splited-1.png" width="100%" />
 
-### DoHeatmap
+### Heatmap Cell Level
 
 - 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
 
@@ -170,7 +170,27 @@ Example plots:
 
 <img src="inst/extdata/www/Heatmap-1.png" width="100%" />
 
-### RidgePlot
+### Heatmap Group Averaged
+
+- 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
+
+- 支持选择不同的细胞分群方案
+
+- 支持调整cluster label的大小、xy轴的位置和旋转角度
+
+- 支持调整Group bar的高度
+
+- 支持调整Group间的间隙大小
+
+- 支持调整基因名的字体大小
+
+- 支持调整图像长宽比
+
+- 支持pdf下载，所见即所得
+
+<img src="inst/extdata/www/averagedheatmap.png" width="100%" />
+
+### Ridge Plot
 
 - 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
 
@@ -188,7 +208,7 @@ Example plots:
 
 <img src="inst/extdata/www/ridgeplot-1.png" width="100%" /><img src="inst/extdata/www/Ridgeplot-2.png" width="100%" /><img src="inst/extdata/www/Ridgeplot-3.png" width="100%" />
 
-### CellratioPlot
+### Plot Cell Percentage
 
 - 支持调整图像长宽比
 
@@ -198,7 +218,7 @@ Example plots:
 
 <img src="inst/extdata/www/cellratio-1.png" width="100%" /><img src="inst/extdata/www/cellratio-2.png" width="100%" />
 
-### DEGs Analysis
+### Cluster Markers and DEGs Analysis
 
 - 支持同时计算所有群的marker基因
 
@@ -211,6 +231,35 @@ Example plots:
 - 支持结果下载
 
 <img src="inst/extdata/www/DEGs-1.png" width="100%" /><img src="inst/extdata/www/DEGs-2.png" width="100%" /><img src="inst/extdata/www/DEGs-3.png" width="100%" /><img src="inst/extdata/www/DEGs-4.png" width="100%" />
+
+### Top Expressed Features
+
+> 1.  首先逐个细胞计算得出每个细胞里的高表达基因\[即该基因的UMI比例大于所设定的阈值\]； 2.
+>     然后分群（celltype列）汇总高表达基因，得到每个高表达基因在每群里发生高表达的细胞数目，以及表达比例的均值和和中位值。
+
+### Feature Summary
+
+> 对于感兴趣的基因list分组做简要的统计分析，得到该基因在每群里的表达阳性比例，表达水平的均值和中位值
+
+### Feature Correlation Analysis
+
+- `Find Top Correlated Gene Pairs` 用于找出top 1000 correlated gene
+  pairs
+
+- `Find Correlated Genes for A Gene`
+  用于找出对于感兴趣的某个基因，找出与其表达相关性强的基因
+
+- `Calculate Correlation for A Gene List`
+  用于对一组感兴趣的基因list，计算所有组合的表达相关性
+
+- 如结果为空，或未找到对应的Gene
+  Pairs，是由于输入基因的表达值太低，被去除了
+
+- 支持分区计算correlation值
+
+- 支持pearson和spearman算法
+
+<img src="inst/extdata/www/featurecorrelation.png" width="100%" />
 
 ## Session Info
 
