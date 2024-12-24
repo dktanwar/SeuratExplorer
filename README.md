@@ -15,10 +15,14 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 > **本质上就是把R包`Seurat`里的部分绘图工具和差异分析工具进行可视化！**
 
-> 此R包参考了开源程序[Hla-Lab/SeuratExplorer](https://github.com/rwcrocker/SeuratExplorer/).
+> 此R包参考了开源程序:
 
-> An interactive R shiny application for exploring scRNAseq data
-> processed in Seurat
+> 1.  [Hla-Lab/SeuratExplorer](https://github.com/rwcrocker/SeuratExplorer/):
+>     An interactive R shiny application for exploring scRNAseq data
+>     processed in Seurat.
+
+> 2.  [junjunlab/scRNAtoolVis](https://github.com/junjunlab/scRNAtoolVis):
+>     Some useful function to make your scRNA-seq plot more beautiful.
 
 ## A Live Demo
 
@@ -39,6 +43,10 @@ install_github("fentouxungui/SeuratExplorer")
 Run App:
 
 ``` r
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("ComplexHeatmap")
+
 library(SeuratExplorer)
 launchSeuratExplorer()
 ```

@@ -25,9 +25,11 @@ knitr::opts_chunk$set(
 
 > **本质上就是把R包``Seurat``里的部分绘图工具和差异分析工具进行可视化！**
 
-> 此R包参考了开源程序[Hla-Lab/SeuratExplorer](https://github.com/rwcrocker/SeuratExplorer/).
+> 此R包参考了开源程序:
 
-> An interactive R shiny application for exploring scRNAseq data processed in Seurat
+> 1. [Hla-Lab/SeuratExplorer](https://github.com/rwcrocker/SeuratExplorer/): An interactive R shiny application for exploring scRNAseq data processed in Seurat.
+
+> 2. [junjunlab/scRNAtoolVis](https://github.com/junjunlab/scRNAtoolVis): Some useful function to make your scRNA-seq plot more beautiful.
 
 ## A Live Demo
 
@@ -48,6 +50,10 @@ install_github("fentouxungui/SeuratExplorer")
 Run App:
  
 ```{r eval=FALSE}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("ComplexHeatmap")
+
 library(SeuratExplorer)
 launchSeuratExplorer()
 ```
@@ -171,7 +177,7 @@ knitr::include_graphics("inst/extdata/www/Dotplot-1.png")
 knitr::include_graphics("inst/extdata/www/dotplot-splited-1.png")
 ```
 
-### DoHeatmap
+### Heatmap Cell Level
 
 - 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
 
@@ -191,6 +197,28 @@ knitr::include_graphics("inst/extdata/www/dotplot-splited-1.png")
 
 ```{r echo = FALSE}
 knitr::include_graphics("inst/extdata/www/Heatmap-1.png")
+```
+
+### Heatmap Group Averaged
+
+- 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
+
+- 支持选择不同的细胞分群方案
+
+- 支持调整cluster label的大小、xy轴的位置和旋转角度
+
+- 支持调整Group bar的高度
+
+- 支持调整Group间的间隙大小
+
+- 支持调整基因名的字体大小
+
+- 支持调整图像长宽比
+
+- 支持pdf下载，所见即所得
+
+```{r echo = FALSE}
+knitr::include_graphics("inst/extdata/www/averagedheatmap.png")
 ```
 
 ### RidgePlot

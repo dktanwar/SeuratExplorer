@@ -397,7 +397,7 @@ explorer_server <- function(input, output, session, data){
   output$DotIdentsSelected.UI <- renderUI({
     req(input$DotClusterResolution)
     message("SeuratExplorer: preparing DotIdentsSelected.UI...")
-    shinyWidgets::pickerInput(inputId = "DotIdentsSelected", label = "Idents used:",
+    shinyWidgets::pickerInput(inputId = "DotIdentsSelected", label = "Clusters Used:",
                               choices = levels(data$obj@meta.data[,input$DotClusterResolution]), selected = levels(data$obj@meta.data[,input$DotClusterResolution]),
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
   })
@@ -540,6 +540,80 @@ explorer_server <- function(input, output, session, data){
       }
     })
 
+  ################################ Averaged Heatmap
+  # Check the input gene
+  AveragedHeatmap.Gene.Revised <- reactive({
+    message("SeuratExplorer: preparing AveragedHeatmap.Gene.Revised...")
+    req(input$AveragedHeatmapGeneSymbol)
+    ifelse(is.na(input$AveragedHeatmapGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$AveragedHeatmapGeneSymbol, GeneLibrary =  rownames(data$obj))))
+  })
+
+  # 提示可用的qc选项作为Gene symbol
+  output$AveragedHeatmaphints.UI <- renderUI({
+    message("SeuratExplorer: preparing AveragedHeatmaphints.UI...")
+    helpText(strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
+  })
+
+  # define Cluster Annotation choice
+  output$AveragedHeatmapClusterResolution.UI <- renderUI({
+    message("SeuratExplorer: preparing AveragedHeatmapClusterResolution.UI...")
+    selectInput("AveragedHeatmapClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
+  })
+
+  # define Cluster order
+  output$AveragedHeatmapClusterOrder.UI <- renderUI({
+    message("SeuratExplorer: preparing AveragedHeatmapClusterOrder.UI...")
+    shinyjqui::orderInput(inputId = 'AveragedHeatmapClusterOrder', label = 'Drag to order:', items = levels(data$obj@meta.data[,input$AveragedHeatmapClusterResolution]),width = '100%')
+  })
+
+  # when change cluster resolution, open the shinyBS::bsCollapsePanel, otherwise will cause cluster order not update
+  # 不太好的效果是，每次切换resolution选项，都会使得cluster order ui展开。
+  observeEvent(input$AveragedHeatmapClusterResolution, ({
+    message("SeuratExplorer: updateCollapse for AveragedcollapseHeatmap...")
+    shinyBS::updateCollapse(session, "AveragedcollapseHeatmap", open = "0")
+  }))
+
+  # define the idents used
+  output$AveragedHeatmapIdentsSelected.UI <- renderUI({
+    req(input$AveragedHeatmapClusterResolution)
+    message("SeuratExplorer: preparing AveragedHeatmapIdentsSelected.UI...")
+    shinyWidgets::pickerInput(inputId = "AveragedHeatmapIdentsSelected", label = "Clusters Used:",
+                              choices = levels(data$obj@meta.data[,input$AveragedHeatmapClusterResolution]), selected = levels(data$obj@meta.data[,input$AveragedHeatmapClusterResolution]),
+                              options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
+  })
+
+  averagedheatmap_width  <- reactive({ session$clientData$output_averagedheatmap_width })
+
+  output$averagedheatmap <- renderPlot({
+    req(AveragedHeatmap.Gene.Revised())
+    message("SeuratExplorer: preparing averagedheatmap...")
+    if (any(is.na(AveragedHeatmap.Gene.Revised()))) { # NA 值时
+      p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+    }else{
+      isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
+      cds@meta.data[,input$AveragedHeatmapClusterResolution] <- factor(cds@meta.data[,input$AveragedHeatmapClusterResolution], levels = input$AveragedHeatmapClusterOrder)
+      Seurat::Idents(cds) <- input$AveragedHeatmapClusterResolution
+      cds <- SeuratObject:::subset.Seurat(cds, idents = input$AveragedHeatmapIdentsSelected)
+      p <- suppressMessages(AverageHeatmap(object = cds, markerGene = AveragedHeatmap.Gene.Revised(), group.by = input$AveragedHeatmapClusterResolution,
+                          feature.fontsize = input$AveragedHeatmapFeatureTextSize,cluster.fontsize = input$AveragedHeatmapClusterTextSize,
+                          column_names_rot = input$AveragedHeatmapClusterTextRatateAngle, cluster_columns = input$AveragedHeatmapClusterClusters,
+                          cluster_rows = input$AveragedHeatmapClusterFeatures))
+    }
+    pdf(file = paste0(temp_dir_name,"/AveragedHeatmap.pdf"), width = (averagedheatmap_width() * px2cm)/2.54, height = (averagedheatmap_width() * input$AveragedHeatmapPlotHWRatio * px2cm)/2.54)
+    print(p)
+    dev.off()
+    # ggplot2::ggsave(paste0(temp_dir_name,"/AveragedHeatmap.pdf"), p, width = averagedheatmap_width() * px2cm, height = averagedheatmap_width() * input$AveragedHeatmapPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
+    return(p)
+  }, height = function(){session$clientData$output_averagedheatmap_width * input$AveragedHeatmapPlotHWRatio}) # box plot: height = width default
+
+
+  output$downloadaveragedheatmap <- downloadHandler(
+    filename = function(){'AveragedHeatmap.pdf'},
+    content = function(file) {
+      if (file.exists(paste0(temp_dir_name,"/AveragedHeatmap.pdf"))) { # 问题： 文件不存在时，会抛出一个下载错误。或者输入错误时，会下载先前输入正确得到的图片。
+        file.copy(paste0(temp_dir_name,"/AveragedHeatmap.pdf"), file, overwrite=TRUE)
+      }
+    })
 
   ################################ Ridge Plot
 
@@ -581,7 +655,7 @@ explorer_server <- function(input, output, session, data){
   output$RidgeplotIdentsSelected.UI <- renderUI({
     req(input$RidgeplotClusterResolution)
     message("SeuratExplorer: preparing RidgeplotIdentsSelected.UI...")
-    shinyWidgets::pickerInput(inputId = "RidgeplotIdentsSelected", label = "Idents used:",
+    shinyWidgets::pickerInput(inputId = "RidgeplotIdentsSelected", label = "Clusters Used:",
                               choices = levels(data$obj@meta.data[,input$RidgeplotClusterResolution]), selected = levels(data$obj@meta.data[,input$RidgeplotClusterResolution]),
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
   })

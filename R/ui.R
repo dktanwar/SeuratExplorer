@@ -17,7 +17,8 @@ explorer_sidebar_ui <- function(){
                          menuSubItem(text = "Feature Plot", tabName = "featureplot", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Violin Plot", tabName = "vlnplot", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Dot Plot", tabName = "dotplot", icon = shiny::icon("angle-double-right")),
-                         menuSubItem(text = "Heatmap Plot", tabName = "heatmap", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Heatmap Cell Level", tabName = "heatmap", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Heatmap Group Averaged", tabName = "averagedheatmap", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Ridge Plot", tabName = "ridgeplot", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Cell Percentage Plot", tabName = "cellratioplot", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "DEGs Analysis", tabName = "degs", icon = shiny::icon("angle-double-right")),
@@ -175,6 +176,30 @@ explorer_body_ui <- function(tab_list){
                                         sliderInput("HeatmapLineWidth", label = "Line Width:", min = 1, max = 10, value = 1),
                                         sliderInput("HeatmapFeatureTextSize", label = "Feature Text Size:", min = 0, max = 20, value = 10),
                                         sliderInput("HeatmapPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9) # adjust the Ratio of width and height of plot.
+                                    )
+                                  )
+  )
+  tab_list[["averagedheatmap"]] = tabItem(tabName = "averagedheatmap",
+                                  fluidRow(
+                                    box(title = "Features Heatmap by Averaged Expression",
+                                        shinycssloaders::withSpinner(plotOutput("averagedheatmap",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                        div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadaveragedheatmap",style = "bordered",color = "primary")),
+                                        width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
+                                    box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
+                                        textAreaInput("AveragedHeatmapGeneSymbol", "Gene Symbols:", value = "", height = '80px', resize = "vertical"),
+                                        shinycssloaders::withSpinner(uiOutput("AveragedHeatmaphints.UI"), proxy.height = "10px"),
+                                        shinycssloaders::withSpinner(uiOutput("AveragedHeatmapClusterResolution.UI"), proxy.height = "10px"),
+                                        shinyBS::bsCollapse(id = "collapseHeatmap", open = "0",
+                                                            shinyBS::bsCollapsePanel(title = "Change Cluster Order",
+                                                                                     shinycssloaders::withSpinner(uiOutput("AveragedHeatmapClusterOrder.UI"), proxy.height = "10px"),
+                                                                                     style = "info", value = "0")),
+                                        shinycssloaders::withSpinner(uiOutput("AveragedHeatmapIdentsSelected.UI"), proxy.height = "10px"),
+                                        sliderInput("AveragedHeatmapClusterTextSize", label = "Cluster Text Size:", min = 1, max = 30, value = 12),
+                                        sliderInput("AveragedHeatmapClusterTextRatateAngle", label = "Cluster Text Rotate Angle:", min = -90, max = 90, value = 45),
+                                        sliderInput("AveragedHeatmapFeatureTextSize", label = "Feature Text Size:", min = 1, max = 20, value = 10),
+                                        checkboxInput("AveragedHeatmapClusterClusters",label = "Cluster Clusters", FALSE),
+                                        checkboxInput("AveragedHeatmapClusterFeatures",label = "Cluster Features", FALSE),
+                                        sliderInput("AveragedHeatmapPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9) # adjust the Ratio of width and height of plot.
                                     )
                                   )
   )
