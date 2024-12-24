@@ -40,6 +40,12 @@ Support Rds file size no more than 5GB. [Open](http://www.nibs.ac.cn:666/SeuratE
 You can install the development version of ``SeuratExplorer`` like so:
 
 ```{r eval=FALSE}
+# install dependency
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("ComplexHeatmap")
+
+# install SeuratExplorer
 if(!require(devtools)){install.packages("devtools")}
 install_github("fentouxungui/SeuratExplorer")
 ```
@@ -50,10 +56,6 @@ install_github("fentouxungui/SeuratExplorer")
 Run App:
  
 ```{r eval=FALSE}
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install("ComplexHeatmap")
-
 library(SeuratExplorer)
 launchSeuratExplorer()
 ```

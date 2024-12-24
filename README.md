@@ -34,6 +34,12 @@ Support Rds file size no more than 5GB.
 You can install the development version of `SeuratExplorer` like so:
 
 ``` r
+# install dependency
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("ComplexHeatmap")
+
+# install SeuratExplorer
 if(!require(devtools)){install.packages("devtools")}
 install_github("fentouxungui/SeuratExplorer")
 ```
@@ -43,10 +49,6 @@ install_github("fentouxungui/SeuratExplorer")
 Run App:
 
 ``` r
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install("ComplexHeatmap")
-
 library(SeuratExplorer)
 launchSeuratExplorer()
 ```
@@ -234,8 +236,8 @@ Example plots:
 
 ### Top Expressed Features
 
-> 1.  首先逐个细胞计算得出每个细胞里的高表达基因\[即该基因的UMI比例大于所设定的阈值\]； 2.
->     然后分群（celltype列）汇总高表达基因，得到每个高表达基因在每群里发生高表达的细胞数目，以及表达比例的均值和和中位值。
+> 首先逐个细胞计算得出每个细胞里的高表达基因\[即该基因的UMI比例大于所设定的阈值\]；
+> 然后分群（celltype列）汇总高表达基因，得到每个高表达基因在每群里发生高表达的细胞数目，以及表达比例的均值和和中位值。
 
 ### Feature Summary
 
