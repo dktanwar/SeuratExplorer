@@ -293,7 +293,7 @@ explorer_body_ui <- function(tab_list){
                                             shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsCustomizedGroupsCase.UI"), proxy.height = "10px"),
                                             shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsCustomizedGroupsControl.UI"), proxy.height = "10px"),
                                             tags$hr(style="border: none; border-top: 1px dashed #ccc;"),
-                                            strong(h3("Optional, Modify if if you want to subset cells, otherwise ignore it.")),
+                                            strong(h3("Optional, Modify parameters bellow if you want to subset cells before the comparison, otherwise ignore it.")),
                                             shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsSubsetCells.UI"), proxy.height = "10px"),
                                             shinycssloaders::withSpinner(uiOutput("IntraClusterDEGsSubsetCellsSelectedClusters.UI"), proxy.height = "10px"),
                                             tags$hr(style="border: none; border-top: 1px dashed #ccc;"),
