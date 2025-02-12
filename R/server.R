@@ -54,8 +54,8 @@ explorer_server <- function(input, output, session, data){
 
   # Revise Split selection which will be appropriate for plot
   DimSplit.Revised <- reactive({
-    message("SeuratExplorer: preparing DimSplit.Revised...")
     req(input$DimSplit) # split值出现后，才会执行的代码
+    message("SeuratExplorer: preparing DimSplit.Revised...")
     # Revise the Split choice
     if(is.na(input$DimSplit) | input$DimSplit == "None") {
       return(NULL)
@@ -121,8 +121,8 @@ explorer_server <- function(input, output, session, data){
 
   # Revise Split selection which will be appropriate for DimPlot, FeaturePlot and Vlnplot functions.
   FeatureSplit.Revised <- reactive({
-    message("SeuratExplorer: preparing FeatureSplit.Revised...")
     req(input$FeatureSplit) # split值出现后，才会执行的代码
+    message("SeuratExplorer: preparing FeatureSplit.Revised...")
     # Revise the Split choice
     if(is.na(input$FeatureSplit) | input$FeatureSplit == "None") {
       return(NULL)
@@ -188,8 +188,8 @@ explorer_server <- function(input, output, session, data){
   ################################ Violin Plot
   # Check the input gene
   Vlnplot.Gene.Revised <- reactive({
-    message("SeuratExplorer: preparing Vlnplot.Gene.Revised...")
     req(input$VlnGeneSymbol)
+    message("SeuratExplorer: preparing Vlnplot.Gene.Revised...")
     ifelse(is.na(input$VlnGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$VlnGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
   })
 
@@ -322,8 +322,8 @@ explorer_server <- function(input, output, session, data){
   vlnplot_width  <- reactive({ session$clientData$output_vlnplot_width })
 
   output$vlnplot <- renderPlot({
-    message("SeuratExplorer: preparing vlnplot...")
     req(Vlnplot.Gene.Revised())
+    message("SeuratExplorer: preparing vlnplot...")
     if (any(is.na(Vlnplot.Gene.Revised()))) { # NA 值时
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
@@ -361,8 +361,8 @@ explorer_server <- function(input, output, session, data){
 
   # Check the input gene
   Dotplot.Gene.Revised <- reactive({
-    message("SeuratExplorer: preparing Dotplot.Gene.Revised...")
     req(input$DotGeneSymbol)
+    message("SeuratExplorer: preparing Dotplot.Gene.Revised...")
     ifelse(is.na(input$DotGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$DotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
   })
 
@@ -410,8 +410,8 @@ explorer_server <- function(input, output, session, data){
 
   # Revise Split selection which will be appropriate for DimPlot, FeaturePlot and Vlnplot functions.
   DotSplit.Revised <- reactive({
-    message("SeuratExplorer: preparing DotSplit.Revised...")
     req(input$DotSplitBy) # split值出现后，才会执行的代码
+    message("SeuratExplorer: preparing DotSplit.Revised...")
     # Revise the Split choice
     if(is.na(input$DotSplitBy) | input$DotSplitBy == "None") {
       return(NULL)
@@ -422,8 +422,8 @@ explorer_server <- function(input, output, session, data){
 
   # Conditional panel: 当split为NULL时，可以自行设定最高和最低表达值对应的颜色。当split不为NULL时，需要软件自动使用ggplot2生成的颜色填充每组的点的颜色。
   output$DotPlot_Split_isNone <- reactive({
-    message("SeuratExplorer: preparing DotPlot_Split_isNone...")
     req(input$DotSplitBy)
+    message("SeuratExplorer: preparing DotPlot_Split_isNone...")
     if(is.na(input$DotSplitBy) | input$DotSplitBy == "None") {
       return(TRUE)
     }else{
@@ -478,8 +478,8 @@ explorer_server <- function(input, output, session, data){
 
   # Check the input gene
   Heatmap.Gene.Revised <- reactive({
-    message("SeuratExplorer: preparing Heatmap.Gene.Revised...")
     req(input$HeatmapGeneSymbol)
+    message("SeuratExplorer: preparing Heatmap.Gene.Revised...")
     ifelse(is.na(input$HeatmapGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$HeatmapGeneSymbol, GeneLibrary =  rownames(data$obj))))
   })
 
@@ -543,8 +543,8 @@ explorer_server <- function(input, output, session, data){
   ################################ Averaged Heatmap
   # Check the input gene
   AveragedHeatmap.Gene.Revised <- reactive({
-    message("SeuratExplorer: preparing AveragedHeatmap.Gene.Revised...")
     req(input$AveragedHeatmapGeneSymbol)
+    message("SeuratExplorer: preparing AveragedHeatmap.Gene.Revised...")
     ifelse(is.na(input$AveragedHeatmapGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$AveragedHeatmapGeneSymbol, GeneLibrary =  rownames(data$obj))))
   })
 
@@ -619,8 +619,8 @@ explorer_server <- function(input, output, session, data){
 
   # Check the input gene
   Ridgeplot.Gene.Revised <- reactive({
-    message("SeuratExplorer: preparing Ridgeplot.Gene.Revised...")
     req(input$RidgeplotGeneSymbol)
+    message("SeuratExplorer: preparing Ridgeplot.Gene.Revised...")
     ifelse(is.na(input$RidgeplotGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$RidgeplotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
   })
 
@@ -662,8 +662,8 @@ explorer_server <- function(input, output, session, data){
 
   # Conditional panel: 输入为多个基因且stack设为TRUE时，显示此panel
   output$Ridgeplot_stack_show = reactive({
-    message("SeuratExplorer: preparing Ridgeplot_stack_show...")
     req(input$RidgeplotGeneSymbol)
+    message("SeuratExplorer: preparing Ridgeplot_stack_show...")
     if (length(Ridgeplot.Gene.Revised()) > 1) {
       return(TRUE)
     }else{
@@ -675,6 +675,7 @@ explorer_server <- function(input, output, session, data){
 
   # Conditional panel: 输入为多个基因且stack设为TRUE时，显示此panel
   output$Ridgeplot_stack_NotSelected = reactive({
+    req(input$RidgeplotStackPlot)
     message("SeuratExplorer: preparing Ridgeplot_stack_NotSelected...")
     !input$RidgeplotStackPlot
   })
@@ -691,8 +692,8 @@ explorer_server <- function(input, output, session, data){
   ridgeplot_width  <- reactive({ session$clientData$output_ridgeplot_width })
 
   output$ridgeplot <- renderPlot({
-    message("SeuratExplorer: preparing ridgeplot...")
     req(Ridgeplot.Gene.Revised())
+    message("SeuratExplorer: preparing ridgeplot...")
     if (any(is.na(Ridgeplot.Gene.Revised()))) { # NA 值时
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
@@ -754,8 +755,8 @@ explorer_server <- function(input, output, session, data){
 
   # Revise FacetChoice which will be appropriate for plot
   FacetChoice.Revised <- reactive({
-    message("SeuratExplorer: FacetChoice.Revised...")
     req(input$CellratioFacetChoice)
+    message("SeuratExplorer: FacetChoice.Revised...")
     # Revise the Split choice
     if(is.na(input$CellratioFacetChoice) | input$CellratioFacetChoice == "None") {
       return(NULL)
@@ -779,11 +780,11 @@ explorer_server <- function(input, output, session, data){
 
   # plot
   output$cellratioplot <- renderPlot({
-    message("SeuratExplorer: preparing cellratioplot...")
     req(input$CellratioXChoice)
     req(input$CellratioXOrder)
     req(input$CellratioFillChoice)
     req(input$CellratioFillOrder)
+    message("SeuratExplorer: preparing cellratioplot...")
     isolate(cds <- data$obj)
     if (is.null(FacetChoice.Revised())) { # not facet
       p <- cellRatioPlot(object = cds, sample.name = input$CellratioXChoice, sample.order = input$CellratioXOrder,
@@ -864,32 +865,32 @@ explorer_server <- function(input, output, session, data){
 
   # define the idents used
   output$IntraClusterDEGsCustomizedGroupsCase.UI <- renderUI({
-    message("SeuratExplorer: preparing IntraClusterDEGsCustomizedGroupsCase.UI...")
     req(input$IntraClusterDEGsCustomizedGroups)
+    message("SeuratExplorer: preparing IntraClusterDEGsCustomizedGroupsCase.UI...")
     selectInput("IntraClusterDEGsCustomizedGroupsCase","Choose Case Samples:", choices = levels(data$obj@meta.data[,input$IntraClusterDEGsCustomizedGroups]), multiple = TRUE)
   })
 
   # define the idents used
   output$IntraClusterDEGsCustomizedGroupsControl.UI <- renderUI({
-    message("SeuratExplorer: preparing IntraClusterDEGsCustomizedGroupsControl.UI...")
     req(input$IntraClusterDEGsCustomizedGroups)
     req(input$IntraClusterDEGsCustomizedGroupsCase)
+    message("SeuratExplorer: preparing IntraClusterDEGsCustomizedGroupsControl.UI...")
     selectInput("IntraClusterDEGsCustomizedGroupsControl","Choose control Samples:", multiple = TRUE,
                 choices = setdiff(levels(data$obj@meta.data[,input$IntraClusterDEGsCustomizedGroups]),input$IntraClusterDEGsCustomizedGroupsCase))
   })
 
   # define Cluster Annotation choice
   output$IntraClusterDEGsSubsetCells.UI <- renderUI({
-    message("SeuratExplorer: preparing IntraClusterDEGsSubsetCells.UI...")
     req(input$IntraClusterDEGsCustomizedGroups)
+    message("SeuratExplorer: preparing IntraClusterDEGsSubsetCells.UI...")
     selectInput("IntraClusterDEGsSubsetCells","Subset Cells By:", choices = setdiff(data$cluster_options, input$IntraClusterDEGsCustomizedGroups))
   })
 
   # define Cluster Annotation choice
   output$IntraClusterDEGsSubsetCellsSelectedClusters.UI <- renderUI({
-    message("SeuratExplorer: preparing IntraClusterDEGsSubsetCellsSelectedClusters.UI...")
     req(input$IntraClusterDEGsCustomizedGroups)
     req(input$IntraClusterDEGsSubsetCells)
+    message("SeuratExplorer: preparing IntraClusterDEGsSubsetCellsSelectedClusters.UI...")
     shinyWidgets::pickerInput(inputId = "IntraClusterDEGsSubsetCellsSelectedClusters", label = "Select Clusters:",
                               choices = levels(data$obj@meta.data[,input$IntraClusterDEGsSubsetCells]), selected = levels(data$obj@meta.data[,input$IntraClusterDEGsSubsetCells]),
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
@@ -1200,8 +1201,8 @@ server <- function(input, output, session) {
   observe({
     shiny::req(input$dataset_file) # req: Check for required values; dataset_file is a data.frame
     ext = tools::file_ext(input$dataset_file$datapath) # file_ext: returns the file (name) extensions
-    validate(need(expr = ext == "rds", message = "Please upload a .rds file")) # validate + need：检查后缀是否为rds，否则抛出错误
-    data$obj <- prepare_seurat_object(obj = Seurat::UpdateSeuratObject(readRDS(file = input$dataset_file$datapath)))
+    validate(need(expr = ext %in% c("rds","qs2","Rds"), message = "Please upload a .rds or a .qs2 file")) # validate + need：检查后缀是否为rds或qs2，否则抛出错误
+    data$obj <- prepare_seurat_object(obj = readSeurat(path = input$dataset_file$datapath))
     data$reduction_options <- prepare_reduction_options(obj = data$obj, keywords = c("umap","tsne"))
     data$cluster_options <- prepare_cluster_options(df = data$obj@meta.data)
     data$split_options <- prepare_split_options(df = data$obj@meta.data, max.level = data$split_maxlevel)
@@ -1216,7 +1217,7 @@ server <- function(input, output, session) {
 
   ############################### Render metadata table
   # 可以下载全部，参考：https://stackoverflow.com/questions/50039186/add-download-buttons-in-dtrenderdatatable
-  output$dataset_meta <- DT::renderDT(server=FALSE,{
+  output$dataset_meta <- DT::renderDT(server=TRUE,{
     req(data$obj)
     # Show data
     DT::datatable(data$obj@meta.data, extensions = 'Buttons',

@@ -28,7 +28,8 @@ Imports:
     shinyBS,
     ggalluvial,
     dplyr,
-    ComplexHeatmap
+    ComplexHeatmap,
+    qs2
 Depends: R (>= 4.1.0)
 Suggests:
     BiocManager,

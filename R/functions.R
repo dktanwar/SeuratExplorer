@@ -748,4 +748,20 @@ AverageHeatmap <- function(
   }
 }
 
+readSeurat <- function(path){
+  message("Reading in data...")
+  # read data
+  if (tools::file_ext(path) == 'qs2') {
+    seu_obj <- qs2::qs_read(path)
+  }else(
+    seu_obj <- readRDS(path)
+  )
+  # check version
+  if (SeuratObject::Version(seu_obj) < packageVersion('SeuratObject')) {
+    seu_obj <- SeuratObject::UpdateSeuratObject(seu_obj)
+  }else{
+    message('Update Seurat Object escaped for it has been the latest version!')
+  }
+  return(seu_obj)
+}
 
