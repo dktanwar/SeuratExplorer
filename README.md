@@ -57,6 +57,8 @@ launchSeuratExplorer()
 
 ### Load data
 
+- support `Seurat` object save as .rds file or .qs2 file.
+
 - support data processed by Seurat V5 and older versions. it may takes a
   while for loading data.
 
