@@ -328,7 +328,7 @@ explorer_body_ui <- function(tab_list){
                                             sliderInput("percentcut","UMI percentage cutoff(%):",min = 1,  max = 10, value = 1, step = 1),
                                             actionButton("TopGenesAnalysis", "Analyze", icon = icon("magnifying-glass-chart"), class = "btn-primary")),
                                    tabPanel("Find Top Genes by Accumulated UMI Counts",
-                                            sliderInput("topcut","Top:",min = 100,  max = 1000, value = 100, step = 100),
+                                            sliderInput("topcut","Top n:",min = 100,  max = 1000, value = 100, step = 100),
                                             actionButton("TopAccumulatedGenesAnalysis", "Analyze", icon = icon("magnifying-glass-chart"), class = "btn-primary"))),
                                  conditionalPanel(
                                    condition = "output.TopGenes_ready",

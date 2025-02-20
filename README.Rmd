@@ -19,23 +19,19 @@ knitr::opts_chunk$set(
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-## 为什么做这个R包
+## Why build this R package
 
-> 目前还没有很好的用于可视化Seurat分析结果的工具，当生物信息分析员将结果交给用户后，用户如果没有任何R语言基础，还是比较难去自行进行结果检索和再分析，这个R包可以帮助此类用户进行交互，实现分析结果的可视化，方便用户自行出图。用户仅需要在自己电脑上配置好R和Rstudio，然后安装运行此软件即可，无需其他操作。
+> Currently, there is still no good tools for visualising the analysis results from ``Seurat``, when the bioinformatics analyst hands over the results to the user, if the user does not have any R language foundation, it is still difficult to retrieve the results and re-analysis on their own, and this R package is designed to help such users to visualize and explore the anaysis results. The only thing to do for such users is to configure R and Rstudio on their own computers, and then install ``SeuratExplorer``, without any other operations, an optional way is to upload the ``Seurat object`` file to a server which has been deployed with ``shinyserver`` and ``SeuratExplorer``.
 
-> **本质上就是把R包``Seurat``里的部分绘图工具和差异分析工具进行可视化！**
+> Essentially, what ``SeuratExplorer`` done is just to perform visual operations for command line tools from ``Seurat`` or other packages.
 
-> 此R包参考了开源程序:  
-1. [Hla-Lab/SeuratExplorer](https://github.com/rwcrocker/SeuratExplorer/): An interactive R shiny application for exploring scRNAseq data processed in Seurat.  
-2. [junjunlab/scRNAtoolVis](https://github.com/junjunlab/scRNAtoolVis): Some useful function to make your scRNA-seq plot more beautiful.
+## A live demo webserver
 
-## A Live Demo
-
-Support Rds file size no more than 5GB. [Open](http://www.nibs.ac.cn:666/SeuratExplorer/)
+Upload an Rds or qs2 file, with file size no more than 5GB. [Open](http://www.nibs.ac.cn:666/SeuratExplorer/), you can download a mini demo data from github [here](https://github.com/fentouxungui/SeuratExplorerServer/blob/main/inst/extdata/demo/fly/Rds-file/G101_PC20res04.rds).
 
 ## Installation
 
-You can install the development version of ``SeuratExplorer`` like so:
+You can use codes bellow to install the latest version of ``SeuratExplorer``:
 
 ```{r eval=FALSE}
 # install dependency
@@ -48,32 +44,29 @@ if(!require(devtools)){install.packages("devtools")}
 install_github("fentouxungui/SeuratExplorer")
 ```
 
-
-**建议将各个软件包升级到最新版本！否则可能出现兼容问题**
-
-Run App:
+## Run App
  
 ```{r eval=FALSE}
 library(SeuratExplorer)
 launchSeuratExplorer()
 ```
 
-## Functions
+## Introduction
 
 ### Load data
 
-- support ``Seurat`` object save as .rds file or .qs2 file.
+- support ``Seurat`` object saved as ``.rds`` or ``.qs2`` file.
 
-- support data processed by Seurat V5 and older versions. it may takes a while for loading data.
+- support data processed by ``Seurat`` V5 and older versions. it may takes a while to update ``Seurat`` object when loading data.
 
-```{r   echo = FALSE, message=FALSE, warning=FALSE}
+```{r echo = FALSE, message=FALSE, warning=FALSE, out.width="50%"}
 knitr::include_graphics("inst/extdata/www/loading-before.png")
 knitr::include_graphics("inst/extdata/www/loading-after.png")
 ```
 
-### Cell Meta
+### Cell Metadata
 
-- 支持下载cell meta信息，可用于统计特定分辨率下的细胞比例。
+- support download cell metadata in ``csv`` format, which can be used to for further analysis.
 
 ```{r  echo = FALSE, message=FALSE, warning=FALSE}
 knitr::include_graphics("inst/extdata/www/cell-metadata.png")
@@ -81,71 +74,78 @@ knitr::include_graphics("inst/extdata/www/cell-metadata.png")
 
 ### Dimensional Reduction Plot
 
-- 支持选择Dimension Reductions
+- support options for **Dimension Reductions**
 
-- 支持选择不同的细胞分群方案
+- support options for **Cluster Resolution**
 
-- 支持split
+- support **split** plots
 
-- 支持调整图像长宽比
+- support adjust the height/width ratio of the plot
 
-- 支持是否显示cluster label
+- support options for showing **cluster label**
 
-- 支持调整label大小
+- support adjust label size
 
-- 支持调整点的大小
+- support adjust point size
 
-- 支持pdf下载，所见即所得
+- support download plot in pdf format, what you see is what you get
 
-Example plots:
+**Example plots:**
 
-```{r  echo = FALSE, message=FALSE, warning=FALSE}
+```{r  echo = FALSE, message=FALSE, warning=FALSE, out.width="50%"}
 knitr::include_graphics("inst/extdata/www/dimplot.png")
+```
+
+```{r  echo = FALSE, message=FALSE, warning=FALSE, out.width="90%"}
 knitr::include_graphics("inst/extdata/www/Dimplot-splited.png")
 ```
 
 ### Feature Plot
 
-- 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
+- support display multiple genes simultaneous, genes names are case-insensitive. Tips: paste multiple genes from excel
 
-- 支持选择Dimension Reductions
+- support options for **Dimension Reductions**
 
-- 支持split
+- support **split** plots
 
-- 支持自定义最大和最小表达值对应的颜色
+- support change colors for the lowest expression and highest expression
 
-- 支持调整图像长宽比
+- support adjust the height/width ratio of the plot
 
-- 支持调整点的大小
+- support adjust point size
 
-- 支持pdf下载，所见即所得
+- support download plot in pdf format, what you see is what you get
+
+**Example plots:**
+
+```{r  echo = FALSE, message=FALSE, warning=FALSE, out.width="50%"}
+knitr::include_graphics("inst/extdata/www/featureplot-1-with-label.png")
+```
 
 ```{r  echo = FALSE, message=FALSE, warning=FALSE}
 knitr::include_graphics("inst/extdata/www/featureplot-1.png")
-knitr::include_graphics("inst/extdata/www/featureplot-1-with-label.png")
 knitr::include_graphics("inst/extdata/www/Featureplot-split.png")
 ```
 
 ### Violin Plot
 
-- 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
+- support display multiple genes simultaneous, genes names are case-insensitive. Tips: paste multiple genes from excel
 
-- 支持选择不同的细胞分群方案
+- support options for **Cluster Resolution**
 
-- 支持split
+- support **split** plots
 
-- 支持stack和flip图像, 和指定颜色的映射
+- support **stack** and **flip** plot, and color mapping selection.
 
-- 支持自定义最大和最小表达值对应的颜色
+- support adjust point size and transparency
 
-- 支持调整点的大小
+- support adjust font size on x and y axis
 
-- 支持调整x轴和y轴label的字体大小
+- support adjust the height/width ratio of the plot
 
-- 支持调整图像长宽比
+- support download plot in pdf format, what you see is what you get
 
-- 支持pdf下载，所见即所得
-
+**Example plots:**
 
 ```{r echo = FALSE}
 knitr::include_graphics("inst/extdata/www/Vlnplot-1.png")
@@ -156,152 +156,275 @@ knitr::include_graphics("inst/extdata/www/vlnplot-splited-2.png")
 
 ### Dot Plot
 
-- 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
+- support display multiple genes simultaneous, genes names are case-insensitive. Tips: paste multiple genes from excel
 
-- 支持选择不同的细胞分群方案和指定所使用的clusters
+- support options for **Cluster Resolution** and subset clusters
 
-- 支持split
+- support **split** plots
 
-- 支持对cluster/idents进行聚类
+- support cluster clusters
 
-- 支持旋转坐标轴lable和旋转整个图像
+- support rotate axis and flip coordinate
 
-- 支持调整点的大小和透明度
+- support adjust point size and transparency
 
-- 支持调整x轴和y轴label的字体大小
+- support adjust font size on x and y axis
 
-- 支持调整图像长宽比
+- support adjust the height/width ratio of the plot
 
-- 支持pdf下载，所见即所得
+- support download plot in pdf format, what you see is what you get
 
-```{r echo = FALSE}
+**Example plots:**
+
+```{r echo = FALSE, out.width="70%"}
 knitr::include_graphics("inst/extdata/www/Dotplot-1.png")
+```
+
+```{r echo = FALSE, out.width="50%"}
 knitr::include_graphics("inst/extdata/www/dotplot-splited-1.png")
 ```
 
-### Heatmap Cell Level
+### Heatmap for cell level expression
 
-- 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
+- support display multiple genes simultaneous, genes names are case-insensitive. Tips: paste multiple genes from excel
 
-- 支持选择不同的细胞分群方案
+- support options for **Cluster Resolution** and reorder clusters
 
-- 支持调整cluster label的大小、xy轴的位置和旋转角度
+- support adjust font size and rotation angle of cluster label, and flip coordinate
 
-- 支持调整Group bar的高度
+- support adjust the height of group bar
 
-- 支持调整Group间的间隙大小
+- support adjust the gap size between groups
 
-- 支持调整基因名的字体大小
+- support adjust the font size of gene names
 
-- 支持调整图像长宽比
+- support adjust the height/width ratio of the plot
 
-- 支持pdf下载，所见即所得
+- support download plot in pdf format, what you see is what you get
+
+**Example plots:**
 
 ```{r echo = FALSE}
 knitr::include_graphics("inst/extdata/www/Heatmap-1.png")
 ```
 
-### Heatmap Group Averaged
+### Heatmap for group averaged expression
 
-- 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
+- support display multiple genes simultaneous, genes names are case-insensitive. Tips: paste multiple genes from excel
 
-- 支持选择不同的细胞分群方案
+- support options for **Cluster Resolution** and reorder clusters
 
-- 支持调整cluster label的大小、xy轴的位置和旋转角度
+- support adjust font size and rotation angle of cluster label
 
-- 支持调整Group bar的高度
+- support adjust the font size of gene names
 
-- 支持调整Group间的间隙大小
+- support adjust the height/width ratio of the plot
 
-- 支持调整基因名的字体大小
+- support download plot in pdf format, what you see is what you get
 
-- 支持调整图像长宽比
+**Example plots:**
 
-- 支持pdf下载，所见即所得
-
-```{r echo = FALSE}
+```{r echo = FALSE, out.width="50%"}
 knitr::include_graphics("inst/extdata/www/averagedheatmap.png")
 ```
 
 ### Ridge Plot
 
-- 支持输入多个基因名，以空格分割，基因名可不区分大小写。支持从excel拷贝多个基因！
+- support display multiple genes simultaneous, genes names are case-insensitive. Tips: paste multiple genes from excel
 
-- 支持选择不同的细胞分群方案
+- support options for **Cluster Resolution** and reorder clusters
 
-- 支持调整列的数目
+- support adjust column numbers
 
-- 支持Stack和指定颜色的映射
+- support stack plot and color mapping
 
-- 支持调整x轴和y轴label的字体大小
+- support adjust font size on x and y axis
 
-- 支持调整图像长宽比
+- support adjust the height/width ratio of the plot
 
-- 支持pdf下载，所见即所得
+- support download plot in pdf format, what you see is what you get
+
+**Example plots:**
+
+```{r echo = FALSE, out.width="70%"}
+knitr::include_graphics("inst/extdata/www/ridgeplot-1.png")
+```
 
 ```{r echo = FALSE}
-knitr::include_graphics("inst/extdata/www/ridgeplot-1.png")
 knitr::include_graphics("inst/extdata/www/Ridgeplot-2.png")
 knitr::include_graphics("inst/extdata/www/Ridgeplot-3.png")
 ```
 
 ### Plot Cell Percentage
 
-- 支持调整图像长宽比
+- support facet
 
-- 支持分面
+- support adjust the height/width ratio of the plot
 
-- 支持pdf下载，所见即所得
+- support download plot in pdf format, what you see is what you get
 
-```{r echo = FALSE}
+**Example plots:**
+
+```{r echo = FALSE, out.width="50%"}
 knitr::include_graphics("inst/extdata/www/cellratio-1.png")
 knitr::include_graphics("inst/extdata/www/cellratio-2.png")
 ```
 
-### Cluster Markers and DEGs Analysis
+### Find Cluster Markers and DEGs Analysis
 
-- 支持同时计算所有群的marker基因
+This usually takes longer, please wait patiently.Please save the results before start a new analysis, the old results will be overwritten by the new results, the results can be downloaded as ``csv`` format.
 
-- 支持计算指定群之间的差异基因
+#### Support two ways
 
-- 支持先做subset，再计算指定群之间的差异基因
+- support find markers for all clusters
 
-- 支持自定义部分计算参数
+- support calculate DEGs for self-defined two groups, you can subset cells before calculate DEGs between two groups, default use all cells of two groups.
 
-- 支持结果下载
+You can modify part calculation parameters before a analysis.
+
+**Screen shots:**
 
 ```{r echo = FALSE}
 knitr::include_graphics("inst/extdata/www/DEGs-1.png")
 knitr::include_graphics("inst/extdata/www/DEGs-2.png")
 knitr::include_graphics("inst/extdata/www/DEGs-3.png")
+```
+
+#### Output description
+
+```{r echo = FALSE}
 knitr::include_graphics("inst/extdata/www/DEGs-4.png")
 ```
 
+> [FindMarkers(object, ...)](https://satijalab.org/seurat/reference/findmarkers)
+>
+> A data.frame with a ranked list of putative markers as rows, and associated statistics as columns (p-values, ROC score, etc., depending on the test used (test.use)). The following columns are always present:
+> 
+> avg_logFC: log fold-chage of the average expression between the two groups. Positive values indicate that the gene is more highly expressed in the first group
+> 
+> pct.1: The percentage of cells where the gene is detected in the first group
+> 
+> pct.2: The percentage of cells where the gene is detected in the second group
+> 
+> p_val_adj: Adjusted p-value, based on bonferroni correction using all genes in the dataset
+
 ### Top Expressed Features
 
-> 首先逐个细胞计算得出每个细胞里的高表达基因[即该基因的UMI比例大于所设定的阈值]； 然后分群（celltype列）汇总高表达基因，得到每个高表达基因在每群里发生高表达的细胞数目，以及表达比例的均值和和中位值。
+Highly expressed genes can reflect the main functions of cells, there two ways to do this. the first - ``Find Top Genes by Cell`` could find gene only high express in a few cells, while the second - ``Find Top Genes by Accumulated UMI counts`` is biased to find the highly expressed genes in most cells by accumulated UMI counts.
+
+#### 1. Find Top Genes by Cell
+
+#### How?
+
+Step1: for each cell, find genes that has high UMI percentage, for example, if a cell has 10000 UMIs, and the ``UMI percentage cutoff`` is set to 0.01, then all genes that has more than 10000 * 0.01 = 100 UMIs is thought to be the highly expressed genes for this cell.
+
+Step2: summary those genes for each cluster, firstly get all highly expressed genes in a cluster, some genes may has less cells, then for each gene, count cells in which this genes is highly expressed, and also calculate the mean and median UMI percentage in those highly expressed cells.
+
+
+```{r echo = FALSE}
+knitr::include_graphics("inst/extdata/www/Find-Top-Genes-by-Cell.png")
+```
+
+#### Output description
+
+- ``celltype``: the cluster name which is define by ``Choose A Cluster Resolution``
+
+- ``total.cells``: total cell in this cluster
+
+- ``Gene``: this Gene is highly expressed in at least 1 cell in this cluster
+
+- ``total.pos.cells``: how many cells express this gene
+
+- ``total.UMI.pct``: (all UMIs of this gene)/(total UMIs of this cluster)
+
+- ``cut.Cells``:  how many cells highly express this gene
+
+- ``cut.pct.mean``: in those highly expressed cells, the mean expression percentage
+
+- ``cut.pct.median``: in those highly expressed cells, the median expression percentage
+
+
+#### 2. Find Top Genes by Accumulated UMI counts
+
+for each cluster, calculate the ``top n`` highly expressed genes by accumulated UMI counts. if a cluster has less than 3 cells, this cluster will be escaped.
+
+```{r echo = FALSE}
+knitr::include_graphics("inst/extdata/www/Find-Top-Genes-by-Accumulated-UMI-counts.png")
+```
+
+#### Output description
+
+- ``CellType``: the cluster name which is define by ``Choose A Cluster Resolution``
+
+- ``total.cells``: total cell in this cluster
+
+- ``Gene``: the ``top n`` highly expressed genes 
+
+- ``total.pos.cells``: how many cells express this gene
+
+- ``NormalizedAccumulatedUMICounts``: (total accumulated UMI counts) / (total cells of this cluster)
+
+- ``PCT``:  (total accumulated UMI counts) / (total UMIs of this cluster)
 
 ### Feature Summary
 
-> 对于感兴趣的基因list分组做简要的统计分析，得到该基因在每群里的表达阳性比例，表达水平的均值和中位值
+Summary interested features by cluster, such as the positive cell percentage and mean/median expression level.
+
+```{r echo = FALSE}
+knitr::include_graphics("inst/extdata/www/gene-short-summary.png")
+```
+
+#### Output description
+
+- ``celltype``: the cluster name which is define by ``Choose A Cluster Resolution``
+
+- ``TotalCells``: total cell in this cluster
+
+- ``Gene``: the input genes 
+
+- ``PCT``: the percentage of how many cells express this gene in this cluster
+
+- ``Expr.mean``: the mean normalized expression in this cluster
+
+- ``Expr.median``:  the median normalized expression in this cluster
 
 ### Feature Correlation Analysis
 
-- ``Find Top Correlated Gene Pairs`` 用于找出top 1000 correlated gene pairs
+Can calculate the correlation value of gene pairs within cells from a cluster, support pearson & spearman methods.
 
-- ``Find Correlated Genes for A Gene`` 用于找出对于感兴趣的某个基因，找出与其表达相关性强的基因
+#### 3 ways to do
 
-- ``Calculate Correlation for A Gene List`` 用于对一组感兴趣的基因list，计算所有组合的表达相关性
+- ``Find Top Correlated Gene Pairs``: to find top 1000 correlated gene pairs
 
-- 如结果为空，或未找到对应的Gene Pairs，是由于输入基因的表达值太低，被去除了
+- ``Find Correlated Genes for A Gene``: to find the most correlated genes for input genes
 
-- 支持分区计算correlation值
-
-- 支持pearson和spearman算法
+- ``Calculate Correlation for A Gene List``: to calculate the correlation value for each pair of the input genes
 
 ```{r echo = FALSE}
 knitr::include_graphics("inst/extdata/www/featurecorrelation.png")
 ```
+
+#### Output description
+
+```{r echo = FALSE, out.width="40%"}
+knitr::include_graphics("inst/extdata/www/feature-correlation-output.png")
+```
+
+- ``GeneA``: the first gene in a Gene pair
+
+- ``GeneB``:  the second gene in a Gene pair
+
+- ``correlation``: the correlation value
+
+if nothing return, this is because the input genes has very low expression level, very low expressed genes will be removed before analysis.
+
+## Key related packages
+
+- [Hla-Lab/SeuratExplorer](https://github.com/rwcrocker/SeuratExplorer/): An interactive R shiny application for exploring scRNAseq data processed in Seurat
+
+- [junjunlab/scRNAtoolVis](https://github.com/junjunlab/scRNAtoolVis): Some useful function to make your scRNA-seq plot more beautiful
+
+- [rstudio/shiny-server](https://github.com/rstudio/shiny-server): Shiny Server is a server program that makes Shiny applications available over the web
 
 ## Session Info
 
