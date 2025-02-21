@@ -5,12 +5,12 @@
 #' Launch shiny app
 #'
 #' @import shiny
+#' @import shinydashboard
 #' @return In-browser Shiny Application launch
 #' @examples
 #' # launchSeuratExplorer()
 #' @export
 launchSeuratExplorer <- function(){
-  require(shinydashboard)
   app = shinyApp(ui, server)
   runApp(app, launch.browser = TRUE)
 }

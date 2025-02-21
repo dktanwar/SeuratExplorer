@@ -8,9 +8,12 @@
 #' @param output server output
 #' @param session server session
 #' @param data the Seurat object and related parameters
+#' @import Seurat
+#' @import SeuratObject
+#' @importFrom grDevices dev.off pdf
 #' @export
 explorer_server <- function(input, output, session, data){
-  temp_dir_name <- "temp_files" # 临时目录，用于存储plots
+  temp_dir_name <- "temp_files" # temporary directory, for save plots
 
   if (dir.exists(temp_dir_name)) {
     unlink(temp_dir_name, recursive = TRUE)
@@ -19,6 +22,10 @@ explorer_server <- function(input, output, session, data){
 
   # to make updateCollapse() runs correctly, refer to: https://github.com/ebailey78/shinyBS/issues/92
   shiny::addResourcePath("sbs", system.file("www", package="shinyBS"))
+
+  # Using un-exported function from another R package
+  # https://stackoverflow.com/questions/32535773/using-un-exported-function-from-another-r-package
+  subset_Seurat <- utils::getFromNamespace('subset.Seurat', 'SeuratObject')
 
   ############################# Dimension Reduction Plot
   # define reductions choices UI
@@ -40,7 +47,7 @@ explorer_server <- function(input, output, session, data){
   })
 
   # when change cluster resolution, open the shinyBS::bsCollapsePanel, otherwise will cause cluster order not update
-  # 不太好的效果是，每次切换resolution选项，都会使得cluster order ui展开。
+  # a bad effect is: each time changing the resolution option, will collapse cluster order ui
   observeEvent(input$DimClusterResolution, ({
     message("SeuratExplorer: updateCollapse for collapseDimplot...")
     shinyBS::updateCollapse(session, "collapseDimplot", open = "Change Cluster Order")
@@ -54,7 +61,7 @@ explorer_server <- function(input, output, session, data){
 
   # Revise Split selection which will be appropriate for plot
   DimSplit.Revised <- reactive({
-    req(input$DimSplit) # split值出现后，才会执行的代码
+    req(input$DimSplit) # only run after split is ready
     message("SeuratExplorer: preparing DimSplit.Revised...")
     # Revise the Split choice
     if(is.na(input$DimSplit) | input$DimSplit == "None") {
@@ -66,12 +73,12 @@ explorer_server <- function(input, output, session, data){
 
   dimplot_width  <- reactive({ session$clientData$output_dimplot_width })
 
-  # Pixel (X) to Centimeter: 1 pixel (X)	= 0.0264583333 cm，若用这个值，不知道为啥图片偏小
+  # Pixel (X) to Centimeter: 1 pixel (X)	= 0.0264583333 cm, if use this value, the picture is a little bit of small, unknown why.
   px2cm <- 0.03
 
   output$dimplot <- renderPlot({
     message("SeuratExplorer: preparing dimplot...")
-    isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
+    isolate(cds <- data$obj) # not a memory saving way
     cds@meta.data[,input$DimClusterResolution] <- factor(cds@meta.data[,input$DimClusterResolution], levels = input$DimClusterOrder)
     if (is.null(DimSplit.Revised())) { # not splited
       p <- Seurat::DimPlot(cds, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
@@ -110,7 +117,7 @@ explorer_server <- function(input, output, session, data){
     selectInput("FeatureSplit","Split by:", choices = c("None" = "None", data$split_options))
   })
 
-  # 提示可用的qc选项作为Gene symbol
+  # inform extra qc options for Gene symbol input
   output$Featurehints.UI <- renderUI({
     message("SeuratExplorer: preparing Featurehints.UI...")
     helpText(strong(paste("Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
@@ -121,7 +128,7 @@ explorer_server <- function(input, output, session, data){
 
   # Revise Split selection which will be appropriate for DimPlot, FeaturePlot and Vlnplot functions.
   FeatureSplit.Revised <- reactive({
-    req(input$FeatureSplit) # split值出现后，才会执行的代码
+    req(input$FeatureSplit)
     message("SeuratExplorer: preparing FeatureSplit.Revised...")
     # Revise the Split choice
     if(is.na(input$FeatureSplit) | input$FeatureSplit == "None") {
@@ -142,10 +149,10 @@ explorer_server <- function(input, output, session, data){
 
   output$featureplot <- renderPlot({
     message("SeuratExplorer: preparing featureplot...")
-    if (any(is.na(Featureplot.Gene.Revised()))) { # NA 值时
+    if (any(is.na(Featureplot.Gene.Revised()))) { # when NA value
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when all wrong input, show a blank pic.
     }else if (input$FeatureShowLabel) { # show label
-      isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
+      isolate(cds <- data$obj)
       Idents(cds) <- input$FeatureClusterResolution
       if(is.null(FeatureSplit.Revised())) { # not splited
         p <- Seurat::FeaturePlot(cds, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
@@ -154,7 +161,7 @@ explorer_server <- function(input, output, session, data){
         p <- Seurat::FeaturePlot(cds, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
                                  cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), split.by = FeatureSplit.Revised(), label = TRUE,
                                  label.size = input$FeatureLabelSize)
-        if (length( Featureplot.Gene.Revised()) == 1) { # 仅仅一个基因时
+        if (length( Featureplot.Gene.Revised()) == 1) { # only one gene
           plot_numbers <- length(levels(cds@meta.data[,FeatureSplit.Revised()]))
           p <- p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
         }
@@ -166,7 +173,7 @@ explorer_server <- function(input, output, session, data){
       }else{ # splited
         p <- Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
                                  cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), split.by = FeatureSplit.Revised())
-        if (length( Featureplot.Gene.Revised()) == 1) { # 仅仅一个基因时
+        if (length( Featureplot.Gene.Revised()) == 1) { # only one gene
           plot_numbers <- length(levels(data$obj@meta.data[,FeatureSplit.Revised()]))
           p <- p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
         }
@@ -180,7 +187,7 @@ explorer_server <- function(input, output, session, data){
   output$downloadfeatureplot <- downloadHandler(
     filename = function(){'featureplot.pdf'},
     content = function(file) {
-      if (file.exists(paste0(temp_dir_name,"/featureplot.pdf"))) { # 问题： 文件不存在时，会抛出一个下载错误。或者输入错误时，会下载先前输入正确得到的图片。
+      if (file.exists(paste0(temp_dir_name,"/featureplot.pdf"))) { # problem: will throw an error when file not exists; or with a uncorrected input, will download the pic of previous corrected input.
         file.copy(paste0(temp_dir_name,"/featureplot.pdf"), file, overwrite=TRUE)
       }
     })
@@ -193,7 +200,6 @@ explorer_server <- function(input, output, session, data){
     ifelse(is.na(input$VlnGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$VlnGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
   })
 
-  # 提示可用的qc选项作为Gene symbol
   output$Vlnhints.UI <- renderUI({
     message("SeuratExplorer: preparing Vlnhints.UI...")
     helpText(strong(paste("Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
@@ -214,7 +220,6 @@ explorer_server <- function(input, output, session, data){
   })
 
   # when change cluster resolution, open the shinyBS::bsCollapsePanel, otherwise will cause cluster order not update
-  # 不太好的效果是，每次切换resolution选项，都会使得cluster order ui展开。
   observeEvent(input$VlnClusterResolution, ({
     message("SeuratExplorer: updateCollapse for collapseVlnplot...")
     shinyBS::updateCollapse(session, "collapseVlnplot", open = "0")
@@ -235,7 +240,7 @@ explorer_server <- function(input, output, session, data){
     selectInput("VlnSplitBy","Split by:", choices = c("None" = "None", data$split_options))
   })
 
-  # Conditional panel: split.by被勾选，且level数目为2时，显示此panel
+  # Conditional panel: show this panel when split.by is selected and the the level equals to 2
   output$Vlnplot_splitoption_twolevels = reactive({
     req(input$VlnSplitBy)
     message("SeuratExplorer: preparing Vlnplot_splitoption_twolevels...")
@@ -248,10 +253,12 @@ explorer_server <- function(input, output, session, data){
     }
   })
 
-  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditionalpanel所需要要的参数
+  # Disable suspend for output$file_loaded,
+  # When TRUE (the default), the output object will be suspended (not execute) when it is hidden on the web page.
+  # When FALSE, the output object will not suspend when hidden, and if it was already hidden and suspended, then it will resume immediately.
   outputOptions(output, 'Vlnplot_splitoption_twolevels', suspendWhenHidden = FALSE)
 
-  # Conditional panel: symbol输入为多个基因时，显示此panel
+  # Conditional panel: show this panel when input multiple gene symbols
   output$Vlnplot_multiple_genes = reactive({
     req(input$VlnGeneSymbol)
     message("SeuratExplorer: preparing Vlnplot_multiple_genes...")
@@ -262,11 +269,10 @@ explorer_server <- function(input, output, session, data){
     }
   })
 
-  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditionalpanel所需要要的参数
   outputOptions(output, 'Vlnplot_multiple_genes', suspendWhenHidden = FALSE)
 
 
-  # Conditional panel: 输入为多个基因且stack设为TRUE时，显示此panel
+  # Conditional panel: show this panel when input multiple genes and stack is set to TRUE
   output$Vlnplot_StackPlot = reactive({
     req(input$VlnStackPlot)
     req(input$VlnGeneSymbol)
@@ -278,13 +284,12 @@ explorer_server <- function(input, output, session, data){
     }
   })
 
-  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditionalpanel所需要要的参数
   outputOptions(output, 'Vlnplot_StackPlot', suspendWhenHidden = FALSE)
 
   # Revise Split selection which will be appropriate for DimPlot, FeaturePlot and Vlnplot functions.
   VlnSplit.Revised <- reactive({
     message("SeuratExplorer: preparing VlnSplit.Revised...")
-    req(input$VlnSplitBy) # split值出现后，才会执行的代码
+    req(input$VlnSplitBy)
     # Revise the Split choice
     if(is.na(input$VlnSplitBy) | input$VlnSplitBy == "None") {
       return(NULL)
@@ -304,30 +309,28 @@ explorer_server <- function(input, output, session, data){
   })
 
   # shiny related bug
-  # 以后再debug吧！ 2024.05.15
+  # debug in future! 2024.05.15
   # how to make sure renderPlot run after the observe(input$VlnSplitBy)[Warning: Error in SingleExIPlot: Unknown plot type: splitViolin,
-  # 因为此时的VlnSplitPlot还没有被更新]
+  # for the VlnSplitPlot is not updated
 
   # seurat related bug
   # VlnPlot(cds,features = c("CD4","CD8A"),split.by = "orig.ident", stack = TRUE,group.by = "cca_clusters_res_0.2",flip = FALSE,split.plot = TRUE)
   # Error:
   # Error in `vln.geom()`:
   #   ! Problem while converting geom to grob.
-  # ℹ Error occurred in the 1st layer.
   # Caused by error in `$<-.data.frame`:
-  #   ! 替换数据里有0行，但数据有512
   # Run `rlang::last_trace()` to see where the error occurred
-  # 经测试，与ggplot2,pathcwork,rlang等R包的版本无关！
+  # not related to ggplot2, pathcwork, rlang versions
 
   vlnplot_width  <- reactive({ session$clientData$output_vlnplot_width })
 
   output$vlnplot <- renderPlot({
     req(Vlnplot.Gene.Revised())
     message("SeuratExplorer: preparing vlnplot...")
-    if (any(is.na(Vlnplot.Gene.Revised()))) { # NA 值时
+    if (any(is.na(Vlnplot.Gene.Revised()))) { # when NA value
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
-      isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
+      isolate(cds <- data$obj)
       cds@meta.data[,input$VlnClusterResolution] <- factor(cds@meta.data[,input$VlnClusterResolution], levels = input$VlnClusterOrder)
       SeuratObject::Idents(cds) <- input$VlnClusterResolution
       if(length(Vlnplot.Gene.Revised()) == 1) { # only One Gene
@@ -351,7 +354,7 @@ explorer_server <- function(input, output, session, data){
   output$downloadvlnplot <- downloadHandler(
     filename = function(){'vlnplot.pdf'},
     content = function(file) {
-      if (file.exists(paste0(temp_dir_name,"/vlnplot.pdf"))) { # 问题： 文件不存在时，会抛出一个下载错误。或者输入错误时，会下载先前输入正确得到的图片。
+      if (file.exists(paste0(temp_dir_name,"/vlnplot.pdf"))) {
         file.copy(paste0(temp_dir_name,"/vlnplot.pdf"), file, overwrite=TRUE)
       }
     })
@@ -366,7 +369,6 @@ explorer_server <- function(input, output, session, data){
     ifelse(is.na(input$DotGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$DotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
   })
 
-  # 提示可用的qc选项作为Gene symbol
   output$Dothints.UI <- renderUI({
     message("SeuratExplorer: preparing Dothints.UI...")
     helpText(strong(paste("Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
@@ -387,7 +389,6 @@ explorer_server <- function(input, output, session, data){
   })
 
   # when change cluster resolution, open the shinyBS::bsCollapsePanel, otherwise will cause cluster order not update
-  # 不太好的效果是，每次切换resolution选项，都会使得cluster order ui展开。
   observeEvent(input$DotClusterResolution, ({
     message("SeuratExplorer: updateCollapse for collapseDotplot...")
     shinyBS::updateCollapse(session, "collapseDotplot", open = "0")
@@ -410,7 +411,7 @@ explorer_server <- function(input, output, session, data){
 
   # Revise Split selection which will be appropriate for DimPlot, FeaturePlot and Vlnplot functions.
   DotSplit.Revised <- reactive({
-    req(input$DotSplitBy) # split值出现后，才会执行的代码
+    req(input$DotSplitBy)
     message("SeuratExplorer: preparing DotSplit.Revised...")
     # Revise the Split choice
     if(is.na(input$DotSplitBy) | input$DotSplitBy == "None") {
@@ -420,7 +421,8 @@ explorer_server <- function(input, output, session, data){
     }
   })
 
-  # Conditional panel: 当split为NULL时，可以自行设定最高和最低表达值对应的颜色。当split不为NULL时，需要软件自动使用ggplot2生成的颜色填充每组的点的颜色。
+  # Conditional panel: when split is NULL, You can set the corresponding color for highest and lowest value,
+  # when split is not NULL, ggplot2 will generate colors for point.
   output$DotPlot_Split_isNone <- reactive({
     req(input$DotSplitBy)
     message("SeuratExplorer: preparing DotPlot_Split_isNone...")
@@ -431,7 +433,6 @@ explorer_server <- function(input, output, session, data){
     }
   })
 
-  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditional panel所需要要的参数
   outputOptions(output, 'DotPlot_Split_isNone', suspendWhenHidden = FALSE)
 
   dotplot_width  <- reactive({ session$clientData$output_dotplot_width })
@@ -439,21 +440,21 @@ explorer_server <- function(input, output, session, data){
   output$dotplot <- renderPlot({
     req(Dotplot.Gene.Revised())
     message("SeuratExplorer: preparing dotplot...")
-    if (any(is.na(Dotplot.Gene.Revised()))) { # NA 值时
+    if (any(is.na(Dotplot.Gene.Revised()))) { # NA
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
-      isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
+      isolate(cds <- data$obj)
       Idents(cds) <- input$DotClusterResolution
       cds@meta.data[,input$DotClusterResolution] <- factor(cds@meta.data[,input$DotClusterResolution], levels = input$DotClusterOrder)
       if (is.null(DotSplit.Revised())) {
         p <- Seurat::DotPlot(cds, features = Dotplot.Gene.Revised(), group.by = input$DotClusterResolution,
-                             idents = input$DotIdentsSelected, #不支持使用Group.by参数所定义的cluster，所以需要新见变量cds，修改Idents
+                             idents = input$DotIdentsSelected,
                              split.by = DotSplit.Revised(), cluster.idents = input$DotClusterIdents, dot.scale = input$DotDotScale,
                              cols = c(input$DotPlotLowestExprColor, input$DotPlotHighestExprColor))
       }else{
         split.levels.length <- length(levels(cds@meta.data[,DotSplit.Revised()]))
         p <- Seurat::DotPlot(cds, features = Dotplot.Gene.Revised(), group.by = input$DotClusterResolution,
-                             idents = input$DotIdentsSelected, #不支持使用Group.by参数所定义的cluster，所以需要新见变量cds，修改Idents
+                             idents = input$DotIdentsSelected,
                              split.by = DotSplit.Revised(), cluster.idents = input$DotClusterIdents, dot.scale = input$DotDotScale,
                              cols = scales::hue_pal()(split.levels.length))
       }
@@ -469,7 +470,7 @@ explorer_server <- function(input, output, session, data){
   output$downloaddotplot <- downloadHandler(
     filename = function(){'dotplot.pdf'},
     content = function(file) {
-      if (file.exists(paste0(temp_dir_name,"/dotplot.pdf"))) { # 问题： 文件不存在时，会抛出一个下载错误。或者输入错误时，会下载先前输入正确得到的图片。
+      if (file.exists(paste0(temp_dir_name,"/dotplot.pdf"))) {
         file.copy(paste0(temp_dir_name,"/dotplot.pdf"), file, overwrite=TRUE)
       }
     })
@@ -483,7 +484,6 @@ explorer_server <- function(input, output, session, data){
     ifelse(is.na(input$HeatmapGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$HeatmapGeneSymbol, GeneLibrary =  rownames(data$obj))))
   })
 
-  # 提示可用的qc选项作为Gene symbol
   output$Heatmaphints.UI <- renderUI({
     message("SeuratExplorer: preparing Heatmaphints.UI...")
     helpText(strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
@@ -501,8 +501,6 @@ explorer_server <- function(input, output, session, data){
     shinyjqui::orderInput(inputId = 'HeatmapClusterOrder', label = 'Drag to order:', items = levels(data$obj@meta.data[,input$HeatmapClusterResolution]),width = '100%')
   })
 
-  # when change cluster resolution, open the shinyBS::bsCollapsePanel, otherwise will cause cluster order not update
-  # 不太好的效果是，每次切换resolution选项，都会使得cluster order ui展开。
   observeEvent(input$HeatmapClusterResolution, ({
     message("SeuratExplorer: updateCollapse for collapseHeatmap...")
     shinyBS::updateCollapse(session, "collapseHeatmap", open = "0")
@@ -513,13 +511,13 @@ explorer_server <- function(input, output, session, data){
   output$heatmap <- renderPlot({
     req(Heatmap.Gene.Revised())
     message("SeuratExplorer: preparing heatmap...")
-    if (any(is.na(Heatmap.Gene.Revised()))) { # NA 值时
+    if (any(is.na(Heatmap.Gene.Revised()))) { # NA
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
-      isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
+      isolate(cds <- data$obj)
       cds@meta.data[,input$HeatmapClusterResolution] <- factor(cds@meta.data[,input$HeatmapClusterResolution], levels = input$HeatmapClusterOrder)
-      if (!all(Heatmap.Gene.Revised() %in% Seurat::VariableFeatures(cds))) { #问题： 每次修改任何绘图参数，都得要执行此代码！！！
-        cds <- Seurat::ScaleData(object = cds, features = unique(c(Seurat::VariableFeatures(cds), Heatmap.Gene.Revised()))) # 不能只用一个基因去做scaledata()，会报错。
+      if (!all(Heatmap.Gene.Revised() %in% Seurat::VariableFeatures(cds))) {
+        cds <- Seurat::ScaleData(object = cds, features = unique(c(Seurat::VariableFeatures(cds), Heatmap.Gene.Revised()))) # use only one gene to scaledata() will throw an error
       }
 
       p <- Seurat::DoHeatmap(object = cds, features = Heatmap.Gene.Revised(), group.by = input$HeatmapClusterResolution, size = input$HeatmapTextSize,
@@ -535,7 +533,7 @@ explorer_server <- function(input, output, session, data){
   output$downloadheatmap <- downloadHandler(
     filename = function(){'heatmap.pdf'},
     content = function(file) {
-      if (file.exists(paste0(temp_dir_name,"/heatmap.pdf"))) { # 问题： 文件不存在时，会抛出一个下载错误。或者输入错误时，会下载先前输入正确得到的图片。
+      if (file.exists(paste0(temp_dir_name,"/heatmap.pdf"))) {
         file.copy(paste0(temp_dir_name,"/heatmap.pdf"), file, overwrite=TRUE)
       }
     })
@@ -548,7 +546,6 @@ explorer_server <- function(input, output, session, data){
     ifelse(is.na(input$AveragedHeatmapGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$AveragedHeatmapGeneSymbol, GeneLibrary =  rownames(data$obj))))
   })
 
-  # 提示可用的qc选项作为Gene symbol
   output$AveragedHeatmaphints.UI <- renderUI({
     message("SeuratExplorer: preparing AveragedHeatmaphints.UI...")
     helpText(strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
@@ -566,8 +563,6 @@ explorer_server <- function(input, output, session, data){
     shinyjqui::orderInput(inputId = 'AveragedHeatmapClusterOrder', label = 'Drag to order:', items = levels(data$obj@meta.data[,input$AveragedHeatmapClusterResolution]),width = '100%')
   })
 
-  # when change cluster resolution, open the shinyBS::bsCollapsePanel, otherwise will cause cluster order not update
-  # 不太好的效果是，每次切换resolution选项，都会使得cluster order ui展开。
   observeEvent(input$AveragedHeatmapClusterResolution, ({
     message("SeuratExplorer: updateCollapse for AveragedcollapseHeatmap...")
     shinyBS::updateCollapse(session, "AveragedcollapseHeatmap", open = "0")
@@ -587,13 +582,13 @@ explorer_server <- function(input, output, session, data){
   output$averagedheatmap <- renderPlot({
     req(AveragedHeatmap.Gene.Revised())
     message("SeuratExplorer: preparing averagedheatmap...")
-    if (any(is.na(AveragedHeatmap.Gene.Revised()))) { # NA 值时
+    if (any(is.na(AveragedHeatmap.Gene.Revised()))) { # NA
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
-      isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
+      isolate(cds <- data$obj)
       cds@meta.data[,input$AveragedHeatmapClusterResolution] <- factor(cds@meta.data[,input$AveragedHeatmapClusterResolution], levels = input$AveragedHeatmapClusterOrder)
       Seurat::Idents(cds) <- input$AveragedHeatmapClusterResolution
-      cds <- SeuratObject:::subset.Seurat(cds, idents = input$AveragedHeatmapIdentsSelected)
+      cds <- subset_Seurat(cds, idents = input$AveragedHeatmapIdentsSelected)
       p <- suppressMessages(AverageHeatmap(object = cds, markerGene = AveragedHeatmap.Gene.Revised(), group.by = input$AveragedHeatmapClusterResolution,
                           feature.fontsize = input$AveragedHeatmapFeatureTextSize,cluster.fontsize = input$AveragedHeatmapClusterTextSize,
                           column_names_rot = input$AveragedHeatmapClusterTextRatateAngle, cluster_columns = input$AveragedHeatmapClusterClusters,
@@ -610,7 +605,7 @@ explorer_server <- function(input, output, session, data){
   output$downloadaveragedheatmap <- downloadHandler(
     filename = function(){'AveragedHeatmap.pdf'},
     content = function(file) {
-      if (file.exists(paste0(temp_dir_name,"/AveragedHeatmap.pdf"))) { # 问题： 文件不存在时，会抛出一个下载错误。或者输入错误时，会下载先前输入正确得到的图片。
+      if (file.exists(paste0(temp_dir_name,"/AveragedHeatmap.pdf"))) {
         file.copy(paste0(temp_dir_name,"/AveragedHeatmap.pdf"), file, overwrite=TRUE)
       }
     })
@@ -624,7 +619,6 @@ explorer_server <- function(input, output, session, data){
     ifelse(is.na(input$RidgeplotGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$RidgeplotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
   })
 
-  # 提示可用的qc选项作为Gene symbol
   output$Ridgeplothints.UI <- renderUI({
     message("SeuratExplorer: preparing Ridgeplothints.UI...")
     helpText(strong(paste("Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
@@ -644,8 +638,6 @@ explorer_server <- function(input, output, session, data){
     shinyjqui::orderInput(inputId = 'RidgeplotClusterOrder', label = 'Drag to order:', items = levels(data$obj@meta.data[,input$RidgeplotClusterResolution]),width = '100%')
   })
 
-  # when change cluster resolution, open the shinyBS::bsCollapsePanel, otherwise will cause cluster order not update
-  # 不太好的效果是，每次切换resolution选项，都会使得cluster order ui展开。
   observeEvent(input$RidgeplotClusterResolution, ({
     message("SeuratExplorer: updateCollapse for collapseRidgeplot...")
     shinyBS::updateCollapse(session, "collapseRidgeplot", open = "0")
@@ -660,7 +652,7 @@ explorer_server <- function(input, output, session, data){
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
   })
 
-  # Conditional panel: 输入为多个基因且stack设为TRUE时，显示此panel
+  # Conditional panel: show this panel when input multiple genes and stack is set to TRUE
   output$Ridgeplot_stack_show = reactive({
     req(input$RidgeplotGeneSymbol)
     message("SeuratExplorer: preparing Ridgeplot_stack_show...")
@@ -673,7 +665,7 @@ explorer_server <- function(input, output, session, data){
 
   outputOptions(output, 'Ridgeplot_stack_show', suspendWhenHidden = FALSE)
 
-  # Conditional panel: 输入为多个基因且stack设为TRUE时，显示此panel
+  # Conditional panel: show this panel when input multiple genes and stack is set to TRUE
   output$Ridgeplot_stack_NotSelected = reactive({
     req(input$RidgeplotStackPlot)
     message("SeuratExplorer: preparing Ridgeplot_stack_NotSelected...")
@@ -694,10 +686,10 @@ explorer_server <- function(input, output, session, data){
   output$ridgeplot <- renderPlot({
     req(Ridgeplot.Gene.Revised())
     message("SeuratExplorer: preparing ridgeplot...")
-    if (any(is.na(Ridgeplot.Gene.Revised()))) { # NA 值时
+    if (any(is.na(Ridgeplot.Gene.Revised()))) { # NA
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
-      isolate(cds <- data$obj) # 不是一个优雅的做法，会使用额外的内存资源，另一个坏处是，可能对data$obj不在实时有反应？
+      isolate(cds <- data$obj)
       cds@meta.data[,input$RidgeplotClusterResolution] <- factor(cds@meta.data[,input$RidgeplotClusterResolution], levels = input$RidgeplotClusterOrder)
       Idents(cds) <- input$RidgeplotClusterResolution
       p <- Seurat::RidgePlot(object = cds, features = Ridgeplot.Gene.Revised(), ncol = input$RidgeplotNumberOfColumns,stack = input$RidgeplotStackPlot,
@@ -713,7 +705,7 @@ explorer_server <- function(input, output, session, data){
   output$downloadridgeplot <- downloadHandler(
     filename = function(){'ridgeplot.pdf'},
     content = function(file) {
-      if (file.exists(paste0(temp_dir_name,"/ridgeplot.pdf"))) { # 问题： 文件不存在时，会抛出一个下载错误。或者输入错误时，会下载先前输入正确得到的图片。
+      if (file.exists(paste0(temp_dir_name,"/ridgeplot.pdf"))) {
         file.copy(paste0(temp_dir_name,"/ridgeplot.pdf"), file, overwrite=TRUE)
       }
     })
@@ -809,7 +801,7 @@ explorer_server <- function(input, output, session, data){
   output$downloadcellratioplot <- downloadHandler(
     filename = function(){'cellratioplot.pdf'},
     content = function(file) {
-      if (file.exists(paste0(temp_dir_name,"/cellratioplot.pdf"))) { # 问题： 文件不存在时，会抛出一个下载错误。或者输入错误时，会下载先前输入正确得到的图片。
+      if (file.exists(paste0(temp_dir_name,"/cellratioplot.pdf"))) {
         file.copy(paste0(temp_dir_name,"/cellratioplot.pdf"), file, overwrite=TRUE)
       }
     })
@@ -817,13 +809,14 @@ explorer_server <- function(input, output, session, data){
   ################################ DEGs analysis
   # Warning
   output$degs_warning = renderText({
-    paste0('注意： 差异分析用时较长，请耐心等待；请在点击"Analyze"之前，请先保存好先前的分析结果！')
+    paste0('Attention:
+            This usually takes longer, please wait patiently. Make sure to save current results before a new analysis!')
   })
   # info
   output$degs_info = renderText({
-    paste0('关于：
-    1. “FindMarkers for All Clusters” 用于找出每群里的marker基因；
-    2. “Find DEGs for two groups” 用于找出两组的差异基因，支持在subset之后再做比较。')
+    paste0('About:
+            FindMarkers for All Clusters: calculate markers for all groups.
+            Find DEGs for two groups: comparison between two groups, support subet cells before a comparison.')
   })
 
   DEGs <- reactiveValues(degs = NULL, degs_ready = FALSE)
@@ -832,7 +825,6 @@ explorer_server <- function(input, output, session, data){
     return(DEGs$degs_ready)
   })
 
-  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditionalpanel所需要要的参数
   outputOptions(output, 'DEGs_ready', suspendWhenHidden=FALSE)
 
   # Part-1: Cluster Markers
@@ -852,7 +844,7 @@ explorer_server <- function(input, output, session, data){
     cluster.markers <- Seurat::FindAllMarkers(cds, test.use = input$testuse, logfc.threshold = input$logfcthreshold,
                                               min.pct = input$minpct, min.diff.pct = ifelse(input$mindiffpct, input$mindiffpct, -Inf), only.pos = TRUE)
     removeModal()
-    DEGs$degs <<- cluster.markers #修改全局变量，需不需要改为 <<-
+    DEGs$degs <<- cluster.markers
     DEGs$degs_ready <<- TRUE
   })
 
@@ -896,7 +888,7 @@ explorer_server <- function(input, output, session, data){
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
   })
 
-  # 计算自定义分组的差异基因，支持subset clusters
+  # compare two groups, support subset clusters before comparison
   observeEvent(input$IntraClusterDEGssAnalysis, {
     message("SeuratExplorer: calculate DEGs...")
     if (any(is.null(input$IntraClusterDEGsCustomizedGroupsCase), is.null(input$IntraClusterDEGsCustomizedGroupsControl), is.null(input$IntraClusterDEGsSubsetCellsSelectedClusters))) {
@@ -905,19 +897,19 @@ explorer_server <- function(input, output, session, data){
       showModal(modalDialog(title = "Calculating DEGs...", "Please wait for a few minutes!", footer= NULL, size = "l"))
       isolate(cds <- data$obj)
       Seurat::Idents(cds) <- input$IntraClusterDEGsSubsetCells
-      cds <- SeuratObject:::subset.Seurat(cds, idents = input$IntraClusterDEGsSubsetCellsSelectedClusters)
+      cds <- subset_Seurat(cds, idents = input$IntraClusterDEGsSubsetCellsSelectedClusters)
       Seurat::Idents(cds) <- input$IntraClusterDEGsCustomizedGroups
       check_dependency(test = input$testuse)
       cluster.markers <- Seurat::FindMarkers(cds, ident.1 = input$IntraClusterDEGsCustomizedGroupsCase, ident.2 = input$IntraClusterDEGsCustomizedGroupsControl,
                                              test.use = input$testuse, logfc.threshold = input$logfcthreshold,
                                              min.pct = input$minpct, min.diff.pct = ifelse(input$mindiffpct, input$mindiffpct, -Inf))
       removeModal()
-      DEGs$degs <<- cluster.markers #修改全局变量，需不需要改为 <<-
+      DEGs$degs <<- cluster.markers
       DEGs$degs_ready <<- TRUE
     }
   })
 
-  # part-4: 重置参数
+  # part-4: reset parameters
   observeEvent(input$SetDefault, {
     message("SeuratExplorer: reset DEGs parameters...")
     updateSelectInput(session = session, inputId = "testuse", selected = "wilcox")
@@ -926,7 +918,7 @@ explorer_server <- function(input, output, session, data){
     updateSliderInput(session, "mindiffpct", value = 0 )
   })
 
-  # part-5: 输出结果
+  # part-5: output results
   output$dataset_degs <-  DT::renderDT(server=FALSE,{
     req(DEGs$degs)
     message("SeuratExplorer: preparing dataset_degs...")
@@ -937,7 +929,9 @@ explorer_server <- function(input, output, session, data){
                                  paging = TRUE, searching = TRUE,
                                  fixedColumns = TRUE, autoWidth = TRUE,
                                  ordering = TRUE, dom = 'Bfrtip',
-                                 buttons = c('copy', 'csv', 'excel'))) %>%
+                                 buttons = list('copy',
+                                                list(extend = 'csv', title = "DEGs"),
+                                                list(extend = 'excel', title = "DEGs")))) %>%
       DT::formatSignif(columns = c("p_val","p_val_adj"), digits = 3) %>%
       DT::formatRound(columns = "avg_log2FC", digits = 3)
   })
@@ -945,14 +939,14 @@ explorer_server <- function(input, output, session, data){
   ################################ Top genes analysis
   # Warning
   output$topgenes_warning = renderText({
-    paste0('注意：计算用时较长，请耐心等待；请在点击"Analyze"之前，保存好先前的分析结果！')
+    paste0('Attention:
+            This usually takes longer, please wait patiently. Save current results before a new analysis!')
   })
   # info
   output$topgenes_info = renderText({
-    paste0('关于：
-           1. “Find Top Genes by Cell”: 首先逐个细胞计算得出每个细胞里的高表达基因[即该基因的UMI比例大于所设定的阈值],然后分群（celltype列）汇总高表达基因，得到每个高表达基因在每群里发生高表达的细胞数目，
-           以及表达比例的均值和和中位值;
-           2. “Find Top Genes by Accumulated UMI Counts”: 通过加和所有细胞的的UMI counts来找出Top expressed genes。')
+    paste0('About:
+            Find Top Genes by Cell: firstly, for each cell, find genes that has high UMI percentage, then summary those genes for each cluster, details see github page.
+            Find Top Genes by Accumulated UMI Counts: for each cluster, calculate the top n highly expressed genes by accumulated UMI counts.')
   })
 
   TopGenes <- reactiveValues(topgenes = NULL, topgenes_ready = FALSE)
@@ -961,7 +955,6 @@ explorer_server <- function(input, output, session, data){
     return(TopGenes$topgenes_ready)
   })
 
-  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditional panel所需要要的参数
   outputOptions(output, 'TopGenes_ready', suspendWhenHidden=FALSE)
 
   # define Cluster Annotation choice
@@ -976,7 +969,6 @@ explorer_server <- function(input, output, session, data){
     isolate(cds <- data$obj)
     TopGenes$topgenes <<- top_genes(SeuratObj = cds, expr.cut = input$percentcut/100, group.by = input$TopGenesClusterResolution)
     removeModal()
-     #修改全局变量，需不需要改为 <<-
     TopGenes$topgenes_ready <<- TRUE
   })
 
@@ -986,11 +978,9 @@ explorer_server <- function(input, output, session, data){
     isolate(cds <- data$obj)
     TopGenes$topgenes <<- top_accumulated_genes(SeuratObj = cds, top = input$topcut, group.by = input$TopGenesClusterResolution)
     removeModal()
-    #修改全局变量，需不需要改为 <<-
     TopGenes$topgenes_ready <<- TRUE
   })
 
-  # 输出结果
   output$dataset_topgenes <-  DT::renderDT(server=FALSE,{
     req(TopGenes$topgenes)
     message("SeuratExplorer: preparing topgenes...")
@@ -1001,13 +991,16 @@ explorer_server <- function(input, output, session, data){
                                  paging = TRUE, searching = TRUE,
                                  fixedColumns = TRUE, autoWidth = TRUE,
                                  ordering = TRUE, dom = 'Bfrtip',
-                                 buttons = c('copy', 'csv', 'excel')))
+                                 buttons = list('copy',
+                                                list(extend = 'csv', title = "top-features"),
+                                                list(extend = 'excel', title = "top-features"))))
   })
 
   ################################ Feature Summary
   # info
   output$featuresummary_info = renderText({
-    paste0('关于：对于感兴趣的基因list分组做简要的统计分析，得到该基因在每群里的表达阳性比例，表达水平的均值和中位值。')
+    paste0('About:
+            Summary interested features by cluster, such as the positive cell percentage and mean/median expression level.')
   })
 
   FeatureSummary <- reactiveValues(summary = NULL, summary_ready = FALSE)
@@ -1016,7 +1009,6 @@ explorer_server <- function(input, output, session, data){
     return(FeatureSummary$summary_ready)
   })
 
-  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditional panel所需要要的参数
   outputOptions(output, 'FeatureSummary_ready', suspendWhenHidden=FALSE)
 
   # define Cluster Annotation choice
@@ -1039,12 +1031,10 @@ explorer_server <- function(input, output, session, data){
       isolate(cds <- data$obj)
       FeatureSummary$summary <<- summary_features(SeuratObj = cds, features = GeneRevised, group.by = input$FeatureSummaryClusterResolution)
       removeModal()
-      #修改全局变量，需不需要改为 <<-
       FeatureSummary$summary_ready <<- TRUE
     }
   })
 
-  # 输出结果
   output$dataset_featuresummary <-  DT::renderDT(server=FALSE,{
     req(FeatureSummary$summary)
     message("SeuratExplorer: preparing dataset_featuresummary...")
@@ -1055,20 +1045,24 @@ explorer_server <- function(input, output, session, data){
                                  paging = TRUE, searching = TRUE,
                                  fixedColumns = TRUE, autoWidth = TRUE,
                                  ordering = TRUE, dom = 'Bfrtip',
-                                 buttons = c('copy', 'csv', 'excel')))
+                                 buttons = list('copy',
+                                                list(extend = 'csv', title = "feature-summary"),
+                                                list(extend = 'excel', title = "feature-summary"))))
   })
 
   ################################ Feature Correlation
   # Warning
   output$featurecorrelation_warning = renderText({
-    paste0('注意： 差异分析用时较长，请耐心等待；请在点击"Analyze"之前，请先保存好先前的分析结果！')
+    paste0('Attention:
+            This usually takes longer, please wait patiently. Make sure to save current results before a new analysis!')
   })
   # info
   output$featurecorrelation_info = renderText({
-    paste0('关于： 1. “Find Top Correlated Gene Pairs” 用于找出top 1000 correlated gene pairs；
-           2. “Find Correlated Genes for A Gene” 用于找出对于感兴趣的某个基因，找出与其表达相关性强的基因；
-           3. “Calculate Correlation for A Gene List”用于对一组感兴趣的基因list，计算所有组合的表达相关性;
-           4. 如结果为空，或未找到对应的Gene Pairs，是由于输入基因的表达值太低，被去除了！')
+    paste0('About:
+            Find Top Correlated Gene Pairs: find top 1000 correlated gene pairs.
+            Find Correlated Genes for A Gene: find the most correlated genes for input genes.
+            Calculate Correlation for A Gene List: calculate the correlation value for each pair of the input genes.
+     if nothing return, this is caused by the low expression of the input genes, very low expressed genes will be removed before analysis.')
   })
 
   FeatureCorrelation <- reactiveValues(summary = NULL, summary_ready = FALSE)
@@ -1077,7 +1071,6 @@ explorer_server <- function(input, output, session, data){
     return(FeatureCorrelation$summary_ready)
   })
 
-  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditional panel所需要要的参数
   outputOptions(output, 'FeatureCorrelation_ready', suspendWhenHidden=FALSE)
 
   # define Cluster Annotation choice
@@ -1102,10 +1095,9 @@ explorer_server <- function(input, output, session, data){
     showModal(modalDialog(title = "Calculating", "Calculate top correlated gene pairs, which usually takes longer...", footer= NULL, size = "l"))
     isolate(cds <- data$obj)
     Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
-    cds <- SeuratObject:::subset.Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
+    cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
     FeatureCorrelation$summary <<- calculate_top_correlations(SeuratObj = cds, method = input$correlationmethod)
     removeModal()
-    #修改全局变量，需不需要改为 <<-
     FeatureCorrelation$summary_ready <<- TRUE
   })
 
@@ -1119,10 +1111,9 @@ explorer_server <- function(input, output, session, data){
       showModal(modalDialog(title = "Calculating", "Calculate the most correlated genes for the input gene, which usually takes longer...", footer= NULL, size = "l"))
       isolate(cds <- data$obj)
       Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
-      cds <- SeuratObject:::subset.Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
+      cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
       FeatureCorrelation$summary <<- calculate_most_correlated(SeuratObj = cds, feature = feature.revised, method = input$correlationmethod)
       removeModal()
-      #修改全局变量，需不需要改为 <<-
       FeatureCorrelation$summary_ready <<- TRUE
     }
   })
@@ -1142,16 +1133,13 @@ explorer_server <- function(input, output, session, data){
       showModal(modalDialog(title = "Calculating", "Calculate the correlation for the specified gene list...", footer= NULL, size = "l"))
       isolate(cds <- data$obj)
       Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
-      cds <- SeuratObject:::subset.Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
+      cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
       FeatureCorrelation$summary <<- calculate_correlation(SeuratObj = cds, features = GeneRevised, method = input$correlationmethod)
       removeModal()
-      #修改全局变量，需不需要改为 <<-
       FeatureCorrelation$summary_ready <<- TRUE
     }
   })
 
-
-  # 输出结果
   output$dataset_correlation <-  DT::renderDT(server=FALSE,{
     req(FeatureCorrelation$summary)
     message("SeuratExplorer: preparing dataset_featuresummary...")
@@ -1162,28 +1150,25 @@ explorer_server <- function(input, output, session, data){
                                  paging = TRUE, searching = TRUE,
                                  fixedColumns = TRUE, autoWidth = TRUE,
                                  ordering = TRUE, dom = 'Bfrtip',
-                                 buttons = c('copy', 'csv', 'excel')))
+                                 buttons = list('copy',
+                                                list(extend = 'csv', title = "feature-correlation"),
+                                                list(extend = 'excel', title = "feature-correlation"))))
   })
 }
 
-
-
-
 #' Server for SeuratExplorer shiny app
 #' @import shiny
+#' @import shinydashboard
+#' @import ggplot2
+#' @import shinyWidgets
 #' @import Seurat SeuratObject
+#' @importFrom utils write.csv
 #' @param input Input from the UI
 #' @param output Output to send back to UI
 #' @param session from shiny server function
 #' @export
 server <- function(input, output, session) {
-  requireNamespace("Seurat")
-  requireNamespace("ggplot2")
-  requireNamespace("shinyWidgets")
-  requireNamespace("shinydashboard")
-  requireNamespace("SeuratObject")
-
-  # 设置上传文件的大小限制
+  # set the limited upload file size
   options(shiny.maxRequestSize=5*1024^3)
 
   ## Dataset tab ----
@@ -1195,13 +1180,14 @@ server <- function(input, output, session) {
                         split_maxlevel = 6, split_options = NULL,
                         extra_qc_options = NULL)
 
-  # reductions_options: 为可视化时的xy轴座标
-  # cluster_options/split_options/extra_qc_options均为seurat object meta.data里的列名，后续绘图会作为可选参数被反复用到
-  # 选择好数据后，读入数据
+  # reductions_options: xy axis coordinate
+  # cluster_options/split_options/extra_qc_options all are column name from seurat object meta.data, which will be used for later plot
+  # load data after data selection
   observe({
     shiny::req(input$dataset_file) # req: Check for required values; dataset_file is a data.frame
     ext = tools::file_ext(input$dataset_file$datapath) # file_ext: returns the file (name) extensions
-    validate(need(expr = ext %in% c("rds","qs2","Rds"), message = "Please upload a .rds or a .qs2 file")) # validate + need：检查后缀是否为rds或qs2，否则抛出错误
+    # validate + need: check filename postfix, in not rds or qs2, will throw an error
+    validate(need(expr = ext %in% c("rds","qs2","Rds"), message = "Please upload a .rds or a .qs2 file"))
     data$obj <- prepare_seurat_object(obj = readSeurat(path = input$dataset_file$datapath))
     data$reduction_options <- prepare_reduction_options(obj = data$obj, keywords = c("umap","tsne"))
     data$cluster_options <- prepare_cluster_options(df = data$obj@meta.data)
@@ -1209,32 +1195,47 @@ server <- function(input, output, session) {
     data$extra_qc_options <- prepare_qc_options(df = data$obj@meta.data, types = c("double","integer","numeric"))
   })
 
-  # 数据加载成功后，设置loaded为TRUE
+  # after data loaded,set loaded to TRUE
   observe({
     req(data$obj)
     data$loaded = !is.null(data$obj)
   })
 
   ############################### Render metadata table
-  # 可以下载全部，参考：https://stackoverflow.com/questions/50039186/add-download-buttons-in-dtrenderdatatable
+  # Server set to TRUE: https://stackoverflow.com/questions/50039186/add-download-buttons-in-dtrenderdatatable
+  # when sever is set to TRUE, to download the whole data in DT button extensions.https://github.com/rstudio/DT/issues/267
   output$dataset_meta <- DT::renderDT(server=TRUE,{
     req(data$obj)
     # Show data
-    DT::datatable(data$obj@meta.data, extensions = 'Buttons',
-              options = list(scrollX=TRUE,
-                             # lengthMenu = c(5,10,15),
-                             paging = TRUE, searching = TRUE,
-                             fixedColumns = TRUE, autoWidth = TRUE,
-                             ordering = TRUE, dom = 'Bfrtip',
-                             buttons = c('copy', 'csv', 'excel')))
+    DT::datatable(data$obj@meta.data,
+                  callback = DT::JS("$('div.dwnld').append($('#download_meta_data'));"),
+                  extensions = 'Buttons',
+                  options = list(scrollX=TRUE,
+                                 # lengthMenu = c(5,10,15),
+                                 #paging = TRUE,
+                                 #searching = TRUE,
+                                 #fixedColumns = TRUE,
+                                 #autoWidth = TRUE,
+                                 ordering = TRUE,
+                                 dom = 'B<"dwnld">frtip',
+                                 buttons = list('copy')
+                  ))
   })
 
-  # Conditional panel control based on loaded obj，条件panel,数据记载成功后，显示：dashboardSidebar -sidebarMenu - menuItem - Explorer和 dashboardBody - dataset - tabItem -  box - Cell Meta Info
+  output$download_meta_data <- downloadHandler(
+    filename = function() {
+      "cell-metadata.csv"
+    },
+    content = function(file) {
+      write.csv(data$obj@meta.data, file)
+    }
+  )
+
+  # Conditional panel control based on loaded obj, after loaded, show other UIs
   output$file_loaded = reactive({
     return(data$loaded)
   })
 
-  # Disable suspend for output$file_loaded, 当被隐藏时，禁用暂停，conditionalpanel所需要要的参数
   outputOptions(output, 'file_loaded', suspendWhenHidden=FALSE)
 
   # Seurat Explorer functions

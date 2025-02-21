@@ -11,7 +11,7 @@ getColors(color.platte = NULL, choice = NULL, n = NULL)
 
 \item{choice}{color name}
 
-\item{n}{The color numbers to use}
+\item{n}{how many colors to return}
 }
 \value{
 a color list

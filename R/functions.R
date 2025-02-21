@@ -1,8 +1,8 @@
 prepare_seurat_object <- function(obj){
   requireNamespace("Seurat")
-  # 将meta.data中的部分非factor类型的列，转为factor类型
-  # 如果unique数目少于细胞总数的1/20，并且不大于50种，并且数据类型为chr或num类型，会强制转为factor类型。
-  # 可能的问题： unique_max_percent = 0.05可能不适合只有100个细胞但由大于5群的的数据
+  # trans the none-factor columns in meta.data to factor
+  # if the unique counts less than 1/20 of total cells, and not more than 50, in chr or num type columns，will be forced to factor type.
+  # possible problem: unique_max_percent = 0.05 may not suitable for a data has 100 cells but more than 5 clusters.
   obj@meta.data <- modify_columns_types(df = obj@meta.data, types_to_check = c("numeric", "character"), unique_max_counts = 50, unique_max_percent = 0.05)
   # for splited object, join layers
   if (sum(grepl("^counts",Layers(object = obj))) > 1 | sum(grepl("^data",Layers(object = obj))) > 1) {
@@ -12,7 +12,7 @@ prepare_seurat_object <- function(obj){
   return(obj)
 }
 
-# 把符合条件的非因子列，转为因子类型, 并且把可能是数字的字符串转为数字
+# Converts eligible non-factor columns to factor type, and converts strings that may be numbers to numbers.
 modify_columns_types <- function(df, types_to_check = c("numeric", "character"), unique_max_counts = 50, unique_max_percent = 0.05){
   candidates.types.logic <- sapply(df, class) %in% types_to_check
   cutoff <- min(unique_max_counts, round(nrow(df) * unique_max_percent))
@@ -28,7 +28,7 @@ modify_columns_types <- function(df, types_to_check = c("numeric", "character"),
   return(df)
 }
 
-# 通过关键字换取reduction options
+# get reduction options by keywords: umap and tsne
 prepare_reduction_options <- function(obj, keywords = c("umap","tsne")){
   requireNamespace("Seurat")
   reduction.choice <- grep(paste0(paste0("(", keywords,")"),collapse = "|"), Seurat::Reductions(obj), value = TRUE, ignore.case = TRUE)
@@ -38,7 +38,7 @@ prepare_reduction_options <- function(obj, keywords = c("umap","tsne")){
 }
 
 
-# 将所有meta.data中所有类型为因子的列名作为cluster options
+# get cluster resolution options from all factor type columns in meta.data
 prepare_cluster_options <- function(df){
   cluster.options <- colnames(df)[sapply(df, is.factor)]
   names(cluster.options) <- cluster.options
@@ -46,7 +46,7 @@ prepare_cluster_options <- function(df){
   return(cluster.options)
 }
 
-# 将所有meta.data中level数目少于max_level的因子列作为split options
+# get split options from eligible factor columns in meta.data which has less levels than max_level
 prepare_split_options <- function(df, max.level = 4){
   cluster.options <- colnames(df)[sapply(df, is.factor)]
   leve.counts <- unname(sapply(df[cluster.options],FUN = function(x)length(levels(x))))
@@ -56,7 +56,7 @@ prepare_split_options <- function(df, max.level = 4){
   return(split.options)
 }
 
-# 添加额外的来自meta data的列名为qc options
+# add extra columns from meta.data to qc options
 prepare_qc_options <- function(df, types = c("double","integer","numeric")){
   qc_options <- colnames(df)[sapply(df, class) %in% types]
   message("SeuratExplorer: prepare_qc_options runs successfully!")
@@ -85,27 +85,26 @@ ReviseGene <- function(Agene, GeneLibrary){
 }
 
 
-# 检查差异分析时所需要的R包依赖
+# check R package for DEGs analysis
 check_dependency <- function(test){
-  if (test == "wilcox") { # 检查所需要的R包,暂时这样吧，其它几个test先不测试了
-    if(!require(devtools, quietly = TRUE)){
-      utils::install.packages("devtools")
-    }
-    if(!require(presto)){
+  # >https://stackoverflow.com/questions/64737686/why-library-or-require-should-not-be-used-in-a-r-package
+  # Why library() or require() should not be used in a R package
+  installed_packages <- as.data.frame(utils::installed.packages())$Package
+  if (test == "wilcox") {
+    if(!"presto" %in% installed_packages){
       devtools::install_github('immunogenomics/presto', upgrade = "never")
+      requireNamespace("presto")
     }
-  }else if(test == "DESeq2"){
-    if (!require("BiocManager", quietly = TRUE))
+  }else if(test %in% c("DESeq2","MAST")){
+    if (!"BiocManager" %in% installed_packages)
       utils::install.packages("BiocManager")
-    if (!require("DESeq2", quietly = TRUE)) {
-      BiocManager::install("DESeq2", update = FALSE, ask = FALSE)
+      requireNamespace("BiocManager")
+    if (!test %in% installed_packages) {
+      BiocManager::install(test, update = FALSE, ask = FALSE)
+      requireNamespace(test)
     }
-  } else if(test == "MAST"){
-    if (!require("BiocManager", quietly = TRUE))
-      utils::install.packages("BiocManager")
-    if (!require("MAST", quietly = TRUE)) {
-      BiocManager::install("MAST", update = FALSE, ask = FALSE)
-    }
+  } else {
+    stop("Please input a correct test method.")
   }
 }
 
@@ -215,7 +214,7 @@ color_choice_vector <- color_choice_vector[names(color_choice_vector)[order(unli
 #'
 #' @param color.platte predefined color list
 #' @param choice color name
-#' @param n The color numbers to use
+#' @param n how many colors to return
 #'
 #' @return a color list
 #' @export
@@ -230,22 +229,21 @@ getColors <- function(color.platte = NULL,
 
 globalVariables(c("num"))
 
-#' @title 绘制细胞比例柱状图
+#' @title plot cell percentage barplot
 #' @description
-#' 绘制细胞比例柱状图，支持分面，源代码参考了: https://github.com/junjunlab/scRNAtoolVis/blob/master/R/cellRatioPlot.R
-#' 并做了修改。
+#' support facet, codes refer to: https://github.com/junjunlab/scRNAtoolVis/blob/master/R/cellRatioPlot.R, with modification
 #'
-#' @param object an seurat object
+#' @param object an Seurat object
 #' @param sample.name x axis
 #' @param sample.order order for x axis
 #' @param celltype.name column fill by
 #' @param celltype.order order for fill by
-#' @param facet.name 分面所有的列
-#' @param facet.order 分面的order
+#' @param facet.name column name for facet
+#' @param facet.order the order for facet
 #' @param col.width column width, from 0-1
-#' @param flow.alpha 中间连接线的透明度
-#' @param flow.curve 中间连接线的弯曲度
-#' @param color.choice fill by所用的颜色系列
+#' @param flow.alpha transparency for flow
+#' @param flow.curve curve for flow
+#' @param color.choice color choice for fill
 #' @import dplyr
 #' @importFrom dplyr %>%
 #' @return a ggplot2 object
@@ -343,14 +341,17 @@ cellRatioPlot <- function(object = NULL,
 
 
 
-#' @title 各个细胞内的高表达基因
+#' @title Find Top Genes by Cell
 #' @description
-#'  对各群里的各个单细胞，分别统计top表达的基因，即基因的reads比例大于所设定的阈值expr.cut。
+#'  for each cell, find genes that has high UMI percentage, for example, if a cell has 10000 UMIs, and the UMI percentage cutoff is set to 0.01,
+#'  then all genes that has more than 10000 * 0.01 = 100 UMIs is thought to be the highly expressed genes for this cell.summary those genes for each cluster,
+#'  firstly get all highly expressed genes in a cluster, some genes may has less cells, then for each gene, count cells in which this genes is highly expressed,
+#'  and also calculate the mean and median UMI percentage in those highly expressed cells.
 #'
 #'
 #' @param SeuratObj Seurat object
-#' @param expr.cut 在单个细胞中，如果某个基因的UMI比例高于此值，则会被认为是被高表达的基因。
-#' @param group.by 细胞分群参数
+#' @param expr.cut UMI percentage cutoff, in a cell, if a gene with UMIs ratio more than this cutoff, this gene will be assigned to highly expressed gene for this cell
+#' @param group.by how to group cells
 #'
 #' @return data frame
 #' @export
@@ -362,16 +363,22 @@ cellRatioPlot <- function(object = NULL,
 top_genes <- function(SeuratObj, expr.cut = 0.01, group.by) {
   requireNamespace("dplyr")
   requireNamespace("Seurat")
-  # 如果是assay5类型
+
+  #> https://stackoverflow.com/questions/76242926/using-data-table-in-package-development-undefined-global-functions-or-variables
+  # to block R RMD check note: Undefined global functions or variables:
+  Gene <- NULL
+  Expr <- NULL
+
+  # if type is assay5
   if (class(SeuratObj@assays$RNA)[1] == "Assay5") {
     SeuratObj <- JoinLayers(SeuratObj)
     counts.expr <- as.matrix(SeuratObj@assays$RNA@layers$counts)
-  } else { # 如果是assay类型
+  } else { # if type is assay
     counts.expr <- as.matrix(SeuratObj@assays$RNA$counts)
   }
   colnames(counts.expr) <- colnames(SeuratObj)
   rownames(counts.expr) <- rownames(SeuratObj)
-  # 分celltype计算统计值
+  # calculate by cell type
   all.cell.types <- unique(SeuratObj@meta.data[,group.by])
   for (celltype in all.cell.types) {
     cells.sub <- colnames(SeuratObj)[as.character(SeuratObj@meta.data[,group.by]) == celltype]
@@ -390,7 +397,7 @@ top_genes <- function(SeuratObj, expr.cut = 0.01, group.by) {
       }
     }
     genes.statics <- dplyr::group_by(res, Gene) %>%
-      dplyr::summarise(cut.pct.mean = round(mean(Expr),digits = 4), cut.pct.median = round(median(Expr),digits = 4), cut.Cells = length(Expr))
+      dplyr::summarise(cut.pct.mean = round(mean(Expr),digits = 4), cut.pct.median = round(stats::median(Expr),digits = 4), cut.Cells = length(Expr))
     genes.statics$total.pos.cells <- apply(counts.expr.sub[genes.statics$Gene,,drop = FALSE] > 0, 1, sum)
     genes.statics$total.UMI.pct <- round(apply(counts.expr.sub[genes.statics$Gene,,drop = FALSE], 1, sum)/sum(counts.expr),digits = 4)
     genes.statics$total.cells <- ncol(counts.expr.sub)
@@ -410,18 +417,16 @@ top_genes <- function(SeuratObj, expr.cut = 0.01, group.by) {
 top_accumulated_genes <- function(SeuratObj, top, group.by){
   requireNamespace("dplyr")
   requireNamespace("Seurat")
-  # 如果是assay5类型
   if (class(SeuratObj@assays$RNA)[1] == "Assay5") {
     SeuratObj <- JoinLayers(SeuratObj)
     counts.expr <- as.matrix(SeuratObj@assays$RNA@layers$counts)
-  } else { # 如果是assay类型
+  } else {
     counts.expr <- as.matrix(SeuratObj@assays$RNA$counts)
   }
   colnames(counts.expr) <- colnames(SeuratObj)
   rownames(counts.expr) <- rownames(SeuratObj)
-  # 分celltype计算统计值
   all.cell.types <- unique(SeuratObj@meta.data[,group.by])
-  all.cell.types <- all.cell.types[!is.na(all.cell.types)] # 特殊情况，有些celltype中有NA值
+  all.cell.types <- all.cell.types[!is.na(all.cell.types)] # in case of some celltype has NA value
   for (celltype in all.cell.types) {
     cells.sub <- Cells(SeuratObj)[(as.character(SeuratObj@meta.data[, group.by]) == as.character(celltype)) & !is.na(SeuratObj@meta.data[, group.by])] # 特殊情况，有些celltype中有NA值
     if (length(cells.sub) < 3) {
@@ -452,11 +457,10 @@ top_accumulated_genes <- function(SeuratObj, top, group.by){
 summary_features <- function(SeuratObj, features, group.by){
   requireNamespace("dplyr")
   requireNamespace("Seurat")
-  # 如果是assay5类型
   if (class(SeuratObj@assays$RNA)[1] == "Assay5") {
     SeuratObj <- JoinLayers(SeuratObj)
     normalized.expr <- as.matrix(SeuratObj@assays$RNA@layers$data)
-  } else { # 如果是assay类型
+  } else {
     normalized.expr <- as.matrix(SeuratObj@assays$RNA$data)
   }
   all.cell.types <- unique(SeuratObj@meta.data[,group.by])
@@ -467,7 +471,7 @@ summary_features <- function(SeuratObj, features, group.by){
     }
     normalized.expr.sub <- normalized.expr[,cells.sub]
     mean.expr <- apply(normalized.expr.sub[features,,drop = FALSE], 1, mean)
-    median.expr <- apply(normalized.expr.sub[features,,drop = FALSE], 1, median)
+    median.expr <- apply(normalized.expr.sub[features,,drop = FALSE], 1, stats::median)
     pct <- apply(normalized.expr.sub[features,,drop = FALSE] > 0, 1, mean)
     single.res <- data.frame(Gene = features, Expr.mean = round(mean.expr,digits = 4), Expr.median = round(median.expr, digits = 4), PCT = round(pct,digits = 4))
     single.res$CellType <- celltype
@@ -488,12 +492,12 @@ calculate_top_correlations <- function(SeuratObj, method, top = 1000){
   if (class(SeuratObj@assays$RNA)[1] == "Assay5") {
     SeuratObj <- JoinLayers(SeuratObj)
     normalized.expr <- as.matrix(SeuratObj@assays$RNA@layers$data)
-  } else { # 如果是assay类型
+  } else {
     normalized.expr <- as.matrix(SeuratObj@assays$RNA$data)
   }
-  # 过滤细胞，表达值的和要大于细胞数目的1/10，设置比较随意！
+  # filter cells: remove genes with low expression, accumulated expression should more than 1/10 cell numbers.
   normalized.expr <- normalized.expr[apply(normalized.expr, 1, sum) > 0.1 * ncol(SeuratObj),,drop = FALSE]
-  cor.res = cor(t(as.matrix(normalized.expr)), method = method)
+  cor.res = stats::cor(t(as.matrix(normalized.expr)), method = method)
   cor.res[lower.tri(cor.res, diag = TRUE)] <- 0
   cor.res <- reshape2::melt(cor.res)
   colnames(cor.res) <- c("GeneA","GeneB","correlation")
@@ -511,14 +515,14 @@ calculate_most_correlated <- function(SeuratObj, feature, method){
   if (class(SeuratObj@assays$RNA)[1] == "Assay5") {
     SeuratObj <- JoinLayers(SeuratObj)
     normalized.expr <- as.matrix(SeuratObj@assays$RNA@layers$data)
-  } else { # 如果是assay类型
+  } else {
     normalized.expr <- as.matrix(SeuratObj@assays$RNA$data)
   }
   x <- normalized.expr[feature, ,drop = FALSE]
   y <- normalized.expr[rownames(normalized.expr)[rownames(normalized.expr) != feature],,drop = FALSE]
-  # 过滤细胞，表达值的和要大于细胞数目的1/10，设置比较随意！
+  # filter cells: remove genes with low expression, accumulated expression should more than 1/10 cell numbers.
   y <- y[apply(y, 1, sum) > 0.1 * ncol(SeuratObj),,drop = FALSE]
-  cor.res = cor(x = t(as.matrix(x)), y =  t(as.matrix(y)), method = method)
+  cor.res = stats::cor(x = t(as.matrix(x)), y =  t(as.matrix(y)), method = method)
   cor.res <- reshape2::melt(cor.res)
   colnames(cor.res) <- c("GeneA","GeneB","correlation")
   cor.res <- cor.res[order(abs(cor.res$correlation),decreasing = TRUE),]
@@ -531,13 +535,13 @@ calculate_correlation <- function(SeuratObj, features, method){
   if (class(SeuratObj@assays$RNA)[1] == "Assay5") {
     SeuratObj <- JoinLayers(SeuratObj)
     normalized.expr <- as.matrix(SeuratObj@assays$RNA@layers$data)
-  } else { # 如果是assay类型
+  } else {
     normalized.expr <- as.matrix(SeuratObj@assays$RNA$data)
   }
   normalized.expr <- normalized.expr[rownames(normalized.expr) %in% features,,drop = FALSE]
-  # 过滤细胞，表达值的和要大于细胞数目的1/10，设置比较随意！
+  # filter cells: remove genes with low expression, accumulated expression should more than 1/10 cell numbers.
   normalized.expr <- normalized.expr[apply(normalized.expr, 1, sum) > 0.1 * ncol(SeuratObj),,drop = FALSE]
-  cor.res = cor(t(as.matrix(normalized.expr)), method = method)
+  cor.res = stats::cor(t(as.matrix(normalized.expr)), method = method)
   cor.res[lower.tri(cor.res, diag = TRUE)] <- 0
   cor.res <- reshape2::melt(cor.res)
   colnames(cor.res) <- c("GeneA","GeneB","correlation")
@@ -607,18 +611,6 @@ AverageHeatmap <- function(
       )
     )
   }
-
-  # add colnames
-  # name1 <- gsub(
-  #   pattern = paste0(assays, ".", sep = ""),
-  #   replacement = "",
-  #   colnames(mean_gene_exp)
-  # )
-  #
-  # colnames(mean_gene_exp) <- gsub(
-  #   pattern = "\\.",
-  #   replacement = " ", name1
-  # )
 
   colnames(mean_gene_exp) <- levels(Seurat::Idents(object))
 
@@ -757,7 +749,7 @@ readSeurat <- function(path){
     seu_obj <- readRDS(path)
   )
   # check version
-  if (SeuratObject::Version(seu_obj) < packageVersion('SeuratObject')) {
+  if (SeuratObject::Version(seu_obj) < utils::packageVersion('SeuratObject')) {
     seu_obj <- SeuratObject::UpdateSeuratObject(seu_obj)
   }else{
     message('Update Seurat Object escaped for it has been the latest version!')

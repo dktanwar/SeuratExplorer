@@ -23,7 +23,6 @@ Imports:
     shinyWidgets,
     scales,
     SeuratObject,
-    devtools,
     shinyjqui,
     shinyBS,
     ggalluvial,
@@ -31,12 +30,16 @@ Imports:
     ComplexHeatmap,
     qs2,
     circlize,
-    reshape2
+    reshape2,
+    stats,
+    htmltools
 Depends: R (>= 4.1.0)
 Suggests:
     BiocManager,
     DESeq2,
     MAST,
-    roxygen2
+    roxygen2,
+    presto,
+    devtools
     
     

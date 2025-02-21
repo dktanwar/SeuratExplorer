@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions.R
 \name{cellRatioPlot}
 \alias{cellRatioPlot}
-\title{绘制细胞比例柱状图}
+\title{plot cell percentage barplot}
 \usage{
 cellRatioPlot(
   object = NULL,
@@ -19,7 +19,7 @@ cellRatioPlot(
 )
 }
 \arguments{
-\item{object}{an seurat object}
+\item{object}{an Seurat object}
 
 \item{sample.name}{x axis}
 
@@ -29,24 +29,23 @@ cellRatioPlot(
 
 \item{celltype.order}{order for fill by}
 
-\item{facet.name}{分面所有的列}
+\item{facet.name}{column name for facet}
 
-\item{facet.order}{分面的order}
+\item{facet.order}{the order for facet}
 
 \item{col.width}{column width, from 0-1}
 
-\item{flow.alpha}{中间连接线的透明度}
+\item{flow.alpha}{transparency for flow}
 
-\item{flow.curve}{中间连接线的弯曲度}
+\item{flow.curve}{curve for flow}
 
-\item{color.choice}{fill by所用的颜色系列}
+\item{color.choice}{color choice for fill}
 }
 \value{
 a ggplot2 object
 }
 \description{
-绘制细胞比例柱状图，支持分面，源代码参考了: https://github.com/junjunlab/scRNAtoolVis/blob/master/R/cellRatioPlot.R
-并做了修改。
+support facet, codes refer to: https://github.com/junjunlab/scRNAtoolVis/blob/master/R/cellRatioPlot.R, with modification
 }
 \examples{
 #NULL
