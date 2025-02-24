@@ -60,8 +60,8 @@ launchSeuratExplorer()
 - support data processed by ``Seurat`` V5 and older versions. it may takes a while to update ``Seurat`` object when loading data.
 
 ```{r echo = FALSE, message=FALSE, warning=FALSE, out.width="50%"}
-knitr::include_graphics("inst/extdata/www/loading-before.png")
-knitr::include_graphics("inst/extdata/www/loading-after.png")
+knitr::include_graphics("inst/extdata/www/loading-before.jpg")
+knitr::include_graphics("inst/extdata/www/loading-after.jpg")
 ```
 
 ### Cell Metadata
@@ -69,7 +69,7 @@ knitr::include_graphics("inst/extdata/www/loading-after.png")
 - support download cell metadata in ``csv`` format, which can be used to for further analysis.
 
 ```{r  echo = FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("inst/extdata/www/cell-metadata.png")
+knitr::include_graphics("inst/extdata/www/cell-metadata.jpg")
 ```
 
 ### Dimensional Reduction Plot
@@ -93,11 +93,11 @@ knitr::include_graphics("inst/extdata/www/cell-metadata.png")
 **Example plots:**
 
 ```{r  echo = FALSE, message=FALSE, warning=FALSE, out.width="50%"}
-knitr::include_graphics("inst/extdata/www/dimplot.png")
+knitr::include_graphics("inst/extdata/www/dimplot.jpg")
 ```
 
 ```{r  echo = FALSE, message=FALSE, warning=FALSE, out.width="90%"}
-knitr::include_graphics("inst/extdata/www/Dimplot-splited.png")
+knitr::include_graphics("inst/extdata/www/Dimplot-splited.jpg")
 ```
 
 ### Feature Plot
@@ -119,12 +119,12 @@ knitr::include_graphics("inst/extdata/www/Dimplot-splited.png")
 **Example plots:**
 
 ```{r  echo = FALSE, message=FALSE, warning=FALSE, out.width="50%"}
-knitr::include_graphics("inst/extdata/www/featureplot-1-with-label.png")
+knitr::include_graphics("inst/extdata/www/featureplot-1-with-label.jpg")
 ```
 
 ```{r  echo = FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("inst/extdata/www/featureplot-1.png")
-knitr::include_graphics("inst/extdata/www/Featureplot-split.png")
+knitr::include_graphics("inst/extdata/www/featureplot-1.jpg")
+knitr::include_graphics("inst/extdata/www/Featureplot-split.jpg")
 ```
 
 ### Violin Plot
@@ -148,10 +148,10 @@ knitr::include_graphics("inst/extdata/www/Featureplot-split.png")
 **Example plots:**
 
 ```{r echo = FALSE}
-knitr::include_graphics("inst/extdata/www/Vlnplot-1.png")
-knitr::include_graphics("inst/extdata/www/Vlnplot-2.png")
-knitr::include_graphics("inst/extdata/www/vlnplot-splited-1.png")
-knitr::include_graphics("inst/extdata/www/vlnplot-splited-2.png")
+knitr::include_graphics("inst/extdata/www/Vlnplot-1.jpg")
+knitr::include_graphics("inst/extdata/www/Vlnplot-2.jpg")
+knitr::include_graphics("inst/extdata/www/vlnplot-splited-1.jpg")
+knitr::include_graphics("inst/extdata/www/vlnplot-splited-2.jpg")
 ```
 
 ### Dot Plot
@@ -177,11 +177,11 @@ knitr::include_graphics("inst/extdata/www/vlnplot-splited-2.png")
 **Example plots:**
 
 ```{r echo = FALSE, out.width="70%"}
-knitr::include_graphics("inst/extdata/www/Dotplot-1.png")
+knitr::include_graphics("inst/extdata/www/Dotplot-1.jpg")
 ```
 
 ```{r echo = FALSE, out.width="50%"}
-knitr::include_graphics("inst/extdata/www/dotplot-splited-1.png")
+knitr::include_graphics("inst/extdata/www/dotplot-splited-1.jpg")
 ```
 
 ### Heatmap for cell level expression
@@ -205,7 +205,7 @@ knitr::include_graphics("inst/extdata/www/dotplot-splited-1.png")
 **Example plots:**
 
 ```{r echo = FALSE}
-knitr::include_graphics("inst/extdata/www/Heatmap-1.png")
+knitr::include_graphics("inst/extdata/www/Heatmap-1.jpg")
 ```
 
 ### Heatmap for group averaged expression
@@ -247,12 +247,12 @@ knitr::include_graphics("inst/extdata/www/averagedheatmap.png")
 **Example plots:**
 
 ```{r echo = FALSE, out.width="70%"}
-knitr::include_graphics("inst/extdata/www/ridgeplot-1.png")
+knitr::include_graphics("inst/extdata/www/ridgeplot-1.jpg")
 ```
 
 ```{r echo = FALSE}
-knitr::include_graphics("inst/extdata/www/Ridgeplot-2.png")
-knitr::include_graphics("inst/extdata/www/Ridgeplot-3.png")
+knitr::include_graphics("inst/extdata/www/Ridgeplot-2.jpg")
+knitr::include_graphics("inst/extdata/www/Ridgeplot-3.jpg")
 ```
 
 ### Plot Cell Percentage
@@ -266,8 +266,8 @@ knitr::include_graphics("inst/extdata/www/Ridgeplot-3.png")
 **Example plots:**
 
 ```{r echo = FALSE, out.width="50%"}
-knitr::include_graphics("inst/extdata/www/cellratio-1.png")
-knitr::include_graphics("inst/extdata/www/cellratio-2.png")
+knitr::include_graphics("inst/extdata/www/cellratio-1.jpg")
+knitr::include_graphics("inst/extdata/www/cellratio-2.jpg")
 ```
 
 ### Find Cluster Markers and DEGs Analysis
@@ -285,15 +285,15 @@ You can modify part calculation parameters before a analysis.
 **Screen shots:**
 
 ```{r echo = FALSE}
-knitr::include_graphics("inst/extdata/www/DEGs-1.png")
-knitr::include_graphics("inst/extdata/www/DEGs-2.png")
-knitr::include_graphics("inst/extdata/www/DEGs-3.png")
+knitr::include_graphics("inst/extdata/www/DEGs-1.jpg")
+knitr::include_graphics("inst/extdata/www/DEGs-2.jpg")
+knitr::include_graphics("inst/extdata/www/DEGs-3.jpg")
 ```
 
 #### Output description
 
 ```{r echo = FALSE}
-knitr::include_graphics("inst/extdata/www/DEGs-4.png")
+knitr::include_graphics("inst/extdata/www/DEGs-4.jpg")
 ```
 
 > [FindMarkers(object, ...)](https://satijalab.org/seurat/reference/findmarkers)
@@ -322,7 +322,7 @@ Step2: summary those genes for each cluster, firstly get all highly expressed ge
 
 
 ```{r echo = FALSE}
-knitr::include_graphics("inst/extdata/www/Find-Top-Genes-by-Cell.png")
+knitr::include_graphics("inst/extdata/www/Find-Top-Genes-by-Cell.jpg")
 ```
 
 #### Output description
@@ -349,7 +349,7 @@ knitr::include_graphics("inst/extdata/www/Find-Top-Genes-by-Cell.png")
 for each cluster, calculate the ``top n`` highly expressed genes by accumulated UMI counts. if a cluster has less than 3 cells, this cluster will be escaped.
 
 ```{r echo = FALSE}
-knitr::include_graphics("inst/extdata/www/Find-Top-Genes-by-Accumulated-UMI-counts.png")
+knitr::include_graphics("inst/extdata/www/Find-Top-Genes-by-Accumulated-UMI-counts.jpg")
 ```
 
 #### Output description
@@ -371,7 +371,7 @@ knitr::include_graphics("inst/extdata/www/Find-Top-Genes-by-Accumulated-UMI-coun
 Summary interested features by cluster, such as the positive cell percentage and mean/median expression level.
 
 ```{r echo = FALSE}
-knitr::include_graphics("inst/extdata/www/gene-short-summary.png")
+knitr::include_graphics("inst/extdata/www/gene-short-summary.jpg")
 ```
 
 #### Output description
@@ -401,13 +401,13 @@ Can calculate the correlation value of gene pairs within cells from a cluster, s
 - ``Calculate Correlation for A Gene List``: to calculate the correlation value for each pair of the input genes
 
 ```{r echo = FALSE}
-knitr::include_graphics("inst/extdata/www/featurecorrelation.png")
+knitr::include_graphics("inst/extdata/www/featurecorrelation.jpg")
 ```
 
 #### Output description
 
 ```{r echo = FALSE, out.width="40%"}
-knitr::include_graphics("inst/extdata/www/feature-correlation-output.png")
+knitr::include_graphics("inst/extdata/www/feature-correlation-output.jpg")
 ```
 
 - ``GeneA``: the first gene in a Gene pair

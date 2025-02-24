@@ -93,15 +93,15 @@ check_dependency <- function(test){
   if (test == "wilcox") {
     if(!"presto" %in% installed_packages){
       devtools::install_github('immunogenomics/presto', upgrade = "never")
-      requireNamespace("presto")
+      # requireNamespace("presto")
     }
   }else if(test %in% c("DESeq2","MAST")){
     if (!"BiocManager" %in% installed_packages)
       utils::install.packages("BiocManager")
-      requireNamespace("BiocManager")
+      # requireNamespace("BiocManager")
     if (!test %in% installed_packages) {
       BiocManager::install(test, update = FALSE, ask = FALSE)
-      requireNamespace(test)
+      # requireNamespace(test)
     }
   } else {
     stop("Please input a correct test method.")

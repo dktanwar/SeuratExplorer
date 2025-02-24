@@ -65,14 +65,14 @@ launchSeuratExplorer()
 - support data processed by `Seurat` V5 and older versions. it may takes
   a while to update `Seurat` object when loading data.
 
-<img src="inst/extdata/www/loading-before.png" width="50%" /><img src="inst/extdata/www/loading-after.png" width="50%" />
+<img src="inst/extdata/www/loading-before.jpg" width="50%" /><img src="inst/extdata/www/loading-after.jpg" width="50%" />
 
 ### Cell Metadata
 
 - support download cell metadata in `csv` format, which can be used to
   for further analysis.
 
-<img src="inst/extdata/www/cell-metadata.png" width="100%" />
+<img src="inst/extdata/www/cell-metadata.jpg" width="100%" />
 
 ### Dimensional Reduction Plot
 
@@ -94,9 +94,9 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="inst/extdata/www/dimplot.png" width="50%" />
+<img src="inst/extdata/www/dimplot.jpg" width="50%" />
 
-<img src="inst/extdata/www/Dimplot-splited.png" width="90%" />
+<img src="inst/extdata/www/Dimplot-splited.jpg" width="90%" />
 
 ### Feature Plot
 
@@ -117,9 +117,9 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="inst/extdata/www/featureplot-1-with-label.png" width="50%" />
+<img src="inst/extdata/www/featureplot-1-with-label.jpg" width="50%" />
 
-<img src="inst/extdata/www/featureplot-1.png" width="100%" /><img src="inst/extdata/www/Featureplot-split.png" width="100%" />
+<img src="inst/extdata/www/featureplot-1.jpg" width="100%" /><img src="inst/extdata/www/Featureplot-split.jpg" width="100%" />
 
 ### Violin Plot
 
@@ -142,7 +142,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="inst/extdata/www/Vlnplot-1.png" width="100%" /><img src="inst/extdata/www/Vlnplot-2.png" width="100%" /><img src="inst/extdata/www/vlnplot-splited-1.png" width="100%" /><img src="inst/extdata/www/vlnplot-splited-2.png" width="100%" />
+<img src="inst/extdata/www/Vlnplot-1.jpg" width="100%" /><img src="inst/extdata/www/Vlnplot-2.jpg" width="100%" /><img src="inst/extdata/www/vlnplot-splited-1.jpg" width="100%" /><img src="inst/extdata/www/vlnplot-splited-2.jpg" width="100%" />
 
 ### Dot Plot
 
@@ -167,9 +167,9 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="inst/extdata/www/Dotplot-1.png" width="70%" />
+<img src="inst/extdata/www/Dotplot-1.jpg" width="70%" />
 
-<img src="inst/extdata/www/dotplot-splited-1.png" width="50%" />
+<img src="inst/extdata/www/dotplot-splited-1.jpg" width="50%" />
 
 ### Heatmap for cell level expression
 
@@ -193,7 +193,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="inst/extdata/www/Heatmap-1.png" width="100%" />
+<img src="inst/extdata/www/Heatmap-1.jpg" width="100%" />
 
 ### Heatmap for group averaged expression
 
@@ -233,9 +233,9 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="inst/extdata/www/ridgeplot-1.png" width="70%" />
+<img src="inst/extdata/www/ridgeplot-1.jpg" width="70%" />
 
-<img src="inst/extdata/www/Ridgeplot-2.png" width="100%" /><img src="inst/extdata/www/Ridgeplot-3.png" width="100%" />
+<img src="inst/extdata/www/Ridgeplot-2.jpg" width="100%" /><img src="inst/extdata/www/Ridgeplot-3.jpg" width="100%" />
 
 ### Plot Cell Percentage
 
@@ -247,7 +247,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="inst/extdata/www/cellratio-1.png" width="50%" /><img src="inst/extdata/www/cellratio-2.png" width="50%" />
+<img src="inst/extdata/www/cellratio-1.jpg" width="50%" /><img src="inst/extdata/www/cellratio-2.jpg" width="50%" />
 
 ### Find Cluster Markers and DEGs Analysis
 
@@ -267,11 +267,11 @@ You can modify part calculation parameters before a analysis.
 
 **Screen shots:**
 
-<img src="inst/extdata/www/DEGs-1.png" width="100%" /><img src="inst/extdata/www/DEGs-2.png" width="100%" /><img src="inst/extdata/www/DEGs-3.png" width="100%" />
+<img src="inst/extdata/www/DEGs-1.jpg" width="100%" /><img src="inst/extdata/www/DEGs-2.jpg" width="100%" /><img src="inst/extdata/www/DEGs-3.jpg" width="100%" />
 
 #### Output description
 
-<img src="inst/extdata/www/DEGs-4.png" width="100%" />
+<img src="inst/extdata/www/DEGs-4.jpg" width="100%" />
 
 > [FindMarkers(object,
 > …)](https://satijalab.org/seurat/reference/findmarkers)
@@ -317,7 +317,7 @@ each gene, count cells in which this genes is highly expressed, and also
 calculate the mean and median UMI percentage in those highly expressed
 cells.
 
-<img src="inst/extdata/www/Find-Top-Genes-by-Cell.png" width="100%" />
+<img src="inst/extdata/www/Find-Top-Genes-by-Cell.jpg" width="100%" />
 
 #### Output description
 
@@ -347,7 +347,7 @@ for each cluster, calculate the `top n` highly expressed genes by
 accumulated UMI counts. if a cluster has less than 3 cells, this cluster
 will be escaped.
 
-<img src="inst/extdata/www/Find-Top-Genes-by-Accumulated-UMI-counts.png" width="100%" />
+<img src="inst/extdata/www/Find-Top-Genes-by-Accumulated-UMI-counts.jpg" width="100%" />
 
 #### Output description
 
@@ -370,7 +370,7 @@ will be escaped.
 Summary interested features by cluster, such as the positive cell
 percentage and mean/median expression level.
 
-<img src="inst/extdata/www/gene-short-summary.png" width="100%" />
+<img src="inst/extdata/www/gene-short-summary.jpg" width="100%" />
 
 #### Output description
 
@@ -404,11 +404,11 @@ cluster, support pearson & spearman methods.
 - `Calculate Correlation for A Gene List`: to calculate the correlation
   value for each pair of the input genes
 
-<img src="inst/extdata/www/featurecorrelation.png" width="100%" />
+<img src="inst/extdata/www/featurecorrelation.jpg" width="100%" />
 
 #### Output description
 
-<img src="inst/extdata/www/feature-correlation-output.png" width="40%" />
+<img src="inst/extdata/www/feature-correlation-output.jpg" width="40%" />
 
 - `GeneA`: the first gene in a Gene pair
 
