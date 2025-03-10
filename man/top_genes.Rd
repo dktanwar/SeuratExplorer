@@ -14,16 +14,11 @@ top_genes(SeuratObj, expr.cut = 0.01, group.by)
 \item{group.by}{how to group cells}
 }
 \value{
-data frame
+a data frame
 }
 \description{
 for each cell, find genes that has high UMI percentage, for example, if a cell has 10000 UMIs, and the UMI percentage cutoff is set to 0.01,
 then all genes that has more than 10000 * 0.01 = 100 UMIs is thought to be the highly expressed genes for this cell.summary those genes for each cluster,
 firstly get all highly expressed genes in a cluster, some genes may has less cells, then for each gene, count cells in which this genes is highly expressed,
 and also calculate the mean and median UMI percentage in those highly expressed cells.
-}
-\examples{
-# top_genes(cds, expr.cut = 0.01, group.by = "orig.ident")
-# top_genes(cds, expr.cut = 0.1, group.by = "res.0.4")
-# top_genes(cds, expr.cut = 0.1, group.by = "RandomGroup")
 }

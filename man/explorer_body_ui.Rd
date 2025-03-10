@@ -2,13 +2,21 @@
 % Please edit documentation in R/ui.R
 \name{explorer_body_ui}
 \alias{explorer_body_ui}
-\title{body - ui functions for Seurat explorer functions}
+\title{generate the body UI for each menu item specified in \code{explorer_sidebar_ui}}
 \usage{
 explorer_body_ui(tab_list)
 }
 \arguments{
-\item{tab_list}{settings for each seurat function}
+\item{tab_list}{a tag list for the body UI of shiny dashboard}
+}
+\value{
+a filled tag list for body UI
 }
 \description{
-body - ui functions for Seurat explorer functions
+generate the body UI for each menu item specified in \code{explorer_sidebar_ui}
+}
+\examples{
+tab_list <- list()
+tab_list <- explorer_body_ui(tab_list = tab_list)
+
 }

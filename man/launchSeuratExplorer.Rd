@@ -4,7 +4,10 @@
 \alias{launchSeuratExplorer}
 \title{Launch shiny app}
 \usage{
-launchSeuratExplorer()
+launchSeuratExplorer(verbose = FALSE)
+}
+\arguments{
+\item{verbose}{for debug use}
 }
 \value{
 In-browser Shiny Application launch
@@ -13,5 +16,5 @@ In-browser Shiny Application launch
 Launch shiny app
 }
 \examples{
-# launchSeuratExplorer()
+if(interactive()){launchSeuratExplorer()}
 }

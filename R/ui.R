@@ -1,15 +1,21 @@
 # ui.R
-# R shiny UI for SeuratExplorer
+## the UI side
 
-#' sidebar - ui functions for Seurat explorer functions
+#' some menu items of the dashboard sidebar
+#' @description
+#' to generate some menu items for the dashboard, which can be integrated to other
+#' packages, such as 'fentouxungui/SeuratExplorerServer' from github.
+#'
 #' @import shiny
-#' @import shinydashboard
+#' @import shinydashboard shinyBS
 #' @importFrom shinydashboard menuItem menuSubItem
 #' @export
+#' @return return some menu items for the dashboard
+#' @examples
+#' explorer_sidebar_ui()
+#'
 explorer_sidebar_ui <- function(){
-  requireNamespace("shinydashboard")
-  requireNamespace("shinyBS")
-  # to make updateCollapse() runs correctly, refer to: https://github.com/ebailey78/shinyBS/issues/92
+  # to make shinyBS::updateCollapse() runs correctly, refer to: https://github.com/ebailey78/shinyBS/issues/92
   shiny::addResourcePath("sbs", system.file("www", package="shinyBS"))
 
   conditionalPanel(
@@ -32,17 +38,19 @@ explorer_sidebar_ui <- function(){
     )
 }
 
-#' body - ui functions for Seurat explorer functions
-#' @param tab_list settings for each seurat function
-#' @import shinydashboard
-#' @import shinycssloaders
-#' @import shiny
-#' @import shinyWidgets
-#' @import shinyBS
+#' generate the body UI for each menu item specified in `explorer_sidebar_ui`
+#' @param tab_list a tag list for the body UI of shiny dashboard
+#' @import shinydashboard shinycssloaders
+#' @import shiny shinyWidgets shinyBS
 #' @importFrom shinydashboard tabItem
 #' @importFrom shinycssloaders withSpinner
 #' @importFrom shinyBS bsCollapse bsCollapsePanel
 #' @export
+#' @return a filled tag list for body UI
+#' @examples
+#' tab_list <- list()
+#' tab_list <- explorer_body_ui(tab_list = tab_list)
+#'
 explorer_body_ui <- function(tab_list){
   tab_list[["dimplot"]] = tabItem(tabName = "dimplot",
                                   fluidRow(
@@ -399,13 +407,17 @@ explorer_body_ui <- function(tab_list){
 }
 
 
-#' UI for shiny App interface
-#' @import shiny
-#' @import shinydashboard shinyWidgets
+#' UI
+#' @import shiny shinydashboard shinyWidgets
 #' @import htmltools
 #' @export
+#' @return the UI part of the shiny app
+#' @examples
+#' ui()
+#'
 ui <-  function(){
-  # notificationItem: this default function can not open link; refer to: https://forum.posit.co/t/shinydashboard-notification-item-with-link-in-new-tab/37580/2
+  # shinydashboard::notificationItem: the default function can not open link
+  # to make a new function: refer to: https://forum.posit.co/t/shinydashboard-notification-item-with-link-in-new-tab/37580/2
   notificationItemWithAttr <- function(text, icon = shiny::icon("warning"), status = "success", href = NULL, ...) {
     if (is.null(href)){href <- "#"}
     icon <- htmltools::tagAppendAttributes(icon, class = paste0("text-",status))
@@ -449,7 +461,7 @@ ui <-  function(){
     div(class= "tab-content", tab_list),
     tags$script(HTML(
       "document.querySelector('body > div.wrapper > header > nav > div > ul > li > a > span').style.visibility = 'hidden';"
-    )) # not show how many notification in dropdownMenu, refer to:https://stackoverflow.com/questions/65915414/alter-dropdown-menu-in-shiny
+    )) # to hide how many notifications in shinydashboard::dropdownMenu(), refer to:https://stackoverflow.com/questions/65915414/alter-dropdown-menu-in-shiny
   )
 
   # combine

@@ -1,19 +1,19 @@
-prepare_seurat_object <- function(obj){
+prepare_seurat_object <- function(obj, verbose = FALSE){
   requireNamespace("Seurat")
   # trans the none-factor columns in meta.data to factor
   # if the unique counts less than 1/20 of total cells, and not more than 50, in chr or num type columns，will be forced to factor type.
   # possible problem: unique_max_percent = 0.05 may not suitable for a data has 100 cells but more than 5 clusters.
-  obj@meta.data <- modify_columns_types(df = obj@meta.data, types_to_check = c("numeric", "character"), unique_max_counts = 50, unique_max_percent = 0.05)
+  obj@meta.data <- modify_columns_types(df = obj@meta.data, types_to_check = c("numeric", "character"), unique_max_counts = 50, unique_max_percent = 0.05, verbose = verbose)
   # for splited object, join layers
   if (sum(grepl("^counts",Layers(object = obj))) > 1 | sum(grepl("^data",Layers(object = obj))) > 1) {
     obj <- SeuratObject::JoinLayers(object = obj)
   }
-  message("SeuratExplorer: prepare_seurat_object runs successfully!")
+  if (verbose) {message("SeuratExplorer: prepare_seurat_object runs successfully!")}
   return(obj)
 }
 
 # Converts eligible non-factor columns to factor type, and converts strings that may be numbers to numbers.
-modify_columns_types <- function(df, types_to_check = c("numeric", "character"), unique_max_counts = 50, unique_max_percent = 0.05){
+modify_columns_types <- function(df, types_to_check = c("numeric", "character"), unique_max_counts = 50, unique_max_percent = 0.05, verbose = FALSE){
   candidates.types.logic <- sapply(df, class) %in% types_to_check
   cutoff <- min(unique_max_counts, round(nrow(df) * unique_max_percent))
   candidates.unique.logic <- sapply(df, FUN = function(x)length(unique(x))) <= cutoff
@@ -24,53 +24,53 @@ modify_columns_types <- function(df, types_to_check = c("numeric", "character"),
   df[char2numeric_columns] <- lapply(df[char2numeric_columns], as.numeric)
   # finally trans all char and numeric to factor
   df[candidates.logic] <- lapply(df[candidates.logic], as.factor)
-  message("SeuratExplorer: modify_columns_types runs successfully!")
+  if(verbose){message("SeuratExplorer: modify_columns_types runs successfully!")}
   return(df)
 }
 
 # get reduction options by keywords: umap and tsne
-prepare_reduction_options <- function(obj, keywords = c("umap","tsne")){
+prepare_reduction_options <- function(obj, keywords = c("umap","tsne"), verbose = FALSE){
   requireNamespace("Seurat")
   reduction.choice <- grep(paste0(paste0("(", keywords,")"),collapse = "|"), Seurat::Reductions(obj), value = TRUE, ignore.case = TRUE)
   names(reduction.choice) <- toupper(reduction.choice)
-  message("SeuratExplorer: prepare_reduction_options runs successfully!")
+  if(verbose){message("SeuratExplorer: prepare_reduction_options runs successfully!")}
   return(reduction.choice)
 }
 
 
 # get cluster resolution options from all factor type columns in meta.data
-prepare_cluster_options <- function(df){
+prepare_cluster_options <- function(df, verbose = FALSE){
   cluster.options <- colnames(df)[sapply(df, is.factor)]
   names(cluster.options) <- cluster.options
-  message("SeuratExplorer: prepare_cluster_options runs successfully!")
+  if(verbose){message("SeuratExplorer: prepare_cluster_options runs successfully!")}
   return(cluster.options)
 }
 
 # get split options from eligible factor columns in meta.data which has less levels than max_level
-prepare_split_options <- function(df, max.level = 4){
+prepare_split_options <- function(df, max.level = 4, verbose = FALSE){
   cluster.options <- colnames(df)[sapply(df, is.factor)]
   leve.counts <- unname(sapply(df[cluster.options],FUN = function(x)length(levels(x))))
   split.options <- cluster.options[leve.counts <= max.level]
   names(split.options) <- split.options
-  message("SeuratExplorer: prepare_split_options runs successfully!")
+  if(verbose){message("SeuratExplorer: prepare_split_options runs successfully!")}
   return(split.options)
 }
 
 # add extra columns from meta.data to qc options
-prepare_qc_options <- function(df, types = c("double","integer","numeric")){
+prepare_qc_options <- function(df, types = c("double","integer","numeric"), verbose = FALSE){
   qc_options <- colnames(df)[sapply(df, class) %in% types]
-  message("SeuratExplorer: prepare_qc_options runs successfully!")
+  if(verbose){message("SeuratExplorer: prepare_qc_options runs successfully!")}
   return(qc_options)
 }
 
 
 # Check the input gene, return the revised gene, which can be used for FeaturePlot, Vlnplot ect.
-CheckGene <- function(InputGene, GeneLibrary){
+CheckGene <- function(InputGene, GeneLibrary, verbose = FALSE){
   InputGenes <- trimws(unlist(strsplit(InputGene,split = "\n")))
   InputGenes <- InputGenes[InputGenes != ""]
   revised.genes <- sapply(InputGenes, FUN = function(x)ReviseGene(x, GeneLibrary = GeneLibrary))
   revised.genes <- unique(unname(revised.genes[!is.na(revised.genes)]))
-  message("SeuratExplorer: CheckGene runs successfully!")
+  if(verbose){message("SeuratExplorer: CheckGene runs successfully!")}
   ifelse(length(revised.genes) == 0, yes = return(NA), no = return(revised.genes))
 }
 
@@ -85,28 +85,28 @@ ReviseGene <- function(Agene, GeneLibrary){
 }
 
 
-# check R package for DEGs analysis
-check_dependency <- function(test){
-  # >https://stackoverflow.com/questions/64737686/why-library-or-require-should-not-be-used-in-a-r-package
-  # Why library() or require() should not be used in a R package
-  installed_packages <- as.data.frame(utils::installed.packages())$Package
-  if (test == "wilcox") {
-    if(!"presto" %in% installed_packages){
-      devtools::install_github('immunogenomics/presto', upgrade = "never")
-      # requireNamespace("presto")
-    }
-  }else if(test %in% c("DESeq2","MAST")){
-    if (!"BiocManager" %in% installed_packages)
-      utils::install.packages("BiocManager")
-      # requireNamespace("BiocManager")
-    if (!test %in% installed_packages) {
-      BiocManager::install(test, update = FALSE, ask = FALSE)
-      # requireNamespace(test)
-    }
-  } else {
-    stop("Please input a correct test method.")
-  }
-}
+# # check R package for DEGs analysis
+# CRAN require: not use installed.packages()
+# check_dependency <- function(test){
+#   # >https://stackoverflow.com/questions/64737686/why-library-or-require-should-not-be-used-in-a-r-package
+#   # Why library() or require() should not be used in a R package
+#   if (test == "wilcox") {
+#     if(!"presto" %in% installed_packages){
+#       devtools::install_github('immunogenomics/presto', upgrade = "never")
+#       # requireNamespace("presto")
+#     }
+#   }else if(test %in% c("DESeq2","MAST")){
+#     if (!"BiocManager" %in% installed_packages)
+#       utils::install.packages("BiocManager")
+#       # requireNamespace("BiocManager")
+#     if (!test %in% installed_packages) {
+#       BiocManager::install(test, update = FALSE, ask = FALSE)
+#       # requireNamespace(test)
+#     }
+#   } else {
+#     stop("Please input a correct test method.")
+#   }
+# }
 
 color_list <- list(stallion = c("#D51F26","#272E6A","#208A42","#89288F","#F47D2B",
                                 "#FEE500","#8A9FD1","#C06CAB","#E6C2DC","#90D5E4",
@@ -353,13 +353,9 @@ cellRatioPlot <- function(object = NULL,
 #' @param expr.cut UMI percentage cutoff, in a cell, if a gene with UMIs ratio more than this cutoff, this gene will be assigned to highly expressed gene for this cell
 #' @param group.by how to group cells
 #'
-#' @return data frame
+#' @return a data frame
 #' @export
 #'
-#' @examples
-#' # top_genes(cds, expr.cut = 0.01, group.by = "orig.ident")
-#' # top_genes(cds, expr.cut = 0.1, group.by = "res.0.4")
-#' # top_genes(cds, expr.cut = 0.1, group.by = "RandomGroup")
 top_genes <- function(SeuratObj, expr.cut = 0.01, group.by) {
   requireNamespace("dplyr")
   requireNamespace("Seurat")
@@ -437,12 +433,12 @@ top_accumulated_genes <- function(SeuratObj, top, group.by){
     if (length(sss) > top) {
       sss <- sss[1:top]
     }
-    res <- data.frame(Gene = names(sss), NormalizedAccumulatedUMICounts = unname(sss)/ncol(counts.expr.sub), PCT = round(unname(sss)/sum(counts.expr.sub),digits = 4))
+    res <- data.frame(Gene = names(sss), MeanUMICounts = unname(sss)/ncol(counts.expr.sub), PCT = round(unname(sss)/sum(counts.expr.sub),digits = 4))
     res$total.pos.cells <- unname(apply(counts.expr.sub[res$Gene,,drop = FALSE] > 0, 1, sum))
     res$total.cells <- ncol(counts.expr.sub)
     res$celltype <- celltype
-    res <- res[,c("celltype", "total.cells", "Gene", "total.pos.cells", "NormalizedAccumulatedUMICounts", "PCT")]
-    res <- res[order(res$AccumulatedUMICounts, decreasing = TRUE),]
+    res <- res[,c("celltype", "total.cells", "Gene", "total.pos.cells", "MeanUMICounts", "PCT")]
+    res <- res[order(res$MeanUMICounts, decreasing = TRUE),]
     if (celltype == all.cell.types[1]) {
       results.statics <- res
     }else{
@@ -740,8 +736,8 @@ AverageHeatmap <- function(
   }
 }
 
-readSeurat <- function(path){
-  message("Reading in data...")
+readSeurat <- function(path, verbose = FALSE){
+  if(verbose){message("Reading in data...")}
   # read data
   if (tools::file_ext(path) == 'qs2') {
     seu_obj <- qs2::qs_read(path)
@@ -752,7 +748,7 @@ readSeurat <- function(path){
   if (SeuratObject::Version(seu_obj) < utils::packageVersion('SeuratObject')) {
     seu_obj <- SeuratObject::UpdateSeuratObject(seu_obj)
   }else{
-    message('Update Seurat Object escaped for it has been the latest version!')
+    if(verbose){message('Update Seurat Object escaped for it has been the latest version!')}
   }
   return(seu_obj)
 }

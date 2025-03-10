@@ -2,10 +2,9 @@
 % Please edit documentation in R/server.R
 \name{explorer_server}
 \alias{explorer_server}
-\title{server functions for Seurat Explorer menuitems
-R shiny server side for Seurat plot and DEGs analysis functions}
+\title{server side functions related to \code{explorer_sidebar_ui}}
 \usage{
-explorer_server(input, output, session, data)
+explorer_server(input, output, session, data, verbose = FALSE)
 }
 \arguments{
 \item{input}{server input}
@@ -15,8 +14,12 @@ explorer_server(input, output, session, data)
 \item{session}{server session}
 
 \item{data}{the Seurat object and related parameters}
+
+\item{verbose}{for debug use}
+}
+\value{
+server side functions related to \code{explorer_sidebar_ui}
 }
 \description{
-server functions for Seurat Explorer menuitems
-R shiny server side for Seurat plot and DEGs analysis functions
+server side functions related to \code{explorer_sidebar_ui}
 }

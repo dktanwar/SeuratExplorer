@@ -28,10 +28,10 @@ stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://
 
 ## A live demo webserver
 
-Upload an Rds or qs2 file, with file size no more than 5GB.
-[Open](http://www.nibs.ac.cn:666/SeuratExplorer/), you can download a
-mini demo data from github
-[here](https://github.com/fentouxungui/SeuratExplorerServer/blob/main/inst/extdata/demo/fly/Rds-file/G101_PC20res04.rds).
+Upload an Rds or qs2 file, with file size no more than 5GB, to [Demo
+Site](http://www.nibs.ac.cn:666/SeuratExplorer/). You can download a
+mini demo data from
+[github](https://github.com/fentouxungui/SeuratExplorerServer/blob/main/inst/extdata/demo/fly/Rds-file/G101_PC20res04.rds).
 
 ## Installation
 
@@ -341,13 +341,13 @@ cells.
 - `cut.pct.median`: in those highly expressed cells, the median
   expression percentage
 
-#### 2. Find Top Genes by Accumulated UMI counts
+#### 2. Find Top Genes by Mean UMI counts
 
-for each cluster, calculate the `top n` highly expressed genes by
-accumulated UMI counts. if a cluster has less than 3 cells, this cluster
-will be escaped.
+for each cluster, calculate the `top n` highly expressed genes by Mean
+UMI counts. if a cluster has less than 3 cells, this cluster will be
+escaped.
 
-<img src="inst/extdata/www/Find-Top-Genes-by-Accumulated-UMI-counts.jpg" width="100%" />
+<img src="inst/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg" width="100%" />
 
 #### Output description
 
@@ -360,10 +360,11 @@ will be escaped.
 
 - `total.pos.cells`: how many cells express this gene
 
-- `NormalizedAccumulatedUMICounts`: (total accumulated UMI counts) /
-  (total cells of this cluster)
+- `MeanUMICounts`: (total accumulated UMI counts) / (total cells of this
+  cluster)
 
-- `PCT`: (total accumulated UMI counts) / (total UMIs of this cluster)
+- `PCT`: (total accumulated UMI counts of the gene) / (total UMIs of
+  cluster cells)
 
 ### Feature Summary
 
@@ -422,16 +423,20 @@ analysis.
 
 ## Key related packages
 
+- [satijalab/seurat](https://github.com/satijalab/seurat): Seurat is an
+  R toolkit for single cell genomics, developed and maintained by the
+  Satija Lab at NYGC.
+
 - [Hla-Lab/SeuratExplorer](https://github.com/rwcrocker/SeuratExplorer/):
   An interactive R shiny application for exploring scRNAseq data
-  processed in Seurat
+  processed in Seurat.
 
 - [junjunlab/scRNAtoolVis](https://github.com/junjunlab/scRNAtoolVis):
-  Some useful function to make your scRNA-seq plot more beautiful
+  Some useful function to make your scRNA-seq plot more beautiful.
 
 - [rstudio/shiny-server](https://github.com/rstudio/shiny-server): Shiny
   Server is a server program that makes Shiny applications available
-  over the web
+  over the web.
 
 ## Session Info
 

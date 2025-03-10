@@ -2,10 +2,17 @@
 % Please edit documentation in R/ui.R
 \name{ui}
 \alias{ui}
-\title{UI for shiny App interface}
+\title{UI}
 \usage{
 ui()
 }
+\value{
+the UI part of the shiny app
+}
 \description{
-UI for shiny App interface
+UI
+}
+\examples{
+ui()
+
 }

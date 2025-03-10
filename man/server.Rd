@@ -2,7 +2,7 @@
 % Please edit documentation in R/server.R
 \name{server}
 \alias{server}
-\title{Server for SeuratExplorer shiny app}
+\title{Server}
 \usage{
 server(input, output, session)
 }
@@ -13,6 +13,9 @@ server(input, output, session)
 
 \item{session}{from shiny server function}
 }
+\value{
+the server functions of shiny app
+}
 \description{
-Server for SeuratExplorer shiny app
+Server
 }
