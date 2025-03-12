@@ -152,6 +152,8 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   output$featureplot <- renderPlot({
     if(verbose){message("SeuratExplorer: preparing featureplot...")}
+    if(input$FeatureMinCutoff == 0){expr_min_cutoff <- NA}else{expr_min_cutoff <- paste0('q', round(input$FeatureMinCutoff))}
+    if(input$FeatureMaxCutoff == 100){expr_max_cutoff <- NA}else{expr_max_cutoff <- paste0('q', round(input$FeatureMaxCutoff))}
     if (any(is.na(Featureplot.Gene.Revised()))) { # when NA value
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when all wrong input, show a blank pic.
     }else if (input$FeatureShowLabel) { # show label
@@ -159,11 +161,12 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       Idents(cds) <- input$FeatureClusterResolution
       if(is.null(FeatureSplit.Revised())) { # not splited
         p <- Seurat::FeaturePlot(cds, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
-                                 cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), label = TRUE, label.size = input$FeatureLabelSize)
+                                 cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), label = TRUE, label.size = input$FeatureLabelSize,
+                                 alpha = input$FeaturePointAlpha, min.cutoff = expr_min_cutoff, max.cutoff = expr_max_cutoff)
       }else{ # splited
         p <- Seurat::FeaturePlot(cds, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
                                  cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), split.by = FeatureSplit.Revised(), label = TRUE,
-                                 label.size = input$FeatureLabelSize)
+                                 label.size = input$FeatureLabelSize, alpha = input$FeaturePointAlpha, min.cutoff = expr_min_cutoff, max.cutoff = expr_max_cutoff)
         if (length( Featureplot.Gene.Revised()) == 1) { # only one gene
           plot_numbers <- length(levels(cds@meta.data[,FeatureSplit.Revised()]))
           p <- p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
@@ -172,10 +175,12 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     }else{ # not show label
       if(is.null(FeatureSplit.Revised())) { # not splited
         p <- Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
-                                 cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor))
+                                 cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), alpha = input$FeaturePointAlpha,
+                                 min.cutoff = expr_min_cutoff, max.cutoff = expr_max_cutoff)
       }else{ # splited
         p <- Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
-                                 cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), split.by = FeatureSplit.Revised())
+                                 cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), split.by = FeatureSplit.Revised(),
+                                 alpha = input$FeaturePointAlpha, min.cutoff = expr_min_cutoff, max.cutoff = expr_max_cutoff)
         if (length( Featureplot.Gene.Revised()) == 1) { # only one gene
           plot_numbers <- length(levels(data$obj@meta.data[,FeatureSplit.Revised()]))
           p <- p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))

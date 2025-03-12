@@ -634,12 +634,12 @@ AverageHeatmap <- function(
       luminosity = annoColType,
       transparency = annoColTypeAlpha
     )
-    print(c("Your cluster annotation color is:", anno_col))
+    # print(c("Your cluster annotation color is:", anno_col))
   } else if (annoCol == TRUE) {
     # give your own color vectors
     anno_col <- myanCol
   } else {
-    print("Give TRUE or FALSE paramters!")
+    stop("Give TRUE or FALSE paramters!")
   }
   names(anno_col) <- colnames(htdf)
 
