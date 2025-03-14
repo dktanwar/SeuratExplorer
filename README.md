@@ -49,6 +49,12 @@ if(!require(devtools)){install.packages("devtools")}
 install_github("fentouxungui/SeuratExplorer")
 ```
 
+Or install from CRAN:
+
+``` r
+install.packages("SeuratExplorer")
+```
+
 ## Run App
 
 ``` r
