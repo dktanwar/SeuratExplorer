@@ -35,7 +35,7 @@ Imports:
     reshape2,
     ComplexHeatmap,
     presto
-Depends: R (>= 4.4.0)
+Depends: R (>= 4.1.0)
 Suggests:
     BiocManager,
     roxygen2,
