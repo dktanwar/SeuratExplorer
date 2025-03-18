@@ -35,16 +35,9 @@ mini demo data from
 
 ## Installation
 
-You can use codes bellow to install the latest version of
-`SeuratExplorer`:
+Install the latest version from github:
 
 ``` r
-# install dependency
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install("ComplexHeatmap")
-
-# install SeuratExplorer
 if(!require(devtools)){install.packages("devtools")}
 install_github("fentouxungui/SeuratExplorer")
 ```

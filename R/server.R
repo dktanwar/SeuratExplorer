@@ -938,17 +938,31 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     req(DEGs$degs)
     if(verbose){message("SeuratExplorer: preparing dataset_degs...")}
     # Show data
-    DT::datatable(DEGs$degs, extensions = 'Buttons',
-                  options = list(scrollX=TRUE,
-                                 # lengthMenu = c(5,10,15),
-                                 paging = TRUE, searching = TRUE,
-                                 fixedColumns = TRUE, autoWidth = TRUE,
-                                 ordering = TRUE, dom = 'Bfrtip',
-                                 buttons = list('copy',
-                                                list(extend = 'csv', title = "DEGs"),
-                                                list(extend = 'excel', title = "DEGs")))) %>%
-      DT::formatSignif(columns = c("p_val","p_val_adj"), digits = 3) %>%
-      DT::formatRound(columns = "avg_log2FC", digits = 3)
+    if (nrow(DEGs$degs) == 0 | is.null(DEGs$degs)) {
+      showModal(modalDialog(title = "Error", "None of DEGs found, contact technican for details!", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+      return(NULL)
+    }else{
+      data_res <- DT::datatable(DEGs$degs, extensions = 'Buttons',
+                                options = list(scrollX=TRUE,
+                                               # lengthMenu = c(5,10,15),
+                                               paging = TRUE, searching = TRUE,
+                                               fixedColumns = TRUE, autoWidth = TRUE,
+                                               ordering = TRUE, dom = 'Bfrtip',
+                                               buttons = list('copy',
+                                                              list(extend = 'csv', title = "DEGs"),
+                                                              list(extend = 'excel', title = "DEGs"))))
+      for (acolumn in c("p_val","p_val_adj")) {
+        if (acolumn %in% colnames(DEGs$degs)) {
+          data_res <- DT::formatSignif(data_res, columns = acolumn, digits = 3)
+        }
+      }
+      for (acolumn in c("avg_log2FC", "avg_diff", "avg_logFC")) {
+        if (acolumn %in% colnames(DEGs$degs)) {
+          data_res <- DT::formatRound(data_res, columns = acolumn, digits = 3)
+        }
+      }
+      return(data_res)
+    }
   })
 
   ################################ Top genes analysis
