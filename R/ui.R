@@ -68,6 +68,7 @@ explorer_body_ui <- function(tab_list){
                                                                             withSpinner(uiOutput("DimClusterOrder.UI"), proxy.height = "10px"),
                                                                             style = "info")),
                                         withSpinner(uiOutput("DimSplit.UI"), proxy.height = "10px"),
+                                        withSpinner(uiOutput("DimHighlightedClusters.UI"), proxy.height = "10px"),
                                         checkboxInput("DimShowLabel",label = "Show cluster label", TRUE),
                                         sliderInput("DimLabelSize", label = "Label Size:", min = 0, max = 10, value = 7),
                                         sliderInput("DimPointSize", label = "Point Size", min = 0.001, max = 2, value = 0.8),
@@ -278,7 +279,7 @@ explorer_body_ui <- function(tab_list){
                                                               bsCollapsePanel(title = "Change Order",
                                                                                        withSpinner(uiOutput("CellratioplotFacetOrder.UI"), proxy.height = "10px"),
                                                                                        style = "info", value = "0")),
-                                          selectInput("fillcolorplatte","select color plate:", choices = color_choice_vector, selected = "stallion"),
+                                          selectInput("fillcolorplatte","select color plate:", choices = color_choice_vector, selected = "Default"),
                                           checkboxInput("CellratioRotateAxis",label = "Rotate X Axis", FALSE),
                                           sliderInput("CellratioColumnWidth", label = "Column width:", min = 0, max = 1, value = 0.7),
                                           sliderInput("CellratioFlowAlpha", label = "Flow alpha:", min = 0, max = 1, value = 0.3),
@@ -410,7 +411,6 @@ explorer_body_ui <- function(tab_list){
 
 #' UI
 #' @import shiny shinydashboard shinyWidgets
-#' @import htmltools
 #' @export
 #' @return the UI part of the shiny app
 #' @examples
@@ -421,8 +421,8 @@ ui <-  function(){
   # to make a new function: refer to: https://forum.posit.co/t/shinydashboard-notification-item-with-link-in-new-tab/37580/2
   notificationItemWithAttr <- function(text, icon = shiny::icon("warning"), status = "success", href = NULL, ...) {
     if (is.null(href)){href <- "#"}
-    icon <- htmltools::tagAppendAttributes(icon, class = paste0("text-",status))
-    htmltools::tags$li(a(href = href, icon, text, ...))
+    icon <- shiny::tagAppendAttributes(icon, class = paste0("text-",status))
+    shiny::tags$li(a(href = href, icon, text, ...))
   }
 
   # Header ----

@@ -12,15 +12,16 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports:
-    ggplot2,
     utils,
+    tools,
+    stats,
+    ggplot2,
     Seurat (>= 5.2.0),
     shiny,
     shinydashboard,
     DT,
     shinycssloaders,
     patchwork,
-    tools,
     colourpicker,
     shinyWidgets,
     scales,
@@ -32,16 +33,17 @@ Imports:
     qs2,
     circlize,
     reshape2,
-    stats,
-    htmltools,
-    ComplexHeatmap
+    ComplexHeatmap,
+    presto
 Depends: R (>= 4.4.0)
 Suggests:
     BiocManager,
-    DESeq2,
-    MAST,
     roxygen2,
-    devtools
+    devtools,
+    MAST,
+    limma,
+    DESeq2,
+    htmltools
 Remotes:
     bioc::release/ComplexHeatmap,
     github::immunogenomics/presto,

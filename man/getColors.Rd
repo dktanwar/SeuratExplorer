@@ -4,7 +4,7 @@
 \alias{getColors}
 \title{getColors}
 \usage{
-getColors(color.platte = NULL, choice = NULL, n = NULL)
+getColors(color.platte = NULL, choice = "default", n = NULL)
 }
 \arguments{
 \item{color.platte}{predefined color list}

@@ -85,29 +85,6 @@ ReviseGene <- function(Agene, GeneLibrary){
 }
 
 
-# # check R package for DEGs analysis
-# CRAN require: not use installed.packages()
-# check_dependency <- function(test){
-#   # >https://stackoverflow.com/questions/64737686/why-library-or-require-should-not-be-used-in-a-r-package
-#   # Why library() or require() should not be used in a R package
-#   if (test == "wilcox") {
-#     if(!"presto" %in% installed_packages){
-#       devtools::install_github('immunogenomics/presto', upgrade = "never")
-#       # requireNamespace("presto")
-#     }
-#   }else if(test %in% c("DESeq2","MAST")){
-#     if (!"BiocManager" %in% installed_packages)
-#       utils::install.packages("BiocManager")
-#       # requireNamespace("BiocManager")
-#     if (!test %in% installed_packages) {
-#       BiocManager::install(test, update = FALSE, ask = FALSE)
-#       # requireNamespace(test)
-#     }
-#   } else {
-#     stop("Please input a correct test method.")
-#   }
-# }
-
 color_list <- list(stallion = c("#D51F26","#272E6A","#208A42","#89288F","#F47D2B",
                                 "#FEE500","#8A9FD1","#C06CAB","#E6C2DC","#90D5E4",
                                 "#89C75F","#F37B7D","#9983BD","#D24B27","#3BBCA8",
@@ -209,6 +186,7 @@ color_list <- list(stallion = c("#D51F26","#272E6A","#208A42","#89288F","#F47D2B
 color_choice_vector <- names(color_list)
 names(color_choice_vector) <- paste(names(color_list), unlist(lapply(color_list,length)),sep = "-")
 color_choice_vector <- color_choice_vector[names(color_choice_vector)[order(unlist(lapply(color_list,length)),decreasing = TRUE)]]
+color_choice_vector <- c(c("Default" = 'default'), color_choice_vector)
 
 #' @title getColors
 #'
@@ -222,9 +200,13 @@ color_choice_vector <- color_choice_vector[names(color_choice_vector)[order(unli
 #' @examples
 #' # null
 getColors <- function(color.platte = NULL,
-                      choice = NULL,
+                      choice = 'default',
                       n = NULL){
-  return(color.platte[[choice]][1:n])
+  if (choice == 'default') { # use default colors
+    return(scales::hue_pal()(n))
+  }else{
+    return(color.platte[[choice]][1:n])
+  }
 }
 
 globalVariables(c("num"))
@@ -578,7 +560,6 @@ AverageHeatmap <- function(
     cluster_rows = FALSE,
     gene.order = NULL,
     ...) {
-  # BiocManager::install("ComplexHeatmap")
   requireNamespace("ComplexHeatmap")
 
   # get cells mean gene expression

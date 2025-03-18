@@ -9,8 +9,7 @@
 #' @param verbose for debug use
 #' @param data the Seurat object and related parameters
 #'
-#' @import Seurat
-#' @import SeuratObject
+#' @import Seurat presto SeuratObject
 #' @importFrom grDevices dev.off pdf
 #' @export
 #' @return server side functions related to `explorer_sidebar_ui`
@@ -22,7 +21,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     unlink(temp_dir, recursive = TRUE)
   }
 
-  dir.create(temp_dir)
+  dir.create(temp_dir, showWarnings = FALSE)
   # to make shinyBS::updateCollapse() runs correctly, refer to: https://github.com/ebailey78/shinyBS/issues/92
   shiny::addResourcePath("sbs", system.file("www", package="shinyBS"))
 
@@ -74,6 +73,16 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     }
   })
 
+  # define Cluster choice for highlight
+  output$DimHighlightedClusters.UI <- renderUI({
+    req(input$DimClusterResolution)
+    if(verbose){message("SeuratExplorer: preparing DimHighlightedClusters.UI...")}
+    shinyWidgets::pickerInput(inputId = "DimHighlightedClusters", label = "Highlight Clusters:",
+                              choices = levels(data$obj@meta.data[,input$DimClusterResolution]),
+                              selected = NULL,
+                              options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
+  })
+
   dimplot_width  <- reactive({ session$clientData$output_dimplot_width })
 
   # Pixel (X) to Centimeter: 1 pixel (X)	= 0.0264583333 cm, if use this value, the picture is a little bit of small, unknown why.
@@ -82,14 +91,21 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   output$dimplot <- renderPlot({
     if(verbose){message("SeuratExplorer: preparing dimplot...")}
     isolate(cds <- data$obj) # not a memory saving way
+    # for highlight cells
+    if (any(is.null(input$DimHighlightedClusters))) {
+      dim_cells_highlighted <- NULL
+    }else{
+      dim_cells_highlighted <- colnames(cds)[cds@meta.data[,input$DimClusterResolution] %in% input$DimHighlightedClusters]
+    }
+
     cds@meta.data[,input$DimClusterResolution] <- factor(cds@meta.data[,input$DimClusterResolution], levels = input$DimClusterOrder)
     if (is.null(DimSplit.Revised())) { # not splited
       p <- Seurat::DimPlot(cds, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
-                      group.by = input$DimClusterResolution)
+                      group.by = input$DimClusterResolution, cells.highlight = dim_cells_highlighted)
       }else{ # splited
       plot_numbers <- length(levels(cds@meta.data[,DimSplit.Revised()]))
       p <- Seurat::DimPlot(cds, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
-                      group.by = input$DimClusterResolution, split.by = DimSplit.Revised(), ncol = ceiling(sqrt(plot_numbers)))
+                      group.by = input$DimClusterResolution, split.by = DimSplit.Revised(), ncol = ceiling(sqrt(plot_numbers)), cells.highlight = dim_cells_highlighted)
       }
     ggplot2::ggsave(paste0(temp_dir,"/dimplot.pdf"), p, width = dimplot_width() * px2cm, height = dimplot_width() * input$DimPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
     return(p)
