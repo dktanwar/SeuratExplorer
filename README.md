@@ -39,7 +39,7 @@ Install the latest version from github:
 
 ``` r
 if(!require(devtools)){install.packages("devtools")}
-install_github("fentouxungui/SeuratExplorer")
+install_github("fentouxungui/SeuratExplorer", dependencies = TRUE)
 ```
 
 Or install from CRAN:
