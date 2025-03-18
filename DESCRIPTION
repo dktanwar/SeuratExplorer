@@ -43,7 +43,7 @@ Suggests:
     roxygen2,
     devtools
 Remotes:
-    bioc::release/ComplexHeatmap
+    bioc::release/ComplexHeatmap,
     github::immunogenomics/presto,
     bioc::release/MAST,
     bioc::release/limma,
