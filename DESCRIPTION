@@ -16,7 +16,7 @@ Imports:
     tools,
     stats,
     ggplot2,
-    Seurat (>= 5.2.0),
+    Seurat (>= 5.0.0),
     shiny,
     shinydashboard,
     DT,
