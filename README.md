@@ -45,7 +45,7 @@ install_github("fentouxungui/SeuratExplorer")
 Or install from CRAN:
 
 ``` r
-install.packages("SeuratExplorer")
+install.packages("SeuratExplorer", dependencies = TRUE)
 ```
 
 ## Run App
