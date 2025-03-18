@@ -847,6 +847,8 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if(verbose){message("SeuratExplorer: preparing DEGsClusterMarkersAnalysis...")}
     isolate(cds <- data$obj)
     Seurat::Idents(cds) <- input$ClusterMarkersClusterResolution
+    # if layers are splited
+
     if (length(as.character(Idents(cds))) < 2) {
       showModal(modalDialog(title = "Error...", "Please select a cluster resolution with more than one group!",easyClose = TRUE,footer = NULL, size = "l"))
     }else{
