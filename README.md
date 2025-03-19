@@ -26,13 +26,6 @@ stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://
 > Essentially, what `SeuratExplorer` done is just to perform visual
 > operations for command line tools from `Seurat` or other packages.
 
-## A live demo webserver
-
-Upload an Rds or qs2 file, with file size no more than 5GB, to [Demo
-Site](http://www.nibs.ac.cn:666/SeuratExplorer/). You can download a
-mini demo data from
-[github](https://github.com/fentouxungui/SeuratExplorerServer/blob/main/inst/extdata/demo/fly/Rds-file/G101_PC20res04.rds).
-
 ## Installation
 
 Install the latest version from github - *Recommended*:
@@ -48,11 +41,30 @@ Or install from CRAN:
 install.packages("SeuratExplorer")
 ```
 
-## Run App
+## Run app on local
 
 ``` r
 library(SeuratExplorer)
 launchSeuratExplorer()
+```
+
+## Deploy on server
+
+You can deploy this app on a shiny server, which allows people to view
+their data on a webpage by uploading the data to server.
+
+A live demo: Upload an Rds or qs2 file, with file size no more than 5GB,
+to [Demo Site](http://www.nibs.ac.cn:666/SeuratExplorer/). You can
+download a mini demo data from
+[github](https://github.com/fentouxungui/SeuratExplorerServer/blob/main/inst/extdata/demo/fly/Rds-file/G101_PC20res04.rds).
+
+``` r
+# app.R
+library(SeuratExplorer)
+library(shiny)
+library(shinydashboard)
+options(SeuratExplorerVerbose = FALSE)
+shinyApp(SeuratExplorer::ui, SeuratExplorer::server)
 ```
 
 ## Introduction
