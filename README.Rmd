@@ -37,6 +37,12 @@ install_github("fentouxungui/SeuratExplorer", dependencies = TRUE)
 Or install from CRAN:
 
 ```{r eval=FALSE}
+# install none-CRAN dependency
+if (!require("BiocManager", quietly = TRUE)){install.packages("BiocManager")}
+BiocManager::install(c("ComplexHeatmap", "MAST", "limma", "DESeq2"))
+if(!require(devtools)){install.packages("devtools")}
+devtools::install_github("immunogenomics/presto")
+
 install.packages("SeuratExplorer")
 ```
 

@@ -38,6 +38,12 @@ install_github("fentouxungui/SeuratExplorer", dependencies = TRUE)
 Or install from CRAN:
 
 ``` r
+# install none-CRAN dependency
+if (!require("BiocManager", quietly = TRUE)){install.packages("BiocManager")}
+BiocManager::install(c("ComplexHeatmap", "MAST", "limma", "DESeq2"))
+if(!require(devtools)){install.packages("devtools")}
+devtools::install_github("immunogenomics/presto")
+
 install.packages("SeuratExplorer")
 ```
 
@@ -472,7 +478,7 @@ analysis.
     #> [1] stats     graphics  grDevices utils     datasets  methods   base     
     #> 
     #> loaded via a namespace (and not attached):
-    #>  [1] compiler_4.4.3    fastmap_1.2.0     cli_3.6.4         tools_4.4.3      
-    #>  [5] htmltools_0.5.8.1 rstudioapi_0.17.1 yaml_2.3.10       rmarkdown_2.29   
-    #>  [9] knitr_1.50        xfun_0.51         digest_0.6.37     rlang_1.1.5      
-    #> [13] evaluate_1.0.3
+    #>  [1] compiler_4.4.3    fastmap_1.2.0     cli_3.6.3         tools_4.4.3      
+    #>  [5] htmltools_0.5.8.1 rstudioapi_0.16.0 yaml_2.3.8        rmarkdown_2.27   
+    #>  [9] highr_0.11        knitr_1.47        xfun_0.45         digest_0.6.36    
+    #> [13] rlang_1.1.4       evaluate_0.24.0

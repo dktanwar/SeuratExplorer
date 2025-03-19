@@ -31,12 +31,12 @@ Imports:
     dplyr,
     qs2,
     circlize,
-    reshape2,
-    ComplexHeatmap
+    reshape2
 Depends: 
     R (>= 4.1.0),
     shiny
 Suggests:
+    ComplexHeatmap,
     presto,
     MAST,
     limma,
