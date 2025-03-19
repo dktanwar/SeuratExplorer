@@ -33,13 +33,10 @@ Imports:
     qs2,
     circlize,
     reshape2,
-    ComplexHeatmap,
-    presto
+    ComplexHeatmap
 Depends: R (>= 4.1.0)
 Suggests:
-    BiocManager,
-    roxygen2,
-    devtools,
+    presto，
     MAST,
     limma,
     DESeq2,
