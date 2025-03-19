@@ -35,7 +35,7 @@ mini demo data from
 
 ## Installation
 
-Install the latest version from github:
+Install the latest version from github - *Recommended*:
 
 ``` r
 if(!require(devtools)){install.packages("devtools")}
@@ -45,7 +45,7 @@ install_github("fentouxungui/SeuratExplorer", dependencies = TRUE)
 Or install from CRAN:
 
 ``` r
-install.packages("SeuratExplorer", dependencies = TRUE)
+install.packages("SeuratExplorer")
 ```
 
 ## Run App
@@ -439,7 +439,7 @@ analysis.
 
 ## Session Info
 
-    #> R version 4.4.1 (2024-06-14 ucrt)
+    #> R version 4.4.3 (2025-02-28 ucrt)
     #> Platform: x86_64-w64-mingw32/x64
     #> Running under: Windows 11 x64 (build 22631)
     #> 
@@ -460,7 +460,7 @@ analysis.
     #> [1] stats     graphics  grDevices utils     datasets  methods   base     
     #> 
     #> loaded via a namespace (and not attached):
-    #>  [1] compiler_4.4.1    fastmap_1.2.0     cli_3.6.3         tools_4.4.1      
-    #>  [5] htmltools_0.5.8.1 rstudioapi_0.16.0 yaml_2.3.8        rmarkdown_2.27   
-    #>  [9] highr_0.11        knitr_1.47        xfun_0.45         digest_0.6.36    
-    #> [13] rlang_1.1.4       evaluate_0.24.0
+    #>  [1] compiler_4.4.3    fastmap_1.2.0     cli_3.6.4         tools_4.4.3      
+    #>  [5] htmltools_0.5.8.1 rstudioapi_0.17.1 yaml_2.3.10       rmarkdown_2.29   
+    #>  [9] knitr_1.50        xfun_0.51         digest_0.6.37     rlang_1.1.5      
+    #> [13] evaluate_1.0.3

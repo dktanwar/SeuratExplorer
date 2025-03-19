@@ -6,7 +6,7 @@ Authors@R:
            comment = c("https://github.com/fentouxungui"))
 Description: A simple, one-command package which runs an interactive dashboard capable of common visualizations for single cell RNA-seq. 'SeuratExplorer' requires a processed 'Seurat' object, which is saved as 'rds' or 'qs2' file.
 License: GPL (>= 3)
-URL: https://github.com/fentouxungui/SeuratExplorer
+URL: https://CRAN.R-project.org/package=SeuratExplorer, https://github.com/fentouxungui/SeuratExplorer
 BugReports: https://github.com/fentouxungui/SeuratExplorer/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -15,9 +15,9 @@ Imports:
     utils,
     tools,
     stats,
-    ggplot2,
     Seurat (>= 5.0.0),
-    shiny,
+    SeuratObject (>= 5.0.0),
+    ggplot2,
     shinydashboard,
     DT,
     shinycssloaders,
@@ -25,7 +25,6 @@ Imports:
     colourpicker,
     shinyWidgets,
     scales,
-    SeuratObject (>= 5.0.0),
     shinyjqui,
     shinyBS,
     ggalluvial,
@@ -34,21 +33,18 @@ Imports:
     circlize,
     reshape2,
     ComplexHeatmap
-Depends: R (>= 4.1.0)
+Depends: 
+    R (>= 4.1.0),
+    shiny
 Suggests:
-    presto，
+    presto,
     MAST,
     limma,
-    DESeq2,
-    htmltools
+    DESeq2
 Remotes:
     bioc::release/ComplexHeatmap,
     github::immunogenomics/presto,
     bioc::release/MAST,
     bioc::release/limma,
     bioc::release/DESeq2
-    
 
-    
-    
-    

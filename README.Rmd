@@ -31,7 +31,7 @@ Upload an Rds or qs2 file, with file size no more than 5GB, to [Demo Site](http:
 
 ## Installation
 
-Install the latest version from github:
+Install the latest version from github - *Recommended*:
 
 ```{r eval=FALSE}
 if(!require(devtools)){install.packages("devtools")}
@@ -41,7 +41,7 @@ install_github("fentouxungui/SeuratExplorer", dependencies = TRUE)
 Or install from CRAN:
 
 ```{r eval=FALSE}
-install.packages("SeuratExplorer", dependencies = TRUE)
+install.packages("SeuratExplorer")
 ```
 
 

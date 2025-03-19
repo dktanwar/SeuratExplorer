@@ -9,7 +9,7 @@
 #' @param verbose for debug use
 #' @param data the Seurat object and related parameters
 #'
-#' @import Seurat presto SeuratObject
+#' @import Seurat SeuratObject
 #' @importFrom grDevices dev.off pdf
 #' @export
 #' @return server side functions related to `explorer_sidebar_ui`
