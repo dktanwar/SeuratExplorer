@@ -5,9 +5,19 @@
 
 <!-- badges: start -->
 
-[![Lifecycle:
-stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![](https://www.r-pkg.org/badges/version/SeuratExplorer)](https://cran.r-project.org/package=SeuratExplorer)
+[![](https://img.shields.io/badge/devel%20version-0.1.1-rossellhayes.svg)](https://github.com/fentouxungui/SeuratExplorer)
+[![](http://cranlogs.r-pkg.org/badges/grand-total/SeuratExplorer)](https://cran.r-project.org/package=SeuratExplorer)
+[![](https://img.shields.io/github/languages/code-size/fentouxungui/SeuratExplorer.svg)](https://github.com/fentouxungui/SeuratExplorer)
 <!-- badges: end -->
+
+> An ‘Shiny’ App for Exploring scRNA-seq Data Processed in ‘Seurat’
+
+A simple, one-command package which runs an interactive dashboard
+capable of common visualizations for single cell RNA-seq.
+‘SeuratExplorer’ requires a processed ‘Seurat’ object, which is saved as
+‘rds’ or ‘qs2’ file.
 
 ## Why build this R package
 
@@ -477,8 +487,22 @@ analysis.
     #> attached base packages:
     #> [1] stats     graphics  grDevices utils     datasets  methods   base     
     #> 
+    #> other attached packages:
+    #> [1] badger_0.2.4
+    #> 
     #> loaded via a namespace (and not attached):
-    #>  [1] compiler_4.4.3    fastmap_1.2.0     cli_3.6.3         tools_4.4.3      
-    #>  [5] htmltools_0.5.8.1 rstudioapi_0.16.0 yaml_2.3.8        rmarkdown_2.27   
-    #>  [9] highr_0.11        knitr_1.47        xfun_0.45         digest_0.6.36    
-    #> [13] rlang_1.1.4       evaluate_0.24.0
+    #>  [1] gtable_0.3.5        jsonlite_1.8.8      dplyr_1.1.4        
+    #>  [4] compiler_4.4.3      BiocManager_1.30.23 highr_0.11         
+    #>  [7] tidyselect_1.2.1    rvcheck_0.2.1       scales_1.3.0       
+    #> [10] yaml_2.3.8          fastmap_1.2.0       ggplot2_3.5.1      
+    #> [13] R6_2.5.1            generics_0.1.3      knitr_1.47         
+    #> [16] yulab.utils_0.1.4   tibble_3.2.1        desc_1.4.3         
+    #> [19] dlstats_0.1.7       munsell_0.5.1       pillar_1.9.0       
+    #> [22] RColorBrewer_1.1-3  rlang_1.1.4         utf8_1.2.4         
+    #> [25] cachem_1.1.0        xfun_0.45           fs_1.6.4           
+    #> [28] memoise_2.0.1       cli_3.6.3           magrittr_2.0.3     
+    #> [31] digest_0.6.36       grid_4.4.3          rstudioapi_0.16.0  
+    #> [34] lifecycle_1.0.4     vctrs_0.6.5         evaluate_0.24.0    
+    #> [37] glue_1.7.0          fansi_1.0.6         colorspace_2.1-0   
+    #> [40] rmarkdown_2.27      tools_4.4.3         pkgconfig_2.0.3    
+    #> [43] htmltools_0.5.8.1
