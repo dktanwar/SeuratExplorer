@@ -725,8 +725,10 @@ readSeurat <- function(path, verbose = FALSE){
   }else(
     seu_obj <- readRDS(path)
   )
-  # check version
-  if (SeuratObject::Version(seu_obj) < utils::packageVersion('SeuratObject')) {
+  # update Seurat object
+  if (class(seu_obj)[[1]] == 'seurat') { # for very old version: seurat object
+    seu_obj <- SeuratObject::UpdateSeuratObject(seu_obj)
+  }else if(SeuratObject::Version(seu_obj) < utils::packageVersion('SeuratObject')) {
     seu_obj <- SeuratObject::UpdateSeuratObject(seu_obj)
   }else{
     if(verbose){message('Update Seurat Object escaped for it has been the latest version!')}
