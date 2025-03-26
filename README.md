@@ -69,8 +69,8 @@ launchSeuratExplorer()
 You can deploy this app on a shiny server, which allows people to view
 their data on a webpage by uploading the data to server.
 
-A live demo: Upload an Rds or qs2 file, with file size no more than 5GB,
-to [Demo Site](http://www.nibs.ac.cn:666/SeuratExplorer/). You can
+A live demo: Upload an Rds or qs2 file, with file size no more than
+20GB, to [Demo Site](http://www.nibs.ac.cn:666/SeuratExplorer/). You can
 download a mini demo data from
 [github](https://github.com/fentouxungui/SeuratExplorerServer/blob/main/inst/extdata/demo/fly/Rds-file/G101_PC20res04.rds).
 

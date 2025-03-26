@@ -25,7 +25,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   # to make shinyBS::updateCollapse() runs correctly, refer to: https://github.com/ebailey78/shinyBS/issues/92
   shiny::addResourcePath("sbs", system.file("www", package="shinyBS"))
 
-  # Using an un-exported function from annother R package:
+  # Using an un-exported function from another R package:
   # https://stackoverflow.com/questions/32535773/using-un-exported-function-from-another-r-package
   subset_Seurat <- utils::getFromNamespace('subset.Seurat', 'SeuratObject')
 
@@ -167,6 +167,8 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   featureplot_width  <- reactive({ session$clientData$output_featureplot_width })
 
   output$featureplot <- renderPlot({
+    req(Featureplot.Gene.Revised())
+    print(Featureplot.Gene.Revised())
     if(verbose){message("SeuratExplorer: preparing featureplot...")}
     if(input$FeatureMinCutoff == 0){expr_min_cutoff <- NA}else{expr_min_cutoff <- paste0('q', round(input$FeatureMinCutoff))}
     if(input$FeatureMaxCutoff == 100){expr_max_cutoff <- NA}else{expr_max_cutoff <- paste0('q', round(input$FeatureMaxCutoff))}
@@ -863,13 +865,11 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if(verbose){message("SeuratExplorer: preparing DEGsClusterMarkersAnalysis...")}
     isolate(cds <- data$obj)
     Seurat::Idents(cds) <- input$ClusterMarkersClusterResolution
-    # if layers are split
-
     if (length(unique(as.character(Idents(cds)))) < 2) {
       showModal(modalDialog(title = "Error...", "Please select a cluster resolution with more than one group!",easyClose = TRUE,footer = NULL, size = "l"))
     }else{
       showModal(modalDialog(title = "Calculating Cluster Markers...", "Please wait for a few minutes!", footer= NULL, size = "l"))
-
+      cds <- check_SCT_assay(cds)
       cluster.markers <- Seurat::FindAllMarkers(cds, test.use = input$testuse, logfc.threshold = input$logfcthreshold,
                                                 min.pct = input$minpct, min.diff.pct = ifelse(input$mindiffpct, input$mindiffpct, -Inf), only.pos = TRUE)
       removeModal()
@@ -929,6 +929,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       Seurat::Idents(cds) <- input$IntraClusterDEGsSubsetCells
       cds <- subset_Seurat(cds, idents = input$IntraClusterDEGsSubsetCellsSelectedClusters)
       Seurat::Idents(cds) <- input$IntraClusterDEGsCustomizedGroups
+      cds <- check_SCT_assay(cds)
       cluster.markers <- Seurat::FindMarkers(cds, ident.1 = input$IntraClusterDEGsCustomizedGroupsCase, ident.2 = input$IntraClusterDEGsCustomizedGroupsControl,
                                              test.use = input$testuse, logfc.threshold = input$logfcthreshold,
                                              min.pct = input$minpct, min.diff.pct = ifelse(input$mindiffpct, input$mindiffpct, -Inf))
@@ -1008,20 +1009,29 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   observeEvent(input$TopGenesAnalysis, {
     if(verbose){message("SeuratExplorer: preparing TopGenesAnalysis...")}
-    showModal(modalDialog(title = "Calculating Top Genes...", "Please wait for a few minutes!", footer= NULL, size = "l"))
-    isolate(cds <- data$obj)
-    TopGenes$topgenes <- top_genes(SeuratObj = cds, expr.cut = input$percentcut/100, group.by = input$TopGenesClusterResolution)
-    removeModal()
-    TopGenes$topgenes_ready <- TRUE
+    if (!"RNA" %in% SeuratObject::Assays(data$obj)) {
+      showModal(modalDialog(title = "Error", check_sct_assay_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+    }else{
+      showModal(modalDialog(title = "Calculating Top Genes at Cell Level...", "Please wait for a few minutes!", footer= NULL, size = "l"))
+      isolate(cds <- data$obj)
+      TopGenes$topgenes <- top_genes(SeuratObj = cds, expr.cut = input$percentcut/100, group.by = input$TopGenesClusterResolution)
+      removeModal()
+      TopGenes$topgenes_ready <- TRUE
+    }
+
   })
 
   observeEvent(input$TopAccumulatedGenesAnalysis, {
     if(verbose){message("SeuratExplorer: preparing TopAccumulatedGenesAnalysis...")}
-    showModal(modalDialog(title = "Calculating Top Genes...", "Please wait for a few minutes!", footer= NULL, size = "l"))
-    isolate(cds <- data$obj)
-    TopGenes$topgenes <- top_accumulated_genes(SeuratObj = cds, top = input$topcut, group.by = input$TopGenesClusterResolution)
-    removeModal()
-    TopGenes$topgenes_ready <- TRUE
+    if (!"RNA" %in% SeuratObject::Assays(data$obj)) {
+      showModal(modalDialog(title = "Error", check_sct_assay_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+    }else{
+      showModal(modalDialog(title = "Calculating Accumulated Top Genes...", "Please wait for a few minutes!", footer= NULL, size = "l"))
+      isolate(cds <- data$obj)
+      TopGenes$topgenes <- top_accumulated_genes(SeuratObj = cds, top = input$topcut, group.by = input$TopGenesClusterResolution)
+      removeModal()
+      TopGenes$topgenes_ready <- TRUE
+    }
   })
 
   output$dataset_topgenes <-  DT::renderDT(server=FALSE,{
@@ -1062,19 +1072,23 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   observeEvent(input$FeatureSummaryAnalysis, {
     if(verbose){message("SeuratExplorer: preparing FeatureSummaryAnalysis...")}
-    if(is.na(input$FeatureSummarySymbol)){
-      GeneRevised <- NA
+    if (!"RNA" %in% SeuratObject::Assays(data$obj)) {
+      showModal(modalDialog(title = "Error", check_sct_assay_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
     }else{
-      GeneRevised <- CheckGene(InputGene = input$FeatureSummarySymbol, GeneLibrary =  rownames(data$obj))
-    }
-    if (any(is.na(GeneRevised))) {
-      showModal(modalDialog(title = "Error", "None of the input genes can be found!", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
-    }else{
-      showModal(modalDialog(title = "Summarizing features...", "Please wait for a few minutes!", footer= NULL, size = "l"))
-      isolate(cds <- data$obj)
-      FeatureSummary$summary <- summary_features(SeuratObj = cds, features = GeneRevised, group.by = input$FeatureSummaryClusterResolution)
-      removeModal()
-      FeatureSummary$summary_ready <- TRUE
+      if(is.na(input$FeatureSummarySymbol)){
+        GeneRevised <- NA
+      }else{
+        GeneRevised <- CheckGene(InputGene = input$FeatureSummarySymbol, GeneLibrary =  rownames(data$obj))
+      }
+      if (any(is.na(GeneRevised))) {
+        showModal(modalDialog(title = "Error", check_genes_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+      }else{
+        showModal(modalDialog(title = "Summarizing features...", "Please wait for a few minutes!", footer= NULL, size = "l"))
+        isolate(cds <- data$obj)
+        FeatureSummary$summary <- summary_features(SeuratObj = cds, features = GeneRevised, group.by = input$FeatureSummaryClusterResolution)
+        removeModal()
+        FeatureSummary$summary_ready <- TRUE
+      }
     }
   })
 
@@ -1135,51 +1149,63 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   observeEvent(input$TopCorrelationAnalysis, {
     if(verbose){message("SeuratExplorer: preparing TopCorrelationAnalysis...")}
-    showModal(modalDialog(title = "Calculating", "Calculate top correlated gene pairs, which usually takes longer...", footer= NULL, size = "l"))
-    isolate(cds <- data$obj)
-    Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
-    cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
-    FeatureCorrelation$summary <- calculate_top_correlations(SeuratObj = cds, method = input$correlationmethod)
-    removeModal()
-    FeatureCorrelation$summary_ready <- TRUE
+    if (!"RNA" %in% SeuratObject::Assays(data$obj)) {
+      showModal(modalDialog(title = "Error", check_sct_assay_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+    }else{
+      showModal(modalDialog(title = "Calculating", "Calculate top correlated gene pairs, which usually takes longer...", footer= NULL, size = "l"))
+      isolate(cds <- data$obj)
+      Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
+      cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
+      FeatureCorrelation$summary <- calculate_top_correlations(SeuratObj = cds, method = input$correlationmethod)
+      removeModal()
+      FeatureCorrelation$summary_ready <- TRUE
+    }
   })
 
 
   observeEvent(input$MostCorrelatedAnalysis, {
     if(verbose){message("SeuratExplorer: preparing MostCorrelatedAnalysis...")}
-    feature.revised <- ReviseGene(Agene = trimws(input$MostCorrelatedAGene), GeneLibrary = rownames(data$obj))
-    if(is.na(feature.revised)){
-      showModal(modalDialog(title = "Error", "the input gene can not be found, please check...", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+    if (!"RNA" %in% SeuratObject::Assays(data$obj)) {
+      showModal(modalDialog(title = "Error", check_sct_assay_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
     }else{
-      showModal(modalDialog(title = "Calculating", "Calculate the most correlated genes for the input gene, which usually takes longer...", footer= NULL, size = "l"))
-      isolate(cds <- data$obj)
-      Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
-      cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
-      FeatureCorrelation$summary <- calculate_most_correlated(SeuratObj = cds, feature = feature.revised, method = input$correlationmethod)
-      removeModal()
-      FeatureCorrelation$summary_ready <- TRUE
+      feature.revised <- ReviseGene(Agene = trimws(input$MostCorrelatedAGene), GeneLibrary = rownames(data$obj))
+      if(is.na(feature.revised)){
+        showModal(modalDialog(title = "Error", "the input gene can not be found, please check...", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+      }else{
+        showModal(modalDialog(title = "Calculating", "Calculate the most correlated genes for the input gene, which usually takes longer...", footer= NULL, size = "l"))
+        isolate(cds <- data$obj)
+        Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
+        cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
+        FeatureCorrelation$summary <- calculate_most_correlated(SeuratObj = cds, feature = feature.revised, method = input$correlationmethod)
+        removeModal()
+        FeatureCorrelation$summary_ready <- TRUE
+      }
     }
   })
 
   observeEvent(input$calculatecorrelation, {
     if(verbose){message("SeuratExplorer: preparing calculatecorrelation...")}
-    if(is.na(input$CorrelationGeneList)){
-      GeneRevised <- NA
+    if (!"RNA" %in% SeuratObject::Assays(data$obj)) {
+      showModal(modalDialog(title = "Error", check_sct_assay_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
     }else{
-      GeneRevised <- CheckGene(InputGene = input$CorrelationGeneList, GeneLibrary =  rownames(data$obj))
-    }
-    if (any(is.na(GeneRevised))) {
-      showModal(modalDialog(title = "Error", "None of the input genes can be found!", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
-    }else if(length(GeneRevised) < 2){
-      showModal(modalDialog(title = "Error", "Please input at least two genes!", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
-    }else{
-      showModal(modalDialog(title = "Calculating", "Calculate the correlation for the specified gene list...", footer= NULL, size = "l"))
-      isolate(cds <- data$obj)
-      Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
-      cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
-      FeatureCorrelation$summary <- calculate_correlation(SeuratObj = cds, features = GeneRevised, method = input$correlationmethod)
-      removeModal()
-      FeatureCorrelation$summary_ready <- TRUE
+      if(is.na(input$CorrelationGeneList)){
+        GeneRevised <- NA
+      }else{
+        GeneRevised <- CheckGene(InputGene = input$CorrelationGeneList, GeneLibrary =  rownames(data$obj))
+      }
+      if (any(is.na(GeneRevised))) {
+        showModal(modalDialog(title = "Error", check_genes_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+      }else if(length(GeneRevised) < 2){
+        showModal(modalDialog(title = "Error", "Please input at least two genes!", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+      }else{
+        showModal(modalDialog(title = "Calculating", "Calculate the correlation for the specified gene list...", footer= NULL, size = "l"))
+        isolate(cds <- data$obj)
+        Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
+        cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
+        FeatureCorrelation$summary <- calculate_correlation(SeuratObj = cds, features = GeneRevised, method = input$correlationmethod)
+        removeModal()
+        FeatureCorrelation$summary_ready <- TRUE
+      }
     }
   })
 
@@ -1213,7 +1239,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 #'
 server <- function(input, output, session) {
   # set the limited upload file size
-  options(shiny.maxRequestSize=5*1024^3)
+  options(shiny.maxRequestSize=20*1024^3)
 
   ## Dataset tab ----
   # reactiveValues: Create an object for storing reactive values,similar to a list,
@@ -1221,16 +1247,16 @@ server <- function(input, output, session) {
   data = reactiveValues(obj = NULL, loaded = FALSE, Name = NULL, Path = NULL, species = NULL,
                         reduction_options = NULL, reduction_default = NULL,
                         cluster_options = NULL, cluster_default = NULL,
-                        split_maxlevel = 6, split_options = NULL,
+                        split_maxlevel = 12, split_options = NULL,
                         extra_qc_options = NULL)
 
   # reductions_options: xy axis coordinate
   # cluster_options/split_options/extra_qc_options all are column name from seurat object meta.data, which will be used for later plot
   # load data after data selection
   observe({
-    shiny::req(input$dataset_file) # req: Check for required values; dataset_file is a data.frame
+    shiny::req(input$dataset_file) # req: Check for required values; 'dataset_file' is a data.frame
     ext = tools::file_ext(input$dataset_file$datapath) # file_ext: returns the file (name) extensions
-    # validate + need: check filename postfix, in not rds or qs2, will throw an error
+    # validate + need: check file name post-fix, in not rds or qs2, will throw an error
     validate(need(expr = ext %in% c("rds","qs2","Rds"), message = "Please upload a .rds or a .qs2 file"))
     data$obj <- prepare_seurat_object(obj = readSeurat(path = input$dataset_file$datapath), verbose = getOption('SeuratExplorerVerbose'))
     data$reduction_options <- prepare_reduction_options(obj = data$obj, keywords = c("umap","tsne"), verbose = getOption('SeuratExplorerVerbose'))

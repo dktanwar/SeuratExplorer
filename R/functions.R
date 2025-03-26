@@ -1,14 +1,3 @@
-#' prepare_seurat_object
-#'
-#' @param obj Seurat Object
-#' @param verbose if TRUE, output messages.
-#'
-#' @importFrom methods slot
-#' @return A updated Seurat Object
-#' @export
-#'
-#' @examples
-#'
 prepare_seurat_object <- function(obj, verbose = FALSE){
   requireNamespace("Seurat")
   # trans the none-factor columns in meta.data to factor
@@ -18,19 +7,6 @@ prepare_seurat_object <- function(obj, verbose = FALSE){
   # for splited object, join layers
   if (sum(grepl("^counts",Layers(object = obj))) > 1 | sum(grepl("^data",Layers(object = obj))) > 1) {
     obj <- SeuratObject::JoinLayers(object = obj)
-  }
-  # > SCT assay related bug:
-  # https://github.com/satijalab/seurat/issues/8235; 2025.03.26, may be Seurat Package will solve this bug in future.
-  # and: https://github.com/satijalab/seurat/pull/8203
-  # this bug can affect 'FindAllMarkers' function.
-  if (DefaultAssay(obj) == "SCT") {
-    if (length(obj@assays$SCT@SCTModel.list) > 1) {
-      SCT_first_umiassay <- obj@assays$SCT@SCTModel.list[[1]]@umi.assay
-      for (i in 2:length(obj@assays$SCT@SCTModel.list)) {
-        methods::slot(object = obj@assays$SCT@SCTModel.list[[i]], name="umi.assay") <- SCT_first_umiassay
-      }
-      obj <- PrepSCTFindMarkers(object = obj)
-    }
   }
   if (verbose) {message("SeuratExplorer: prepare_seurat_object runs successfully!")}
   return(obj)
@@ -358,19 +334,16 @@ cellRatioPlot <- function(object = NULL,
 #' @param SeuratObj Seurat object
 #' @param expr.cut UMI percentage cutoff, in a cell, if a gene with UMIs ratio more than this cutoff, this gene will be assigned to highly expressed gene for this cell
 #' @param group.by how to group cells
+#' @import dplyr Seurat SeuratObject
 #'
 #' @return a data frame
 #' @export
 #'
 top_genes <- function(SeuratObj, expr.cut = 0.01, group.by) {
-  requireNamespace("dplyr")
-  requireNamespace("Seurat")
-
   #> https://stackoverflow.com/questions/76242926/using-data-table-in-package-development-undefined-global-functions-or-variables
   # to block R RMD check note: Undefined global functions or variables:
   Gene <- NULL
   Expr <- NULL
-
   # if type is assay5
   if (class(SeuratObj@assays$RNA)[1] == "Assay5") {
     SeuratObj <- JoinLayers(SeuratObj)
@@ -760,3 +733,24 @@ readSeurat <- function(path, verbose = FALSE){
   return(seu_obj)
 }
 
+
+# > SCT assay related bug:
+# https://github.com/satijalab/seurat/issues/8235; 2025.03.26, may be Seurat Package will solve this bug in future.
+# and: https://github.com/satijalab/seurat/pull/8203
+# this bug can affect 'FindAllMarkers' function.
+check_SCT_assay <- function(seu_obj){
+  if (DefaultAssay(seu_obj) == "SCT") {
+    if (length(seu_obj@assays$SCT@SCTModel.list) > 1) {
+      SCT_first_umiassay <- seu_obj@assays$SCT@SCTModel.list[[1]]@umi.assay
+      for (i in 2:length(seu_obj@assays$SCT@SCTModel.list)) {
+        methods::slot(object = seu_obj@assays$SCT@SCTModel.list[[i]], name="umi.assay") <- SCT_first_umiassay
+      }
+      seu_obj <- Seurat::PrepSCTFindMarkers(object = seu_obj)
+    }
+  }
+  return(seu_obj)
+}
+
+check_sct_assay_error <- "The RNA assay is not found in Seurat Object, Contact the technican for details!"
+
+check_genes_error <- "None of the input genes can be found!"
