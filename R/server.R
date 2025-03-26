@@ -157,49 +157,51 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     }
   })
 
-  # Check the input gene
-  Featureplot.Gene.Revised <- reactive({
-    req(input$FeatureGeneSymbol)
-    if(verbose){message("SeuratExplorer: preparing Featureplot.Gene.Revised...")}
-    ifelse(is.na(input$FeatureGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$FeatureGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
+  # only render plot when the inputs are really changed
+  features_dimplot <- reactiveValues(features_current = NA, features_last = NA)
+
+  observeEvent(input$FeatureGeneSymbol,{
+    features_input <- CheckGene(InputGene = input$FeatureGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))
+    if (!identical(sort(features_dimplot$features_current), sort(features_input))) {
+      features_dimplot$features_last <- features_dimplot$features_current
+      features_dimplot$features_current <- features_input
+    }
   })
 
   featureplot_width  <- reactive({ session$clientData$output_featureplot_width })
 
   output$featureplot <- renderPlot({
-    req(Featureplot.Gene.Revised())
-    print(Featureplot.Gene.Revised())
     if(verbose){message("SeuratExplorer: preparing featureplot...")}
     if(input$FeatureMinCutoff == 0){expr_min_cutoff <- NA}else{expr_min_cutoff <- paste0('q', round(input$FeatureMinCutoff))}
     if(input$FeatureMaxCutoff == 100){expr_max_cutoff <- NA}else{expr_max_cutoff <- paste0('q', round(input$FeatureMaxCutoff))}
-    if (any(is.na(Featureplot.Gene.Revised()))) { # when NA value
+    if (any(is.na(features_dimplot$features_current))) { # when NA value
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when all wrong input, show a blank pic.
     }else if (input$FeatureShowLabel) { # show label
       isolate(cds <- data$obj)
       Idents(cds) <- input$FeatureClusterResolution
       if(is.null(FeatureSplit.Revised())) { # not splited
-        p <- Seurat::FeaturePlot(cds, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
+        p <- Seurat::FeaturePlot(cds, features = features_dimplot$features_current, pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
                                  cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), label = TRUE, label.size = input$FeatureLabelSize,
                                  alpha = input$FeaturePointAlpha, min.cutoff = expr_min_cutoff, max.cutoff = expr_max_cutoff)
-      }else{ # splited
-        p <- Seurat::FeaturePlot(cds, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
+      }else{ # split
+        p <- Seurat::FeaturePlot(cds, features = features_dimplot$features_current, pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
                                  cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), split.by = FeatureSplit.Revised(), label = TRUE,
                                  label.size = input$FeatureLabelSize, alpha = input$FeaturePointAlpha, min.cutoff = expr_min_cutoff, max.cutoff = expr_max_cutoff)
-        if (length( Featureplot.Gene.Revised()) == 1) { # only one gene
+        if (length( features_dimplot$features_current) == 1) { # only one gene
           plot_numbers <- length(levels(cds@meta.data[,FeatureSplit.Revised()]))
           p <- p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
         }
       }
     }else{ # not show label
       if(is.null(FeatureSplit.Revised())) { # not splited
-        p <- Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
+        p <- Seurat::FeaturePlot(data$obj, features = features_dimplot$features_current, pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
                                  cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), alpha = input$FeaturePointAlpha,
                                  min.cutoff = expr_min_cutoff, max.cutoff = expr_max_cutoff)
-      }else{ # splited
-        p <- Seurat::FeaturePlot(data$obj, features = Featureplot.Gene.Revised(), pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
+      }else{ # split
+        p <- Seurat::FeaturePlot(data$obj, features = features_dimplot$features_current, pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
                                  cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), split.by = FeatureSplit.Revised(),
                                  alpha = input$FeaturePointAlpha, min.cutoff = expr_min_cutoff, max.cutoff = expr_max_cutoff)
-        if (length( Featureplot.Gene.Revised()) == 1) { # only one gene
+        if (length( features_dimplot$features_current) == 1) { # only one gene
           plot_numbers <- length(levels(data$obj@meta.data[,FeatureSplit.Revised()]))
           p <- p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
         }
@@ -219,11 +221,15 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     })
 
   ################################ Violin Plot
-  # Check the input gene
-  Vlnplot.Gene.Revised <- reactive({
-    req(input$VlnGeneSymbol)
-    if(verbose){message("SeuratExplorer: preparing Vlnplot.Gene.Revised...")}
-    ifelse(is.na(input$VlnGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$VlnGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
+  # only render plot when the inputs are really changed
+  features_vlnplot <- reactiveValues(features_current = NA, features_last = NA)
+
+  observeEvent(input$VlnGeneSymbol,{
+    features_input <- CheckGene(InputGene = input$VlnGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))
+    if (!identical(sort(features_vlnplot$features_current), sort(features_input))) {
+      features_vlnplot$features_last <- features_vlnplot$features_current
+      features_vlnplot$features_current <- features_input
+    }
   })
 
   output$Vlnhints.UI <- renderUI({
@@ -288,7 +294,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   output$Vlnplot_multiple_genes = reactive({
     req(input$VlnGeneSymbol)
     if(verbose){message("SeuratExplorer: preparing Vlnplot_multiple_genes...")}
-    if (length(Vlnplot.Gene.Revised()) > 1) {
+    if (length(features_vlnplot$features_current) > 1) {
       return(TRUE)
     }else{
       return(FALSE)
@@ -303,7 +309,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     req(input$VlnStackPlot)
     req(input$VlnGeneSymbol)
     if(verbose){message("SeuratExplorer: preparing Vlnplot_StackPlot...")}
-    if (length(Vlnplot.Gene.Revised()) > 1 & input$VlnStackPlot) {
+    if (length(features_vlnplot$features_current) > 1 & input$VlnStackPlot) {
       return(TRUE)
     }else{
       return(FALSE)
@@ -351,21 +357,20 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   vlnplot_width  <- reactive({ session$clientData$output_vlnplot_width })
 
   output$vlnplot <- renderPlot({
-    req(Vlnplot.Gene.Revised())
     if(verbose){message("SeuratExplorer: preparing vlnplot...")}
-    if (any(is.na(Vlnplot.Gene.Revised()))) { # when NA value
+    if (any(is.na(features_vlnplot$features_current))) { # when NA value
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
       cds@meta.data[,input$VlnClusterResolution] <- factor(cds@meta.data[,input$VlnClusterResolution], levels = input$VlnClusterOrder)
       SeuratObject::Idents(cds) <- input$VlnClusterResolution
-      if(length(Vlnplot.Gene.Revised()) == 1) { # only One Gene
-        p <- Seurat::VlnPlot(cds, features = Vlnplot.Gene.Revised(), split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot,
+      if(length(features_vlnplot$features_current) == 1) { # only One Gene
+        p <- Seurat::VlnPlot(cds, features = features_vlnplot$features_current, split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot,
                              pt.size = input$VlnPointSize, alpha = input$VlnPointAlpha, idents = input$VlnIdentsSelected) &
           ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
                          axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
       }else{ # multiple genes
-        p <- Seurat::VlnPlot(cds, features = Vlnplot.Gene.Revised(), split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot,
+        p <- Seurat::VlnPlot(cds, features = features_vlnplot$features_current, split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot,
                              stack = input$VlnStackPlot,flip = input$VlnFlipPlot, fill.by = input$VlnFillBy, idents = input$VlnIdentsSelected,
                              pt.size = input$VlnPointSize, alpha = input$VlnPointAlpha) &
           ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
@@ -387,19 +392,21 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
 
   ################################ Dot Plot
+  # only render plot when the inputs are really changed
+  features_dotplot <- reactiveValues(features_current = NA, features_last = NA)
 
-  # Check the input gene
-  Dotplot.Gene.Revised <- reactive({
-    req(input$DotGeneSymbol)
-    if(verbose){message("SeuratExplorer: preparing Dotplot.Gene.Revised...")}
-    ifelse(is.na(input$DotGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$DotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
+  observeEvent(input$DotGeneSymbol,{
+    features_input <- CheckGene(InputGene = input$DotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))
+    if (!identical(sort(features_dotplot$features_current), sort(features_input))) {
+      features_dotplot$features_last <- features_dotplot$features_current
+      features_dotplot$features_current <- features_input
+    }
   })
+
 
   output$Dothints.UI <- renderUI({
     if(verbose){message("SeuratExplorer: preparing Dothints.UI...")}
-    helpText(strong(paste("Also supports: ", paste(data$extra_qc_options, collapse = " "), ".",sep = "")),
-             br(),
-             strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
+    helpText(strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
 
   # define Cluster Annotation choice
@@ -464,22 +471,21 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   dotplot_width  <- reactive({ session$clientData$output_dotplot_width })
 
   output$dotplot <- renderPlot({
-    req(Dotplot.Gene.Revised())
     if(verbose){message("SeuratExplorer: preparing dotplot...")}
-    if (any(is.na(Dotplot.Gene.Revised()))) { # NA
+    if (any(is.na(features_dotplot$features_current))) { # NA
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
       Idents(cds) <- input$DotClusterResolution
       cds@meta.data[,input$DotClusterResolution] <- factor(cds@meta.data[,input$DotClusterResolution], levels = input$DotClusterOrder)
       if (is.null(DotSplit.Revised())) {
-        p <- Seurat::DotPlot(cds, features = Dotplot.Gene.Revised(), group.by = input$DotClusterResolution,
+        p <- Seurat::DotPlot(cds, features = features_dotplot$features_current, group.by = input$DotClusterResolution,
                              idents = input$DotIdentsSelected,
                              split.by = DotSplit.Revised(), cluster.idents = input$DotClusterIdents, dot.scale = input$DotDotScale,
                              cols = c(input$DotPlotLowestExprColor, input$DotPlotHighestExprColor))
       }else{
         split.levels.length <- length(levels(cds@meta.data[,DotSplit.Revised()]))
-        p <- Seurat::DotPlot(cds, features = Dotplot.Gene.Revised(), group.by = input$DotClusterResolution,
+        p <- Seurat::DotPlot(cds, features = features_dotplot$features_current, group.by = input$DotClusterResolution,
                              idents = input$DotIdentsSelected,
                              split.by = DotSplit.Revised(), cluster.idents = input$DotClusterIdents, dot.scale = input$DotDotScale,
                              cols = scales::hue_pal()(split.levels.length))
@@ -501,13 +507,16 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       }
     })
 
-  ################################ Heatmap
+  ################################ Heatmap Cell Level
+  # only render plot when the inputs are really changed
+  features_heatmap <- reactiveValues(features_current = NA, features_last = NA)
 
-  # Check the input gene
-  Heatmap.Gene.Revised <- reactive({
-    req(input$HeatmapGeneSymbol)
-    if(verbose){message("SeuratExplorer: preparing Heatmap.Gene.Revised...")}
-    ifelse(is.na(input$HeatmapGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$HeatmapGeneSymbol, GeneLibrary =  rownames(data$obj))))
+  observeEvent(input$HeatmapGeneSymbol,{
+    features_input <- CheckGene(InputGene = input$HeatmapGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))
+    if (!identical(sort(features_heatmap$features_current), sort(features_input))) {
+      features_heatmap$features_last <- features_heatmap$features_current
+      features_heatmap$features_current <- features_input
+    }
   })
 
   output$Heatmaphints.UI <- renderUI({
@@ -535,18 +544,17 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   heatmap_width  <- reactive({ session$clientData$output_heatmap_width })
 
   output$heatmap <- renderPlot({
-    req(Heatmap.Gene.Revised())
     if(verbose){message("SeuratExplorer: preparing heatmap...")}
-    if (any(is.na(Heatmap.Gene.Revised()))) { # NA
+    if (any(is.na(features_heatmap$features_current))) { # NA
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
       cds@meta.data[,input$HeatmapClusterResolution] <- factor(cds@meta.data[,input$HeatmapClusterResolution], levels = input$HeatmapClusterOrder)
-      if (!all(Heatmap.Gene.Revised() %in% Seurat::VariableFeatures(cds))) {
-        cds <- Seurat::ScaleData(object = cds, features = unique(c(Seurat::VariableFeatures(cds), Heatmap.Gene.Revised()))) # use only one gene to scaledata() will throw an error
+      if (!all(features_heatmap$features_current %in% Seurat::VariableFeatures(cds))) {
+        cds <- Seurat::ScaleData(object = cds, features = unique(c(Seurat::VariableFeatures(cds), features_heatmap$features_current))) # use only one gene to scaledata() will throw an error
       }
 
-      p <- Seurat::DoHeatmap(object = cds, features = Heatmap.Gene.Revised(), group.by = input$HeatmapClusterResolution, size = input$HeatmapTextSize,
+      p <- Seurat::DoHeatmap(object = cds, features = features_heatmap$features_current, group.by = input$HeatmapClusterResolution, size = input$HeatmapTextSize,
                         hjust = input$HeatmapTextHjust, vjust = input$HeatmapTextVjust, angle = input$HeatmapTextRatateAngle,
                         group.bar.height = input$HeatmapGroupBarHeight, lines.width = input$HeatmapLineWidth) &
         ggplot2::theme(axis.text.y = ggplot2::element_text(size = input$HeatmapFeatureTextSize))
@@ -564,12 +572,16 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       }
     })
 
-  ################################ Averaged Heatmap
-  # Check the input gene
-  AveragedHeatmap.Gene.Revised <- reactive({
-    req(input$AveragedHeatmapGeneSymbol)
-    if(verbose){message("SeuratExplorer: preparing AveragedHeatmap.Gene.Revised...")}
-    ifelse(is.na(input$AveragedHeatmapGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$AveragedHeatmapGeneSymbol, GeneLibrary =  rownames(data$obj))))
+  ################################ Group Averaged Heatmap
+  # only render plot when the inputs are really changed
+  features_heatmap_averaged <- reactiveValues(features_current = NA, features_last = NA)
+
+  observeEvent(input$AveragedHeatmapGeneSymbol,{
+    features_input <- CheckGene(InputGene = input$AveragedHeatmapGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))
+    if (!identical(sort(features_heatmap_averaged$features_current), sort(features_input))) {
+      features_heatmap_averaged$features_last <- features_heatmap_averaged$features_current
+      features_heatmap_averaged$features_current <- features_input
+    }
   })
 
   output$AveragedHeatmaphints.UI <- renderUI({
@@ -606,16 +618,15 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   averagedheatmap_width  <- reactive({ session$clientData$output_averagedheatmap_width })
 
   output$averagedheatmap <- renderPlot({
-    req(AveragedHeatmap.Gene.Revised())
     if(verbose){message("SeuratExplorer: preparing averagedheatmap...")}
-    if (any(is.na(AveragedHeatmap.Gene.Revised()))) { # NA
+    if (any(is.na(features_heatmap_averaged$features_current))) { # NA
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
       cds@meta.data[,input$AveragedHeatmapClusterResolution] <- factor(cds@meta.data[,input$AveragedHeatmapClusterResolution], levels = input$AveragedHeatmapClusterOrder)
       Seurat::Idents(cds) <- input$AveragedHeatmapClusterResolution
       cds <- subset_Seurat(cds, idents = input$AveragedHeatmapIdentsSelected)
-      p <- suppressMessages(AverageHeatmap(object = cds, markerGene = AveragedHeatmap.Gene.Revised(), group.by = input$AveragedHeatmapClusterResolution,
+      p <- suppressMessages(AverageHeatmap(object = cds, markerGene = features_heatmap_averaged$features_current, group.by = input$AveragedHeatmapClusterResolution,
                           feature.fontsize = input$AveragedHeatmapFeatureTextSize,cluster.fontsize = input$AveragedHeatmapClusterTextSize,
                           column_names_rot = input$AveragedHeatmapClusterTextRatateAngle, cluster_columns = input$AveragedHeatmapClusterClusters,
                           cluster_rows = input$AveragedHeatmapClusterFeatures))
@@ -637,13 +648,24 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     })
 
   ################################ Ridge Plot
+  # only render plot when the inputs are really changed
+  features_ridgeplot <- reactiveValues(features_current = NA, features_last = NA)
 
-  # Check the input gene
-  Ridgeplot.Gene.Revised <- reactive({
-    req(input$RidgeplotGeneSymbol)
-    if(verbose){message("SeuratExplorer: preparing Ridgeplot.Gene.Revised...")}
-    ifelse(is.na(input$RidgeplotGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$RidgeplotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
+  observeEvent(input$RidgeplotGeneSymbol,{
+    features_input <- CheckGene(InputGene = input$RidgeplotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))
+    if (!identical(sort(features_ridgeplot$features_current), sort(features_input))) {
+      features_ridgeplot$features_last <- features_ridgeplot$features_current
+      features_ridgeplot$features_current <- features_input
+    }
   })
+
+
+  # # Check the input gene
+  # Ridgeplot.Gene.Revised <- reactive({
+  #   req(input$RidgeplotGeneSymbol)
+  #   if(verbose){message("SeuratExplorer: preparing Ridgeplot.Gene.Revised...")}
+  #   ifelse(is.na(input$RidgeplotGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$RidgeplotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
+  # })
 
   output$Ridgeplothints.UI <- renderUI({
     if(verbose){message("SeuratExplorer: preparing Ridgeplothints.UI...")}
@@ -682,7 +704,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   output$Ridgeplot_stack_show = reactive({
     req(input$RidgeplotGeneSymbol)
     if(verbose){message("SeuratExplorer: preparing Ridgeplot_stack_show...")}
-    if (length(Ridgeplot.Gene.Revised()) > 1) {
+    if (length(features_ridgeplot$features_current) > 1) {
       return(TRUE)
     }else{
       return(FALSE)
@@ -710,15 +732,14 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   ridgeplot_width  <- reactive({ session$clientData$output_ridgeplot_width })
 
   output$ridgeplot <- renderPlot({
-    req(Ridgeplot.Gene.Revised())
     if(verbose){message("SeuratExplorer: preparing ridgeplot...")}
-    if (any(is.na(Ridgeplot.Gene.Revised()))) { # NA
+    if (any(is.na(features_ridgeplot$features_current))) { # NA
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
       cds@meta.data[,input$RidgeplotClusterResolution] <- factor(cds@meta.data[,input$RidgeplotClusterResolution], levels = input$RidgeplotClusterOrder)
       Idents(cds) <- input$RidgeplotClusterResolution
-      p <- Seurat::RidgePlot(object = cds, features = Ridgeplot.Gene.Revised(), ncol = input$RidgeplotNumberOfColumns,stack = input$RidgeplotStackPlot,
+      p <- Seurat::RidgePlot(object = cds, features = features_ridgeplot$features_current, ncol = input$RidgeplotNumberOfColumns,stack = input$RidgeplotStackPlot,
                              fill.by = input$RidgeplotFillBy, idents = input$RidgeplotIdentsSelected) &
         ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$RidgeplotXlabelSize),
                        axis.text.y = ggplot2::element_text(size = input$RidgeplotYlabelSize))

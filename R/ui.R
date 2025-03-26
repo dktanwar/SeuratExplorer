@@ -426,7 +426,7 @@ ui <-  function(){
   }
 
   # Header ----
-  header = shinydashboard::dashboardHeader(title = "SeuratExplorer",
+  header = shinydashboard::dashboardHeader(title = p(strong(em("Seurat Explorer"))),
                            shinydashboard::dropdownMenu(type = "notifications", icon = shiny::icon("github"), headerText = "R packages on Github:",
                                         notificationItemWithAttr(icon = shiny::icon("github"), status = "info", text = "SeuratExplorer", href = "https://github.com/fentouxungui/SeuratExplorer", target = "_blank"),
                                         notificationItemWithAttr(icon = shiny::icon("github"), status = "info", text = "SeuratExplorerServer", href = "https://github.com/fentouxungui/SeuratExplorerServer", target = "_blank")))
@@ -466,7 +466,7 @@ ui <-  function(){
   )
 
   # combine
-  ui_out = shinydashboard::dashboardPage(header, sidebar, body)
+  ui_out = shinydashboard::dashboardPage(title = "Seurat Explorer", header, sidebar, body)
   return(ui_out)
 }
 
