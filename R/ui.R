@@ -446,7 +446,7 @@ ui <-  function(){
                                   fluidRow(
                                     # upload a file
                                     box(status = "primary", title = "Upload Data", width = 12, collapsible = TRUE, solidHeader = TRUE,
-                                        fileInput("dataset_file", "Choose A rds or qs2 file of Seurat Object:", accept = '.rds')),
+                                        fileInput("dataset_file", "Choose A rds or qs2 file of Seurat Object:", accept = c('.rds', ".qs2"))),
                                     # put conditionalPanel inside box or put box inside the conditionalPanel? depends on weather to show a empty box when loading
                                     conditionalPanel(
                                       condition = "output.file_loaded",

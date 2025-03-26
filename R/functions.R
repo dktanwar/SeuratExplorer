@@ -1,3 +1,14 @@
+#' prepare_seurat_object
+#'
+#' @param obj Seurat Object
+#' @param verbose if TRUE, output messages.
+#'
+#' @importFrom methods slot
+#' @return A updated Seurat Object
+#' @export
+#'
+#' @examples
+#'
 prepare_seurat_object <- function(obj, verbose = FALSE){
   requireNamespace("Seurat")
   # trans the none-factor columns in meta.data to factor
@@ -7,6 +18,19 @@ prepare_seurat_object <- function(obj, verbose = FALSE){
   # for splited object, join layers
   if (sum(grepl("^counts",Layers(object = obj))) > 1 | sum(grepl("^data",Layers(object = obj))) > 1) {
     obj <- SeuratObject::JoinLayers(object = obj)
+  }
+  # > SCT assay related bug:
+  # https://github.com/satijalab/seurat/issues/8235; 2025.03.26, may be Seurat Package will solve this bug in future.
+  # and: https://github.com/satijalab/seurat/pull/8203
+  # this bug can affect 'FindAllMarkers' function.
+  if (DefaultAssay(obj) == "SCT") {
+    if (length(obj@assays$SCT@SCTModel.list) > 1) {
+      SCT_first_umiassay <- obj@assays$SCT@SCTModel.list[[1]]@umi.assay
+      for (i in 2:length(obj@assays$SCT@SCTModel.list)) {
+        methods::slot(object = obj@assays$SCT@SCTModel.list[[i]], name="umi.assay") <- SCT_first_umiassay
+      }
+      obj <- PrepSCTFindMarkers(object = obj)
+    }
   }
   if (verbose) {message("SeuratExplorer: prepare_seurat_object runs successfully!")}
   return(obj)

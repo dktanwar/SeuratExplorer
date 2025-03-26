@@ -863,14 +863,13 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if(verbose){message("SeuratExplorer: preparing DEGsClusterMarkersAnalysis...")}
     isolate(cds <- data$obj)
     Seurat::Idents(cds) <- input$ClusterMarkersClusterResolution
-    # if layers are splited
+    # if layers are split
 
-    if (length(as.character(Idents(cds))) < 2) {
+    if (length(unique(as.character(Idents(cds)))) < 2) {
       showModal(modalDialog(title = "Error...", "Please select a cluster resolution with more than one group!",easyClose = TRUE,footer = NULL, size = "l"))
     }else{
       showModal(modalDialog(title = "Calculating Cluster Markers...", "Please wait for a few minutes!", footer= NULL, size = "l"))
 
-      # check_dependency(test = input$testuse) # Seurat will check dependency!
       cluster.markers <- Seurat::FindAllMarkers(cds, test.use = input$testuse, logfc.threshold = input$logfcthreshold,
                                                 min.pct = input$minpct, min.diff.pct = ifelse(input$mindiffpct, input$mindiffpct, -Inf), only.pos = TRUE)
       removeModal()
@@ -930,7 +929,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       Seurat::Idents(cds) <- input$IntraClusterDEGsSubsetCells
       cds <- subset_Seurat(cds, idents = input$IntraClusterDEGsSubsetCellsSelectedClusters)
       Seurat::Idents(cds) <- input$IntraClusterDEGsCustomizedGroups
-      # check_dependency(test = input$testuse)
       cluster.markers <- Seurat::FindMarkers(cds, ident.1 = input$IntraClusterDEGsCustomizedGroupsCase, ident.2 = input$IntraClusterDEGsCustomizedGroupsControl,
                                              test.use = input$testuse, logfc.threshold = input$logfcthreshold,
                                              min.pct = input$minpct, min.diff.pct = ifelse(input$mindiffpct, input$mindiffpct, -Inf))
