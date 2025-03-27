@@ -910,7 +910,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   output$IntraClusterDEGsCustomizedGroupsCase.UI <- renderUI({
     req(input$IntraClusterDEGsCustomizedGroups)
     if(verbose){message("SeuratExplorer: preparing IntraClusterDEGsCustomizedGroupsCase.UI...")}
-    selectInput("IntraClusterDEGsCustomizedGroupsCase","Choose Case Samples:", choices = levels(data$obj@meta.data[,input$IntraClusterDEGsCustomizedGroups]), multiple = TRUE)
+    selectInput("IntraClusterDEGsCustomizedGroupsCase","Choose Case groups:", choices = levels(data$obj@meta.data[,input$IntraClusterDEGsCustomizedGroups]), multiple = TRUE)
   })
 
   # define the idents used
@@ -918,7 +918,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     req(input$IntraClusterDEGsCustomizedGroups)
     req(input$IntraClusterDEGsCustomizedGroupsCase)
     if(verbose){message("SeuratExplorer: preparing IntraClusterDEGsCustomizedGroupsControl.UI...")}
-    selectInput("IntraClusterDEGsCustomizedGroupsControl","Choose control Samples:", multiple = TRUE,
+    selectInput("IntraClusterDEGsCustomizedGroupsControl","Choose control groups:", multiple = TRUE,
                 choices = setdiff(levels(data$obj@meta.data[,input$IntraClusterDEGsCustomizedGroups]),input$IntraClusterDEGsCustomizedGroupsCase))
   })
 
@@ -926,7 +926,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   output$IntraClusterDEGsSubsetCells.UI <- renderUI({
     req(input$IntraClusterDEGsCustomizedGroups)
     if(verbose){message("SeuratExplorer: preparing IntraClusterDEGsSubsetCells.UI...")}
-    selectInput("IntraClusterDEGsSubsetCells","Subset Cells By:", choices = setdiff(data$cluster_options, input$IntraClusterDEGsCustomizedGroups))
+    selectInput("IntraClusterDEGsSubsetCells","Filter Cells By:", choices = setdiff(data$cluster_options, input$IntraClusterDEGsCustomizedGroups))
   })
 
   # define Cluster Annotation choice
@@ -934,7 +934,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     req(input$IntraClusterDEGsCustomizedGroups)
     req(input$IntraClusterDEGsSubsetCells)
     if(verbose){message("SeuratExplorer: preparing IntraClusterDEGsSubsetCellsSelectedClusters.UI...")}
-    shinyWidgets::pickerInput(inputId = "IntraClusterDEGsSubsetCellsSelectedClusters", label = "Select Clusters:",
+    shinyWidgets::pickerInput(inputId = "IntraClusterDEGsSubsetCellsSelectedClusters", label = "Cells to Keep:",
                               choices = levels(data$obj@meta.data[,input$IntraClusterDEGsSubsetCells]), selected = levels(data$obj@meta.data[,input$IntraClusterDEGsSubsetCells]),
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
   })
