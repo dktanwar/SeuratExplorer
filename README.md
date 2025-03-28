@@ -12,12 +12,12 @@
 [![](https://img.shields.io/github/languages/code-size/fentouxungui/SeuratExplorer.svg)](https://github.com/fentouxungui/SeuratExplorer)
 <!-- badges: end -->
 
-> An ‘Shiny’ App for Exploring scRNA-seq Data Processed in ‘Seurat’
+> An `Shiny` App for Exploring scRNA-seq Data Processed in `Seurat`
 
 A simple, one-command package which runs an interactive dashboard
 capable of common visualizations for single cell RNA-seq.
-‘SeuratExplorer’ requires a processed ‘Seurat’ object, which is saved as
-‘rds’ or ‘qs2’ file.
+`SeuratExplorer` requires a processed `Seurat` object, which is saved as
+`rds` or `qs2` file.
 
 ## Why build this R package
 
@@ -38,7 +38,7 @@ capable of common visualizations for single cell RNA-seq.
 
 ## Installation
 
-Install the latest version from github - *Recommended*:
+Install the latest version from github - ***Recommended***:
 
 ``` r
 if(!require(devtools)){install.packages("devtools")}
