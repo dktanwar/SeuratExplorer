@@ -4,10 +4,21 @@
 \alias{launchSeuratExplorer}
 \title{Launch shiny app}
 \usage{
-launchSeuratExplorer(verbose = FALSE)
+launchSeuratExplorer(
+  verbose = FALSE,
+  ReductionKeyWords = c("umap", "tsne"),
+  SplitOptionMaxLevel = 12,
+  MaxInputFileSize = 20 * 1024^3
+)
 }
 \arguments{
 \item{verbose}{for debug use}
+
+\item{ReductionKeyWords}{key words used for prepare Reduction options}
+
+\item{SplitOptionMaxLevel}{max level cutoff for prepare Split options}
+
+\item{MaxInputFileSize}{set the limited upload file size}
 }
 \value{
 In-browser Shiny Application launch

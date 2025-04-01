@@ -5,15 +5,24 @@
 #' Launch shiny app
 #'
 #' @param verbose for debug use
+#' @param ReductionKeyWords key words used for prepare Reduction options
+#' @param SplitOptionMaxLevel max level cutoff for prepare Split options
+#' @param MaxInputFileSize set the limited upload file size
 #'
 #' @import shiny
-#' @import shinydashboard
 #' @return In-browser Shiny Application launch
 #' @examples
 #' if(interactive()){launchSeuratExplorer()}
 #' @export
-launchSeuratExplorer <- function(verbose=FALSE){
+launchSeuratExplorer <- function(verbose = FALSE,
+                                 ReductionKeyWords = c("umap","tsne"),
+                                 SplitOptionMaxLevel = 12,
+                                 MaxInputFileSize = 20*1024^3 # default 20GB
+                                 ){
   options(SeuratExplorerVerbose = verbose)
-  app = shinyApp(ui, server)
-  runApp(app, launch.browser = TRUE)
+  options(SeuratExplorerReductionKeyWords = ReductionKeyWords)
+  options(SeuratExplorerSplitOptionMaxLevel = SplitOptionMaxLevel)
+  options(shiny.maxRequestSize = MaxInputFileSize)
+
+  shinyApp(ui, server)
 }

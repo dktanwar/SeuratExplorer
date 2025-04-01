@@ -403,7 +403,7 @@ top_accumulated_genes <- function(SeuratObj, top, group.by){
   all.cell.types <- unique(SeuratObj@meta.data[,group.by])
   all.cell.types <- all.cell.types[!is.na(all.cell.types)] # in case of some celltype has NA value
   for (celltype in all.cell.types) {
-    cells.sub <- Cells(SeuratObj)[(as.character(SeuratObj@meta.data[, group.by]) == as.character(celltype)) & !is.na(SeuratObj@meta.data[, group.by])] # 特殊情况，有些celltype中有NA值
+    cells.sub <- Cells(SeuratObj)[(as.character(SeuratObj@meta.data[, group.by]) == as.character(celltype)) & !is.na(SeuratObj@meta.data[, group.by])] # some celltype has NA value
     if (length(cells.sub) < 3) {
       next
     }

@@ -1061,7 +1061,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     # Show data
     DT::datatable(TopGenes$topgenes, extensions = 'Buttons',
                   options = list(scrollX=TRUE,
-                                 # lengthMenu = c(5,10,15),
                                  paging = TRUE, searching = TRUE,
                                  fixedColumns = TRUE, autoWidth = TRUE,
                                  ordering = TRUE, dom = 'Bfrtip',
@@ -1236,7 +1235,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     # Show data
     DT::datatable(FeatureCorrelation$summary, extensions = 'Buttons',
                   options = list(scrollX=TRUE,
-                                 # lengthMenu = c(5,10,15),
                                  paging = TRUE, searching = TRUE,
                                  fixedColumns = TRUE, autoWidth = TRUE,
                                  ordering = TRUE, dom = 'Bfrtip',
@@ -1259,16 +1257,14 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 #' @return the server functions of shiny app
 #'
 server <- function(input, output, session) {
-  # set the limited upload file size
-  options(shiny.maxRequestSize=20*1024^3)
-
   ## Dataset tab ----
   # reactiveValues: Create an object for storing reactive values,similar to a list,
   # but with special capabilities for reactive programming.
   data = reactiveValues(obj = NULL, loaded = FALSE, Name = NULL, Path = NULL, species = NULL,
                         reduction_options = NULL, reduction_default = NULL,
                         cluster_options = NULL, cluster_default = NULL,
-                        split_maxlevel = 12, split_options = NULL,
+                        split_maxlevel = getOption("SeuratExplorerSplitOptionMaxLevel"),
+                        split_options = NULL,
                         extra_qc_options = NULL)
 
   # reductions_options: xy axis coordinate
@@ -1280,7 +1276,7 @@ server <- function(input, output, session) {
     # validate + need: check file name post-fix, in not rds or qs2, will throw an error
     validate(need(expr = ext %in% c("rds","qs2","Rds"), message = "Please upload a .rds or a .qs2 file"))
     data$obj <- prepare_seurat_object(obj = readSeurat(path = input$dataset_file$datapath), verbose = getOption('SeuratExplorerVerbose'))
-    data$reduction_options <- prepare_reduction_options(obj = data$obj, keywords = c("umap","tsne"), verbose = getOption('SeuratExplorerVerbose'))
+    data$reduction_options <- prepare_reduction_options(obj = data$obj, keywords = getOption("SeuratExplorerReductionKeyWords"), verbose = getOption('SeuratExplorerVerbose'))
     data$cluster_options <- prepare_cluster_options(df = data$obj@meta.data, verbose = getOption('SeuratExplorerVerbose'))
     data$split_options <- prepare_split_options(df = data$obj@meta.data, max.level = data$split_maxlevel, verbose = getOption('SeuratExplorerVerbose'))
     data$extra_qc_options <- prepare_qc_options(df = data$obj@meta.data, types = c("double","integer","numeric"), verbose = getOption('SeuratExplorerVerbose'))

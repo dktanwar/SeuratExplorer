@@ -77,10 +77,7 @@ download a mini demo data from
 ``` r
 # app.R
 library(SeuratExplorer)
-library(shiny)
-library(shinydashboard)
-options(SeuratExplorerVerbose = FALSE)
-shinyApp(SeuratExplorer::ui, SeuratExplorer::server)
+launchSeuratExplorer()
 ```
 
 ## Introduction
@@ -92,7 +89,7 @@ shinyApp(SeuratExplorer::ui, SeuratExplorer::server)
 - support data processed by `Seurat` V5 and older versions. it may takes
   a while to update `Seurat` object when loading data.
 
-<img src="inst/extdata/www/loading-before.jpg" width="50%" /><img src="inst/extdata/www/loading-after.jpg" width="50%" />
+<img src="inst/extdata/www/upload-data.png" width="100%" />
 
 ### Cell Metadata
 
@@ -109,6 +106,8 @@ shinyApp(SeuratExplorer::ui, SeuratExplorer::server)
 
 - support **split** plots
 
+- support highlight selected clusters
+
 - support adjust the height/width ratio of the plot
 
 - support options for showing **cluster label**
@@ -121,9 +120,7 @@ shinyApp(SeuratExplorer::ui, SeuratExplorer::server)
 
 **Example plots:**
 
-<img src="inst/extdata/www/dimplot.jpg" width="50%" />
-
-<img src="inst/extdata/www/Dimplot-splited.jpg" width="90%" />
+<img src="inst/extdata/www/Dimplot-splited.png" width="80%" />
 
 ### Feature Plot
 
@@ -144,9 +141,7 @@ shinyApp(SeuratExplorer::ui, SeuratExplorer::server)
 
 **Example plots:**
 
-<img src="inst/extdata/www/featureplot-1-with-label.jpg" width="50%" />
-
-<img src="inst/extdata/www/featureplot-1.jpg" width="100%" /><img src="inst/extdata/www/Featureplot-split.jpg" width="100%" />
+<img src="inst/extdata/www/Featureplot.png" width="50%" /><img src="inst/extdata/www/Featureplot-splited.png" width="50%" />
 
 ### Violin Plot
 
@@ -169,7 +164,7 @@ shinyApp(SeuratExplorer::ui, SeuratExplorer::server)
 
 **Example plots:**
 
-<img src="inst/extdata/www/Vlnplot-1.jpg" width="100%" /><img src="inst/extdata/www/Vlnplot-2.jpg" width="100%" /><img src="inst/extdata/www/vlnplot-splited-1.jpg" width="100%" /><img src="inst/extdata/www/vlnplot-splited-2.jpg" width="100%" />
+<img src="inst/extdata/www/ViolinPlot.png" width="50%" /><img src="inst/extdata/www/ViolinPlot-Stack.png" width="50%" /><img src="inst/extdata/www/ViolinPlot-splited.png" width="50%" /><img src="inst/extdata/www/ViolinPlot-splited-Stack.png" width="50%" />
 
 ### Dot Plot
 
@@ -194,9 +189,7 @@ shinyApp(SeuratExplorer::ui, SeuratExplorer::server)
 
 **Example plots:**
 
-<img src="inst/extdata/www/Dotplot-1.jpg" width="70%" />
-
-<img src="inst/extdata/www/dotplot-splited-1.jpg" width="50%" />
+<img src="inst/extdata/www/DotPlot.png" width="50%" /><img src="inst/extdata/www/DotPlot-Splited.png" width="50%" />
 
 ### Heatmap for cell level expression
 
@@ -220,7 +213,7 @@ shinyApp(SeuratExplorer::ui, SeuratExplorer::server)
 
 **Example plots:**
 
-<img src="inst/extdata/www/Heatmap-1.jpg" width="100%" />
+<img src="inst/extdata/www/Heatmap-CellLevel.png" width="100%" />
 
 ### Heatmap for group averaged expression
 
@@ -239,7 +232,7 @@ shinyApp(SeuratExplorer::ui, SeuratExplorer::server)
 
 **Example plots:**
 
-<img src="inst/extdata/www/averagedheatmap.png" width="50%" />
+<img src="inst/extdata/www/Heatmap-GroupLevel.png" width="50%" /><img src="inst/extdata/www/Heatmap-GroupLevel-2.png" width="50%" />
 
 ### Ridge Plot
 
@@ -260,9 +253,7 @@ shinyApp(SeuratExplorer::ui, SeuratExplorer::server)
 
 **Example plots:**
 
-<img src="inst/extdata/www/ridgeplot-1.jpg" width="70%" />
-
-<img src="inst/extdata/www/Ridgeplot-2.jpg" width="100%" /><img src="inst/extdata/www/Ridgeplot-3.jpg" width="100%" />
+<img src="inst/extdata/www/RidgePlot.png" width="50%" />
 
 ### Plot Cell Percentage
 
@@ -274,7 +265,7 @@ shinyApp(SeuratExplorer::ui, SeuratExplorer::server)
 
 **Example plots:**
 
-<img src="inst/extdata/www/cellratio-1.jpg" width="50%" /><img src="inst/extdata/www/cellratio-2.jpg" width="50%" />
+<img src="inst/extdata/www/CellRatio.png" width="50%" /><img src="inst/extdata/www/CellRatio-Splited.png" width="50%" />
 
 ### Find Cluster Markers and DEGs Analysis
 
@@ -294,7 +285,7 @@ You can modify part calculation parameters before a analysis.
 
 **Screen shots:**
 
-<img src="inst/extdata/www/DEGs-1.jpg" width="100%" /><img src="inst/extdata/www/DEGs-2.jpg" width="100%" /><img src="inst/extdata/www/DEGs-3.jpg" width="100%" />
+<img src="inst/extdata/www/DEGs-1.png" width="50%" /><img src="inst/extdata/www/DEGs-2.png" width="50%" />
 
 #### Output description
 
@@ -344,7 +335,7 @@ each gene, count cells in which this genes is highly expressed, and also
 calculate the mean and median UMI percentage in those highly expressed
 cells.
 
-<img src="inst/extdata/www/Find-Top-Genes-by-Cell.jpg" width="100%" />
+<img src="inst/extdata/www/Find-Top-Genes-by-Cell.jpg" width="80%" />
 
 #### Output description
 
@@ -374,7 +365,7 @@ for each cluster, calculate the `top n` highly expressed genes by Mean
 UMI counts. if a cluster has less than 3 cells, this cluster will be
 escaped.
 
-<img src="inst/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg" width="100%" />
+<img src="inst/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg" width="80%" />
 
 #### Output description
 
@@ -398,7 +389,7 @@ escaped.
 Summary interested features by cluster, such as the positive cell
 percentage and mean/median expression level.
 
-<img src="inst/extdata/www/gene-short-summary.jpg" width="100%" />
+<img src="inst/extdata/www/gene-short-summary.jpg" width="80%" />
 
 #### Output description
 
