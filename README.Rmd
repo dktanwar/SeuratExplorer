@@ -91,7 +91,7 @@ knitr::include_graphics("inst/extdata/www/upload-data.png")
 
 ### Cell Metadata
 
-- support download cell metadata in ``csv`` format, which can be used to for further analysis.
+- support download cell metadata in ``csv`` format, which can be used for further analysis.
 
 ```{r  echo = FALSE, message=FALSE, warning=FALSE}
 knitr::include_graphics("inst/extdata/www/cell-metadata.jpg")

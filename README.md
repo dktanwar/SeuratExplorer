@@ -93,8 +93,8 @@ launchSeuratExplorer()
 
 ### Cell Metadata
 
-- support download cell metadata in `csv` format, which can be used to
-  for further analysis.
+- support download cell metadata in `csv` format, which can be used for
+  further analysis.
 
 <img src="inst/extdata/www/cell-metadata.jpg" width="100%" />
 

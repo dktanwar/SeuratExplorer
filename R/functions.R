@@ -14,7 +14,16 @@ prepare_seurat_object <- function(obj, verbose = FALSE){
 
 # Converts eligible non-factor columns to factor type, and converts strings that may be numbers to numbers.
 modify_columns_types <- function(df, types_to_check = c("numeric", "character"), unique_max_counts = 50, unique_max_percent = 0.05, verbose = FALSE){
+  # first, extract all columns in types_to_check types
   candidates.types.logic <- sapply(df, class) %in% types_to_check
+  # then, for factor columns, check the levels, level counts should less than (total cells) * 0.1, if not trans to character
+  factor_columns_names <- colnames(df)[sapply(df, class) %in% 'factor']
+  factor_columns_names_not_ok <- factor_columns_names[sapply(df[,factor_columns_names], function(x)length(levels(x))) > nrow(df) * 0.1]
+  if (length(factor_columns_names_not_ok) != 0) {
+    df[,factor_columns_names_not_ok] <- lapply(df[,factor_columns_names_not_ok], as.character)
+  }
+  # then for types_to_check types
+  # unique values counts should less than (total cells)*0.05, for 100 cells has 5 clusters at most. and for 10000 cells has 50 clusters at most.
   cutoff <- min(unique_max_counts, round(nrow(df) * unique_max_percent))
   candidates.unique.logic <- sapply(df, FUN = function(x)length(unique(x))) <= cutoff
   candidates.logic <- candidates.types.logic & candidates.unique.logic & !sapply(df, is.factor)
