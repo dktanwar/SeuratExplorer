@@ -1,0 +1,43 @@
+---
+title: "Prepare-species-genes-info"
+output: html_document
+date: "2025-04-17"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Prpare the data for External Links
+
+```{r}
+library(BiologyDB)
+```
+
+
+## Fly
+
+```{r}
+fly <- Flybase_Fly_Genes[,c("Ensembl", "Symbol", "EntrezID", "UniProt", "Name", "Alias")]
+```
+
+## Mouse
+
+```{r}
+mouse <- GENCODE_Mouse_Genes[,c("Ensembl", "Symbol","MGI", "EntrezID", "UniProt", "Name", "Alias")]
+```
+
+## Human
+
+```{r}
+human <- GENCODE_Human_Genes[,c("Ensembl", "Symbol",  "HGNC", "EntrezID", "UniProt","Name", "Alias")]
+```
+
+```{r}
+GenesDB <- list(fly = fly, mouse = mouse, human = human)
+```
+
+```{r}
+usethis::use_data(GenesDB, overwrite = TRUE)
+```
+

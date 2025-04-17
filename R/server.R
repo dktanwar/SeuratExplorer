@@ -978,9 +978,8 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       showModal(modalDialog(title = "Error", "None of DEGs found, contact technican for details!", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
       return(NULL)
     }else{
-      data_res <- DT::datatable(DEGs$degs, extensions = 'Buttons',
+      data_res <- DT::datatable(DEGs$degs, extensions = 'Buttons',selection = "single",
                                 options = list(scrollX=TRUE,
-                                               # lengthMenu = c(5,10,15),
                                                paging = TRUE, searching = TRUE,
                                                fixedColumns = TRUE, autoWidth = TRUE,
                                                ordering = TRUE, dom = 'Bfrtip',
@@ -999,6 +998,80 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       }
       return(data_res)
     }
+  })
+
+
+  output$DEGs_row_selected <- reactive({
+    if (!DEGs$degs_ready) {
+      return(FALSE)
+    }else if(is.null(input$dataset_degs_rows_selected)){
+      return(FALSE)
+    }else{
+      return(TRUE)
+    }
+  })
+
+  outputOptions(output, 'DEGs_row_selected', suspendWhenHidden=FALSE)
+
+  db <- get(data("GenesDB", package = "SeuratExplorer"))
+
+  output$ExternalLinks.UI <- renderUI({
+    row_count <- input$dataset_degs_rows_selected
+    selected.gene <- DEGs$degs[row_count, 'gene']
+    selected.db <- db[[input$selectspecies]]
+    if (!selected.gene %in% selected.db[,input$selectsgenetype]) {
+      return(renderPrint("Gene is not found, please check parameters above, or this gene not existed in the database."))
+    }
+
+    external_links <- h4(paste0('Gene Selected: ', selected.gene))
+    if (input$selectspecies == "human") {
+      # GeneCards
+      unique_ids <- unique(c(na.omit(selected.db[selected.db[,input$selectsgenetype] == selected.gene,][,'Symbol'])))
+      for (id in unique_ids) {
+        external_links <- paste0(external_links, shiny::a(h4("GeneCards", class = "btn btn-primary" , style = "fontweight:600"), target = "_blank", href = paste0("https://www.genecards.org/cgi-bin/carddisp.pl?gene=", id)))
+      }
+      # Ensembl
+      unique_ids <- unique(c(na.omit(selected.db[selected.db[,input$selectsgenetype] == selected.gene,][,'Ensembl'])))
+      for (id in unique_ids) {
+        external_links <- paste0(external_links, shiny::a(h4("Ensembl", class = "btn btn-primary" , style = "fontweight:600"), target = "_blank", href = paste0("http://www.ensembl.org/Homo_sapiens/geneview?gene=", id)))
+      }
+      # HGNC
+      unique_ids <- unique(c(na.omit(selected.db[selected.db[,input$selectsgenetype] == selected.gene,][,'HGNC'])))
+      for (id in unique_ids) {
+        external_links <- paste0(external_links, shiny::a(h4("HGNC", class = "btn btn-primary" , style = "fontweight:600"), target = "_blank", href = paste0("https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/", id)))
+      }
+    }else if(input$selectspecies == "mouse"){
+      unique_ids <- unique(c(na.omit(selected.db[selected.db[,input$selectsgenetype] == selected.gene,][,'Ensembl'])))
+      # MGI
+      for (id in unique_ids) {
+        external_links <- paste0(external_links, shiny::a(h4("MGI", class = "btn btn-primary" , style = "fontweight:600"), target = "_blank", href = paste0("https://www.informatics.jax.org/marker/", id)))
+      }
+      # Ensembl
+      for (id in unique_ids) {
+        external_links <- paste0(external_links, shiny::a(h4("Ensembl", class = "btn btn-primary" , style = "fontweight:600"), target = "_blank", href = paste0("http://www.ensembl.org/Mus_musculus/geneview?gene=", id)))
+      }
+    }else if (input$selectspecies == "fly") {
+      unique_ids <- unique(c(na.omit(selected.db[selected.db[,input$selectsgenetype] == selected.gene,][,'Ensembl'])))
+      # flybase
+      for (id in unique_ids) {
+        external_links <- paste0(external_links, shiny::a(h4("FlyBase", class = "btn btn-primary" , style = "fontweight:600"), target = "_blank", href = paste0("https://flybase.org/reports/", id)))
+      }
+      # Ensembl
+      for (id in unique_ids) {
+        external_links <- paste0(external_links, shiny::a(h4("Ensembl", class = "btn btn-primary" , style = "fontweight:600"), target = "_blank", href = paste0("https://www.ensembl.org/Drosophila_melanogaster/Gene/Summary?db=core;g=", id)))
+      }
+    }
+    # NCBI EntrezID
+    unique_ids <- unique(c(na.omit(selected.db[selected.db[,input$selectsgenetype] == selected.gene, 'EntrezID'])))
+    for (id in unique_ids) {
+      external_links <- paste0(external_links, shiny::a(h4("NCBI", class = "btn btn-primary" , style = "fontweight:600"), target = "_blank", href = paste0("https://www.ncbi.nlm.nih.gov/gene/?term=", id)))
+    }
+    # NCBI EntrezID
+    unique_ids <- unique(c(na.omit(selected.db[selected.db[,input$selectsgenetype] == selected.gene, 'UniProt'])))
+    for (id in unique_ids) {
+      external_links <- paste0(external_links, shiny::a(h4("UniProt", class = "btn btn-primary" , style = "fontweight:600"), target = "_blank", href = paste0("https://www.uniprot.org/uniprotkb/", id, "/entry")))
+    }
+    HTML(external_links)
   })
 
   ################################ Top genes analysis

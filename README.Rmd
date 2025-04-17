@@ -429,6 +429,7 @@ knitr::include_graphics("inst/extdata/www/feature-correlation-output.jpg")
 
 if nothing return, this is because the input genes has very low expression level, very low expressed genes will be removed before analysis.
 
+
 ## Key related packages
 
 - [satijalab/seurat](https://github.com/satijalab/seurat): Seurat is an R toolkit for single cell genomics, developed and maintained by the Satija Lab at NYGC.

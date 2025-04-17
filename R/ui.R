@@ -336,7 +336,14 @@ explorer_body_ui <- function(tab_list){
                                  conditionalPanel(
                                    condition = "output.DEGs_ready",
                                    box(title = "Analysis Results:", collapsible = TRUE, width = 12,align = "center",
-                                       withSpinner(DT::dataTableOutput('dataset_degs')))
+                                       withSpinner(DT::dataTableOutput('dataset_degs'))),
+                                   conditionalPanel(
+                                     condition = "output.DEGs_row_selected",
+                                     box(title = "External Links:", collapsible = TRUE, width = 12,
+                                         selectInput("selectspecies", "Choose Species:", choices = c("Human" = "human","Mouse" = "mouse","Fly" = "fly"), width = '180px'),
+                                         selectInput("selectsgenetype", "Choose Feature Types:", choices = c("Symbol" = "Symbol","Ensembl ID" = "Ensembl","Entrez ID" = "EntrezID"), width = '180px'),
+                                         withSpinner(uiOutput('ExternalLinks.UI')))
+                                   )
                                  )
                                )
   )
