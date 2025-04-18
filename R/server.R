@@ -1015,7 +1015,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   outputOptions(output, 'DEGs_row_selected', suspendWhenHidden=FALSE)
 
   #db <- get("GenesDB") # works
-  db <- SeuratExplorerGenesDB
+  db <- SeuratExplorer::GenesDB
 
   output$ExternalLinks.UI <- renderUI({
     row_count <- input$dataset_degs_rows_selected
