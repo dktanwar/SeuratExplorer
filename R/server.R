@@ -11,6 +11,7 @@
 #'
 #' @import Seurat SeuratObject
 #' @importFrom grDevices dev.off pdf
+#' @importFrom stats na.omit
 #' @export
 #' @return server side functions related to `explorer_sidebar_ui`
 #'
@@ -1013,14 +1014,15 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   outputOptions(output, 'DEGs_row_selected', suspendWhenHidden=FALSE)
 
-  db <- get(data("GenesDB", package = "SeuratExplorer"))
+  #db <- get("GenesDB") # works
+  db <- SeuratExplorerGenesDB
 
   output$ExternalLinks.UI <- renderUI({
     row_count <- input$dataset_degs_rows_selected
     selected.gene <- DEGs$degs[row_count, 'gene']
     selected.db <- db[[input$selectspecies]]
     if (!selected.gene %in% selected.db[,input$selectsgenetype]) {
-      return(renderPrint("Gene is not found, please check parameters above, or this gene not existed in the database."))
+      return(renderText("Gene not found, please check parameters above, or this gene not existed in the database."))
     }
 
     external_links <- h4(paste0('Gene Selected: ', selected.gene))
