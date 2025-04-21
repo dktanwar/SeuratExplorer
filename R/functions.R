@@ -479,7 +479,7 @@ calculate_top_correlations <- function(SeuratObj, method, top = 1000){
   } else {
     normalized.expr <- as.matrix(SeuratObj@assays$RNA$data)
   }
-  # filter cells: remove genes with low expression, accumulated expression should more than 1/10 cell numbers.
+  # filter cells: remove genes with low expression, accumulated expression should more than 1/10 cell numbers,or say mean expression value in call cells > 0.1
   normalized.expr <- normalized.expr[apply(normalized.expr, 1, sum) > 0.1 * ncol(SeuratObj),,drop = FALSE]
   cor.res = stats::cor(t(as.matrix(normalized.expr)), method = method)
   cor.res[lower.tri(cor.res, diag = TRUE)] <- 0

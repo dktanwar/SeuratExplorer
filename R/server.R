@@ -1112,9 +1112,12 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       isolate(cds <- data$obj)
       TopGenes$topgenes <- top_genes(SeuratObj = cds, expr.cut = input$percentcut/100, group.by = input$TopGenesClusterResolution)
       removeModal()
-      TopGenes$topgenes_ready <- TRUE
+      if (nrow(TopGenes$topgenes) > 0) {
+        TopGenes$topgenes_ready <- TRUE
+      }else{
+        showModal(modalDialog(title = "Error", "No genes found, please check the parameters.", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+      }
     }
-
   })
 
   observeEvent(input$TopAccumulatedGenesAnalysis, {
@@ -1126,7 +1129,11 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       isolate(cds <- data$obj)
       TopGenes$topgenes <- top_accumulated_genes(SeuratObj = cds, top = input$topcut, group.by = input$TopGenesClusterResolution)
       removeModal()
-      TopGenes$topgenes_ready <- TRUE
+      if (nrow(TopGenes$topgenes) > 0) {
+        TopGenes$topgenes_ready <- TRUE
+      }else{
+        showModal(modalDialog(title = "Error", "No genes found, please check the parameters.", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+      }
     }
   })
 
@@ -1253,7 +1260,11 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
       FeatureCorrelation$summary <- calculate_top_correlations(SeuratObj = cds, method = input$correlationmethod)
       removeModal()
-      FeatureCorrelation$summary_ready <- TRUE
+      if (nrow(FeatureCorrelation$summary) > 0) {
+        FeatureCorrelation$summary_ready <- TRUE
+      }else{
+        showModal(modalDialog(title = "Error", "No gene paris found, probably for some genes has very low expression value.", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+      }
     }
   })
 
@@ -1273,7 +1284,11 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
         cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
         FeatureCorrelation$summary <- calculate_most_correlated(SeuratObj = cds, feature = feature.revised, method = input$correlationmethod)
         removeModal()
-        FeatureCorrelation$summary_ready <- TRUE
+        if (nrow(FeatureCorrelation$summary) > 0) {
+          FeatureCorrelation$summary_ready <- TRUE
+        }else{
+          showModal(modalDialog(title = "Error", "No gene paris found, probably for some genes has very low expression value.", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+        }
       }
     }
   })
@@ -1299,7 +1314,11 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
         cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
         FeatureCorrelation$summary <- calculate_correlation(SeuratObj = cds, features = GeneRevised, method = input$correlationmethod)
         removeModal()
-        FeatureCorrelation$summary_ready <- TRUE
+        if (nrow(FeatureCorrelation$summary) > 0) {
+          FeatureCorrelation$summary_ready <- TRUE
+        }else{
+          showModal(modalDialog(title = "Error", "No gene paris found, probably for some genes has very low expression value.", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+        }
       }
     }
   })
