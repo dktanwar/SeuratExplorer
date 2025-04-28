@@ -446,3 +446,6 @@ if nothing return, this is because the input genes has very low expression level
 sessionInfo()
 ```
 
+## 中文介绍
+
+[微信公众号： 分析力工厂](https://mp.weixin.qq.com/s/lpvI9OnyN95amOeVGmeyMQ)
