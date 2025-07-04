@@ -462,7 +462,9 @@ ui <-  function(){
                                       condition = "output.file_loaded",
                                       box(title = "Metadata of Cells", collapsible = TRUE, width = 12,solidHeader = TRUE, status = "primary", # align = "center",
                                           withSpinner(tagList(downloadButton("download_meta_data","Download"),
-                                                                               DT::dataTableOutput('dataset_meta'))))
+                                                                               DT::dataTableOutput('dataset_meta')))),
+                                      box(title = "Structure of Seurat Object", collapsible = TRUE, collapsed = TRUE, width = 12,solidHeader = TRUE, status = "primary",
+                                          withSpinner(verbatimTextOutput("object_structure")))
                                     ))
                                   )
 

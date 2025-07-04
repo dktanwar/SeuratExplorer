@@ -1412,6 +1412,13 @@ server <- function(input, output, session) {
     }
   )
 
+  ############################### Render Object structure
+  output$object_structure <- renderPrint({
+    req(data$obj)
+    str(data$obj, max.level = 3) # Display the structure of the data frame
+  })
+
+
   # Conditional panel control based on loaded obj, after loaded, show other UIs
   output$file_loaded = reactive({
     return(data$loaded)
