@@ -377,6 +377,12 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
           ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
                          axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
       }
+      if (input$Vlnfillcolorplatte != 'default'){
+        # color
+        fill.colors <- getColors(color.platte = color_list, choice = input$Vlnfillcolorplatte, n = length(levels(Idents(cds))))
+        names(fill.colors) <- levels(Idents(cds))
+        p <- p & scale_fill_manual(values = fill.colors)
+      }
       ggplot2::ggsave(paste0(temp_dir,"/vlnplot.pdf"), p, width = vlnplot_width() * px2cm, height = vlnplot_width() * input$VlnPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
       return(p)
     }
@@ -831,14 +837,14 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                          celltype.name = input$CellratioFillChoice, celltype.order = input$CellratioFillOrder,
                          facet.name = NULL, facet.order = NULL,
                          col.width = input$CellratioColumnWidth, flow.alpha = input$CellratioFlowAlpha,
-                         flow.curve = input$CellratioFlowCurve, color.choice = input$fillcolorplatte)
+                         flow.curve = input$CellratioFlowCurve, color.choice = input$Cellratiofillcolorplatte)
     }else{
       p <- cellRatioPlot(object = cds, sample.name = input$CellratioXChoice, sample.order = input$CellratioXOrder,
                          celltype.name = input$CellratioFillChoice, celltype.order = input$CellratioFillOrder,
                          facet.name = FacetChoice.Revised(),
                          facet.order = input$CellratioFacetOrder,
                          col.width = input$CellratioColumnWidth, flow.alpha = input$CellratioFlowAlpha,
-                         flow.curve = input$CellratioFlowCurve, color.choice = input$fillcolorplatte)
+                         flow.curve = input$CellratioFlowCurve, color.choice = input$Cellratiofillcolorplatte)
     }
     if (input$CellratioRotateAxis) { p <- p & ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1, hjust=1)) }
     ggplot2::ggsave(paste0(temp_dir,"/cellratioplot.pdf"), p, width = cellratioplot_width() * px2cm, height = cellratioplot_width() * input$CellratioplotHWRatio * px2cm, units = "cm", limitsize = FALSE)

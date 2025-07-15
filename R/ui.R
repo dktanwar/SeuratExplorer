@@ -133,6 +133,7 @@ explorer_body_ui <- function(tab_list){
                                           condition = "output.Vlnplot_StackPlot && input.VlnSplitBy == 'None'", # only work when split is set to NULL
                                           selectInput("VlnFillBy","Color By:", choices = c(Feature = "feature", Ident = "ident"))
                                         ),
+                                        selectInput("Vlnfillcolorplatte","select color plate:", choices = color_choice_vector, selected = "Default"),
                                         sliderInput("VlnPointSize", label = "Point Size:", min = 0, max = 4, value = 0),
                                         sliderInput("VlnPointAlpha", label = "Point Alpha:", min = 0, max = 1, value = 1),
                                         sliderInput("VlnXlabelSize", label = "x Axis Label Size:", min = 0, max = 20, value = 14),
@@ -279,7 +280,7 @@ explorer_body_ui <- function(tab_list){
                                                               bsCollapsePanel(title = "Change Order",
                                                                                        withSpinner(uiOutput("CellratioplotFacetOrder.UI"), proxy.height = "10px"),
                                                                                        style = "info", value = "0")),
-                                          selectInput("fillcolorplatte","select color plate:", choices = color_choice_vector, selected = "Default"),
+                                          selectInput("Cellratiofillcolorplatte","select color plate:", choices = color_choice_vector, selected = "Default"),
                                           checkboxInput("CellratioRotateAxis",label = "Rotate X Axis", FALSE),
                                           sliderInput("CellratioColumnWidth", label = "Column width:", min = 0, max = 1, value = 0.7),
                                           sliderInput("CellratioFlowAlpha", label = "Flow alpha:", min = 0, max = 1, value = 0.3),
