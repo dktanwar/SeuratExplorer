@@ -273,6 +273,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     selectInput("VlnSplitBy","Split by:", choices = c("None" = "None", data$split_options))
   })
 
+
   # Conditional panel: show this panel when split.by is selected and the the level equals to 2
   output$Vlnplot_splitoption_twolevels = reactive({
     req(input$VlnSplitBy)
@@ -377,7 +378,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
           ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
                          axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
       }
-      if (input$Vlnfillcolorplatte != 'default'){
+      if (input$Vlnfillcolorplatte != 'default' & input$VlnSplitBy == 'None'){
         # color
         fill.colors <- getColors(color.platte = color_list, choice = input$Vlnfillcolorplatte, n = length(levels(Idents(cds))))
         names(fill.colors) <- levels(Idents(cds))

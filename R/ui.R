@@ -131,9 +131,12 @@ explorer_body_ui <- function(tab_list){
                                         ),
                                         conditionalPanel(
                                           condition = "output.Vlnplot_StackPlot && input.VlnSplitBy == 'None'", # only work when split is set to NULL
-                                          selectInput("VlnFillBy","Color By:", choices = c(Feature = "feature", Ident = "ident"))
+                                          selectInput("VlnFillBy","Color By:", choices = c(Feature = "feature", Ident = "ident")),
                                         ),
-                                        selectInput("Vlnfillcolorplatte","select color plate:", choices = color_choice_vector, selected = "Default"),
+                                        conditionalPanel(
+                                          condition = "input.VlnSplitBy == 'None'", # only work when split is set to NULL
+                                          selectInput("Vlnfillcolorplatte","select color plate:", choices = color_choice_vector, selected = "Default")
+                                        ),
                                         sliderInput("VlnPointSize", label = "Point Size:", min = 0, max = 4, value = 0),
                                         sliderInput("VlnPointAlpha", label = "Point Alpha:", min = 0, max = 1, value = 1),
                                         sliderInput("VlnXlabelSize", label = "x Axis Label Size:", min = 0, max = 20, value = 14),
