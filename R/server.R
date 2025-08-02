@@ -108,6 +108,9 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       p <- Seurat::DimPlot(cds, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
                       group.by = input$DimClusterResolution, split.by = DimSplit.Revised(), ncol = ceiling(sqrt(plot_numbers)), cells.highlight = dim_cells_highlighted)
       }
+    if(!input$DimShowLegend){
+      p <- p & NoLegend()
+    }
     ggplot2::ggsave(paste0(temp_dir,"/dimplot.pdf"), p, width = dimplot_width() * px2cm, height = dimplot_width() * input$DimPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
     return(p)
   }, height = function(){session$clientData$output_dimplot_width * input$DimPlotHWRatio}) # box plot: height = width default

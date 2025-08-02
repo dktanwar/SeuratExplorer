@@ -70,6 +70,7 @@ explorer_body_ui <- function(tab_list){
                                         withSpinner(uiOutput("DimSplit.UI"), proxy.height = "10px"),
                                         withSpinner(uiOutput("DimHighlightedClusters.UI"), proxy.height = "10px"),
                                         checkboxInput("DimShowLabel",label = "Show cluster label", TRUE),
+                                        checkboxInput("DimShowLegend",label = "Show Legend", TRUE),
                                         sliderInput("DimLabelSize", label = "Label Size:", min = 0, max = 10, value = 7),
                                         sliderInput("DimPointSize", label = "Point Size", min = 0.001, max = 2, value = 0.8),
                                         sliderInput("DimPlotHWRatio", label = "Adjust H/W Ratio of DimPlot", min = 0.1, max = 4, value = 0.9)
