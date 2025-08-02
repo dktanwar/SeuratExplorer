@@ -20,6 +20,7 @@ Imports:
     SeuratObject (>= 5.0.0),
     ggplot2,
     shinydashboard,
+    shinydashboardPlus,
     DT,
     shinycssloaders,
     patchwork,

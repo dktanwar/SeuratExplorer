@@ -7,7 +7,7 @@
 #' packages, such as 'fentouxungui/SeuratExplorerServer' from github.
 #'
 #' @import shiny
-#' @import shinydashboard shinyBS
+#' @import shinydashboard shinyBS shinydashboardPlus
 #' @importFrom shinydashboard menuItem menuSubItem
 #' @export
 #' @return return some menu items for the dashboard
@@ -295,12 +295,11 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["degs"]] = tabItem(tabName = "degs",
                                fluidRow(
-                                 box(textOutput("degs_warning"),background = "orange", width = 12),
-                                 tags$style(type="text/css", "#degs_warning {white-space: pre-wrap;}"),
-                                 box(textOutput("degs_info"),background = "green", width = 12),
+                                 shinydashboardPlus::box(title = 'Information', textOutput("degs_info"),
+                                                         background = "green", width = 12, closable = TRUE),
+                                 tags$style(type="text/css", "#degs_info {white-space: pre-wrap;}"),
                                  # Outputting multiple lines of text with renderText() in R shiny
                                  # https://stackoverflow.com/questions/23233497/outputting-multiple-lines-of-text-with-rendertext-in-r-shiny
-                                 tags$style(type="text/css", "#degs_info {white-space: pre-wrap;}"),
                                  tags$style(".nav-tabs {background: #f4f4f4;}
                                  .nav-tabs-custom .nav-tabs li.active:hover a, .nav-tabs-custom .nav-tabs li.active a {background-color: #fff;
                                  border-color: #fff;
@@ -354,9 +353,7 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["topgenes"]] = tabItem(tabName = "topgenes",
                                fluidRow(
-                                 box(textOutput("topgenes_warning"), background = "orange", width = 12),
-                                 tags$style(type="text/css", "#topgenes_warning {white-space: pre-wrap;}"),
-                                 box(textOutput("topgenes_info"), background = "green", width = 12),
+                                 shinydashboardPlus::box(title = 'Information', textOutput("topgenes_info"), background = "green", width = 12, closable = TRUE),
                                  tags$style(type="text/css", "#topgenes_info {white-space: pre-wrap;}"),
                                  box(title = "Step1: Common Settings", solidHeader = TRUE, status = "primary", width = 3,
                                  withSpinner(uiOutput("TopGenesClusteResolution.UI"), proxy.height = "10px")),
@@ -377,7 +374,7 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["featuresummary"]] = tabItem(tabName = "featuresummary",
                                    fluidRow(
-                                     box(textOutput("featuresummary_info"), background = "green", width = 12),
+                                     shinydashboardPlus::box(title = 'Information',textOutput("featuresummary_info"), background = "green", width = 12, closable = TRUE),
                                      tags$style(type="text/css", "#featuresummary_info {white-space: pre-wrap;}"),
                                      box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                          textAreaInput("FeatureSummarySymbol", "Input Gene Symbols:", value = "", height = '100px', resize = "vertical"),
@@ -392,9 +389,7 @@ explorer_body_ui <- function(tab_list){
   )
   tab_list[["featurecorrelation"]] = tabItem(tabName = "featurecorrelation",
                                          fluidRow(
-                                           box(textOutput("featurecorrelation_warning"), background = "orange", width = 12),
-                                           tags$style(type="text/css", "#featurecorrelation_warning {white-space: pre-wrap;}"),
-                                           box(textOutput("featurecorrelation_info"),background = "green", width = 12),
+                                           shinydashboardPlus::box(title = 'Information',textOutput("featurecorrelation_info"), background = "green", width = 12, closable = TRUE),
                                            tags$style(type="text/css", "#featurecorrelation_info {white-space: pre-wrap;}"),
                                            box(title = "Step1: Common Settings", solidHeader = TRUE, status = "primary", width = 3,
                                                withSpinner(uiOutput("FeatureCorrelationClusteResolution.UI"), proxy.height = "10px"),

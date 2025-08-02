@@ -866,15 +866,10 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   ################################ DEGs analysis
   # Warning
-  output$degs_warning = renderText({
-    paste0('Attention:
-            This usually takes longer, please wait patiently. Make sure to save current results before a new analysis!')
-  })
-  # info
   output$degs_info = renderText({
-    paste0('About:
-            FindMarkers for All Clusters: calculate markers for all groups.
-            Find DEGs for two groups: comparison between two groups, support subet cells before a comparison.')
+    paste0('This usually takes longer, please wait patiently. Make sure to save current results before a new analysis!
+  - FindMarkers for All Clusters: calculate markers for all groups.
+  - Find DEGs for two groups: comparison between two groups, support subet cells before a comparison.')
   })
 
   DEGs <- reactiveValues(degs = NULL, degs_ready = FALSE)
@@ -1088,15 +1083,10 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   ################################ Top genes analysis
   # Warning
-  output$topgenes_warning = renderText({
-    paste0('Attention:
-            This usually takes longer, please wait patiently. Save current results before a new analysis!')
-  })
-  # info
   output$topgenes_info = renderText({
-    paste0('About:
-            Find Top Genes by Cell: firstly, for each cell, find genes that has high UMI percentage, then summary those genes for each cluster, details see github page.
-            Find Top Genes by mean UMI Counts: for each cluster, calculate the top n highly expressed genes by mean UMI counts.')
+    paste0('This usually takes longer, please wait patiently. Save current results before a new analysis
+      - Find Top Genes by Cell: firstly, for each cell, find genes that has high UMI percentage, then summary those genes for each cluster, details see github page.
+      - Find Top Genes by mean UMI Counts: for each cluster, calculate the top n highly expressed genes by mean UMI counts.')
   })
 
   TopGenes <- reactiveValues(topgenes = NULL, topgenes_ready = FALSE)
@@ -1164,8 +1154,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   ################################ Feature Summary
   # info
   output$featuresummary_info = renderText({
-    paste0('About:
-            Summary interested features by cluster, such as the positive cell percentage and mean/median expression level.')
+    paste0('Summary interested features by cluster, such as the percentage of positive cells, and mean/median expression level.')
   })
 
   FeatureSummary <- reactiveValues(summary = NULL, summary_ready = FALSE)
@@ -1221,17 +1210,12 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   ################################ Feature Correlation
   # Warning
-  output$featurecorrelation_warning = renderText({
-    paste0('Attention:
-            This usually takes longer, please wait patiently. Make sure to save current results before a new analysis!')
-  })
-  # info
   output$featurecorrelation_info = renderText({
-    paste0('About:
-            Find Top Correlated Gene Pairs: find top 1000 correlated gene pairs.
-            Find Correlated Genes for A Gene: find the most correlated genes for input genes.
-            Calculate Correlation for A Gene List: calculate the correlation value for each pair of the input genes.
-     if nothing return, this is caused by the low expression of the input genes, very low expressed genes will be removed before analysis.')
+    paste0('This usually takes longer, please wait patiently. Make sure to save current results before a new analysis!
+      - Find Top Correlated Gene Pairs: find top 1000 correlated gene pairs.
+      - Find Correlated Genes for A Gene: find the most correlated genes for input genes.
+      - Calculate Correlation for A Gene List: calculate the correlation value for each pair of the input genes.
+    if nothing return, this is caused by the low expression of the input genes, very low expressed genes will be removed before analysis.')
   })
 
   FeatureCorrelation <- reactiveValues(summary = NULL, summary_ready = FALSE)
