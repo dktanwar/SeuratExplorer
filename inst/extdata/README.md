@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-<!-- 如果要生成github主页上的README.md, 需要将此文件复制到R包的主目录下，然后设置for_github参数为TRUE，然后knit，运行完成后删除主目录下的README.Rmd文件 -->
+<!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # SeuratExplorer
 
@@ -91,14 +91,14 @@ launchSeuratExplorer()
 - support data processed by `Seurat` V5 and older versions. it may takes
   a while to update `Seurat` object when loading data.
 
-<img src="./inst/extdata/www/upload-data.png" width="100%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/upload-data.png" width="100%" />
 
 ### Cell Metadata
 
 - support download cell metadata in `csv` format, which can be used for
   further analysis.
 
-<img src="./inst/extdata/www/cell-metadata.jpg" width="100%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/cell-metadata.jpg" width="100%" />
 
 ### Dimensional Reduction Plot
 
@@ -122,7 +122,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="./inst/extdata/www/Dimplot-splited.png" width="80%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Dimplot-splited.png" width="80%" />
 
 ### Feature Plot
 
@@ -143,7 +143,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="./inst/extdata/www/Featureplot-splited.png" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot-splited.png" width="50%" />
 
 ### Violin Plot
 
@@ -166,7 +166,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="./inst/extdata/www//ViolinPlot-splited-Stack.png" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-Stack.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited-Stack.png" width="50%" />
 
 ### Dot Plot
 
@@ -191,7 +191,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="./inst/extdata/www/DotPlot-Splited.png" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot-Splited.png" width="50%" />
 
 ### Heatmap for cell level expression
 
@@ -215,7 +215,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="./inst/extdata/www/Heatmap-CellLevel.png" width="100%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-CellLevel.png" width="100%" />
 
 ### Heatmap for group averaged expression
 
@@ -234,7 +234,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="./inst/extdata/www/Heatmap-GroupLevel-2.png" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel-2.png" width="50%" />
 
 ### Ridge Plot
 
@@ -255,7 +255,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="./inst/extdata/www/RidgePlot.png" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/RidgePlot.png" width="50%" />
 
 ### Plot Cell Percentage
 
@@ -267,7 +267,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="./inst/extdata/www/CellRatio-Splited.png" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio-Splited.png" width="50%" />
 
 ### Find Cluster Markers and DEGs Analysis
 
@@ -287,11 +287,11 @@ You can modify part calculation parameters before a analysis.
 
 **Screen shots:**
 
-<img src="./inst/extdata/www/DEGs-2.png" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-1.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-2.png" width="50%" />
 
 #### Output description
 
-<img src="./inst/extdata/www/DEGs-4.jpg" width="100%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-4.jpg" width="100%" />
 
 > [FindMarkers(object,
 > …)](https://satijalab.org/seurat/reference/findmarkers)
@@ -337,7 +337,7 @@ each gene, count cells in which this genes is highly expressed, and also
 calculate the mean and median UMI percentage in those highly expressed
 cells.
 
-<img src="./inst/extdata/www/Find-Top-Genes-by-Cell.jpg" width="80%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Find-Top-Genes-by-Cell.jpg" width="80%" />
 
 #### Output description
 
@@ -367,7 +367,7 @@ for each cluster, calculate the `top n` highly expressed genes by Mean
 UMI counts. if a cluster has less than 3 cells, this cluster will be
 escaped.
 
-<img src="./inst/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg" width="80%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg" width="80%" />
 
 #### Output description
 
@@ -391,7 +391,7 @@ escaped.
 Summary interested features by cluster, such as the positive cell
 percentage and mean/median expression level.
 
-<img src="./inst/extdata/www/gene-short-summary.jpg" width="80%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/gene-short-summary.jpg" width="80%" />
 
 #### Output description
 
@@ -425,11 +425,11 @@ cluster, support pearson & spearman methods.
 - `Calculate Correlation for A Gene List`: to calculate the correlation
   value for each pair of the input genes
 
-<img src="./inst/extdata/www/featurecorrelation.jpg" width="100%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/featurecorrelation.jpg" width="100%" />
 
 #### Output description
 
-<img src="./inst/extdata/www/feature-correlation-output.jpg" width="40%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/feature-correlation-output.jpg" width="40%" />
 
 - `GeneA`: the first gene in a Gene pair
 
