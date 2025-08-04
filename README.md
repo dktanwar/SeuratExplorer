@@ -1,4 +1,5 @@
 ---
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = "../../") })
 output: github_document
 ---
 
@@ -81,7 +82,7 @@ launchSeuratExplorer()
 - support data processed by ``Seurat`` V5 and older versions. it may takes a while to update ``Seurat`` object when loading data.
 
 <div class="figure">
-<img src="inst/extdata/www/upload-data.png" alt="plot of chunk unnamed-chunk-7" width="100%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/upload-data.png" alt="plot of chunk unnamed-chunk-7" width="100%" />
 <p class="caption">plot of chunk unnamed-chunk-7</p>
 </div>
 
@@ -90,7 +91,7 @@ launchSeuratExplorer()
 - support download cell metadata in ``csv`` format, which can be used for further analysis.
 
 <div class="figure">
-<img src="inst/extdata/www/cell-metadata.jpg" alt="plot of chunk unnamed-chunk-8" width="100%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/cell-metadata.jpg" alt="plot of chunk unnamed-chunk-8" width="100%" />
 <p class="caption">plot of chunk unnamed-chunk-8</p>
 </div>
 
@@ -116,8 +117,14 @@ launchSeuratExplorer()
 
 **Example plots:**
 
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Dimplot-splited.png", : It is highly recommended to use relative paths for images. You had
+#> absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Dimplot-splited.png"
+```
+
 <div class="figure">
-<img src="inst/extdata/www/Dimplot-splited.png" alt="plot of chunk unnamed-chunk-9" width="80%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Dimplot-splited.png" alt="plot of chunk unnamed-chunk-9" width="80%" />
 <p class="caption">plot of chunk unnamed-chunk-9</p>
 </div>
 
@@ -139,11 +146,24 @@ launchSeuratExplorer()
 
 **Example plots:**
 
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Featureplot.png", : It is highly recommended to use relative paths for images. You had
+#> absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot.png"
+```
+
 <div class="figure">
-<img src="inst/extdata/www/Featureplot.png" alt="plot of chunk unnamed-chunk-10" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot.png" alt="plot of chunk unnamed-chunk-10" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-10</p>
-</div><div class="figure">
-<img src="inst/extdata/www/Featureplot-splited.png" alt="plot of chunk unnamed-chunk-10" width="50%" />
+</div>
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Featureplot-splited.png", : It is highly recommended to use relative paths for images. You
+#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot-splited.png"
+```
+
+<div class="figure">
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot-splited.png" alt="plot of chunk unnamed-chunk-10" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-10</p>
 </div>
 
@@ -167,17 +187,44 @@ launchSeuratExplorer()
 
 **Example plots:**
 
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/ViolinPlot.png", : It is highly recommended to use relative paths for images. You had
+#> absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot.png"
+```
+
 <div class="figure">
-<img src="inst/extdata/www/ViolinPlot.png" alt="plot of chunk unnamed-chunk-11" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot.png" alt="plot of chunk unnamed-chunk-11" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-11</p>
-</div><div class="figure">
-<img src="inst/extdata/www/ViolinPlot-Stack.png" alt="plot of chunk unnamed-chunk-11" width="50%" />
+</div>
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/ViolinPlot-Stack.png", : It is highly recommended to use relative paths for images. You
+#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-Stack.png"
+```
+
+<div class="figure">
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-Stack.png" alt="plot of chunk unnamed-chunk-11" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-11</p>
-</div><div class="figure">
-<img src="inst/extdata/www/ViolinPlot-splited.png" alt="plot of chunk unnamed-chunk-11" width="50%" />
+</div>
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/ViolinPlot-splited.png", : It is highly recommended to use relative paths for images. You
+#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited.png"
+```
+
+<div class="figure">
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited.png" alt="plot of chunk unnamed-chunk-11" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-11</p>
-</div><div class="figure">
-<img src="inst/extdata/www/ViolinPlot-splited-Stack.png" alt="plot of chunk unnamed-chunk-11" width="50%" />
+</div>
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/ViolinPlot-splited-Stack.png", : It is highly recommended to use relative paths for
+#> images. You had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited-Stack.png"
+```
+
+<div class="figure">
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited-Stack.png" alt="plot of chunk unnamed-chunk-11" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-11</p>
 </div>
 
@@ -203,11 +250,24 @@ launchSeuratExplorer()
 
 **Example plots:**
 
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/DotPlot.png", : It is highly recommended to use relative paths for images. You had
+#> absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot.png"
+```
+
 <div class="figure">
-<img src="inst/extdata/www/DotPlot.png" alt="plot of chunk unnamed-chunk-12" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot.png" alt="plot of chunk unnamed-chunk-12" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-12</p>
-</div><div class="figure">
-<img src="inst/extdata/www/DotPlot-Splited.png" alt="plot of chunk unnamed-chunk-12" width="50%" />
+</div>
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/DotPlot-Splited.png", : It is highly recommended to use relative paths for images. You had
+#> absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot-Splited.png"
+```
+
+<div class="figure">
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot-Splited.png" alt="plot of chunk unnamed-chunk-12" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-12</p>
 </div>
 
@@ -231,8 +291,14 @@ launchSeuratExplorer()
 
 **Example plots:**
 
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Heatmap-CellLevel.png", : It is highly recommended to use relative paths for images. You
+#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-CellLevel.png"
+```
+
 <div class="figure">
-<img src="inst/extdata/www/Heatmap-CellLevel.png" alt="plot of chunk unnamed-chunk-13" width="100%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-CellLevel.png" alt="plot of chunk unnamed-chunk-13" width="100%" />
 <p class="caption">plot of chunk unnamed-chunk-13</p>
 </div>
 
@@ -252,11 +318,24 @@ launchSeuratExplorer()
 
 **Example plots:**
 
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Heatmap-GroupLevel.png", : It is highly recommended to use relative paths for images. You
+#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel.png"
+```
+
 <div class="figure">
-<img src="inst/extdata/www/Heatmap-GroupLevel.png" alt="plot of chunk unnamed-chunk-14" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel.png" alt="plot of chunk unnamed-chunk-14" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-14</p>
-</div><div class="figure">
-<img src="inst/extdata/www/Heatmap-GroupLevel-2.png" alt="plot of chunk unnamed-chunk-14" width="50%" />
+</div>
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Heatmap-GroupLevel-2.png", : It is highly recommended to use relative paths for images.
+#> You had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel-2.png"
+```
+
+<div class="figure">
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel-2.png" alt="plot of chunk unnamed-chunk-14" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-14</p>
 </div>
 
@@ -278,8 +357,14 @@ launchSeuratExplorer()
 
 **Example plots:**
 
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/RidgePlot.png", : It is highly recommended to use relative paths for images. You had
+#> absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/RidgePlot.png"
+```
+
 <div class="figure">
-<img src="inst/extdata/www/RidgePlot.png" alt="plot of chunk unnamed-chunk-15" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/RidgePlot.png" alt="plot of chunk unnamed-chunk-15" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-15</p>
 </div>
 
@@ -293,11 +378,24 @@ launchSeuratExplorer()
 
 **Example plots:**
 
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/CellRatio.png", : It is highly recommended to use relative paths for images. You had
+#> absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio.png"
+```
+
 <div class="figure">
-<img src="inst/extdata/www/CellRatio.png" alt="plot of chunk unnamed-chunk-16" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio.png" alt="plot of chunk unnamed-chunk-16" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-16</p>
-</div><div class="figure">
-<img src="inst/extdata/www/CellRatio-Splited.png" alt="plot of chunk unnamed-chunk-16" width="50%" />
+</div>
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/CellRatio-Splited.png", : It is highly recommended to use relative paths for images. You
+#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio-Splited.png"
+```
+
+<div class="figure">
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio-Splited.png" alt="plot of chunk unnamed-chunk-16" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-16</p>
 </div>
 
@@ -315,18 +413,37 @@ You can modify part calculation parameters before a analysis.
 
 **Screen shots:**
 
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/DEGs-1.png", : It is highly recommended to use relative paths for images. You had absolute
+#> paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-1.png"
+```
+
 <div class="figure">
-<img src="inst/extdata/www/DEGs-1.png" alt="plot of chunk unnamed-chunk-17" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-1.png" alt="plot of chunk unnamed-chunk-17" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-17</p>
-</div><div class="figure">
-<img src="inst/extdata/www/DEGs-2.png" alt="plot of chunk unnamed-chunk-17" width="50%" />
+</div>
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/DEGs-2.png", : It is highly recommended to use relative paths for images. You had absolute
+#> paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-2.png"
+```
+
+<div class="figure">
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-2.png" alt="plot of chunk unnamed-chunk-17" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-17</p>
 </div>
 
 #### Output description
 
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/DEGs-4.jpg", : It is highly recommended to use relative paths for images. You had absolute
+#> paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-4.jpg"
+```
+
 <div class="figure">
-<img src="inst/extdata/www/DEGs-4.jpg" alt="plot of chunk unnamed-chunk-18" width="100%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-4.jpg" alt="plot of chunk unnamed-chunk-18" width="100%" />
 <p class="caption">plot of chunk unnamed-chunk-18</p>
 </div>
 
@@ -355,8 +472,14 @@ Step1: for each cell, find genes that has high UMI percentage, for example, if a
 Step2: summary those genes for each cluster, firstly get all highly expressed genes in a cluster, some genes may has less cells, then for each gene, count cells in which this genes is highly expressed, and also calculate the mean and median UMI percentage in those highly expressed cells.
 
 
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Find-Top-Genes-by-Cell.jpg", : It is highly recommended to use relative paths for images.
+#> You had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Find-Top-Genes-by-Cell.jpg"
+```
+
 <div class="figure">
-<img src="inst/extdata/www/Find-Top-Genes-by-Cell.jpg" alt="plot of chunk unnamed-chunk-19" width="80%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Find-Top-Genes-by-Cell.jpg" alt="plot of chunk unnamed-chunk-19" width="80%" />
 <p class="caption">plot of chunk unnamed-chunk-19</p>
 </div>
 
@@ -383,8 +506,14 @@ Step2: summary those genes for each cluster, firstly get all highly expressed ge
 
 for each cluster, calculate the ``top n`` highly expressed genes by Mean UMI counts. if a cluster has less than 3 cells, this cluster will be escaped.
 
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Find-Top-Genes-by-Mean-UMI-counts.jpg", : It is highly recommended to use relative paths
+#> for images. You had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg"
+```
+
 <div class="figure">
-<img src="inst/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg" alt="plot of chunk unnamed-chunk-20" width="80%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg" alt="plot of chunk unnamed-chunk-20" width="80%" />
 <p class="caption">plot of chunk unnamed-chunk-20</p>
 </div>
 
@@ -406,8 +535,14 @@ for each cluster, calculate the ``top n`` highly expressed genes by Mean UMI cou
 
 Summary interested features by cluster, such as the positive cell percentage and mean/median expression level.
 
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/gene-short-summary.jpg", : It is highly recommended to use relative paths for images. You
+#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/gene-short-summary.jpg"
+```
+
 <div class="figure">
-<img src="inst/extdata/www/gene-short-summary.jpg" alt="plot of chunk unnamed-chunk-21" width="80%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/gene-short-summary.jpg" alt="plot of chunk unnamed-chunk-21" width="80%" />
 <p class="caption">plot of chunk unnamed-chunk-21</p>
 </div>
 
@@ -437,15 +572,27 @@ Can calculate the correlation value of gene pairs within cells from a cluster, s
 
 - ``Calculate Correlation for A Gene List``: to calculate the correlation value for each pair of the input genes
 
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/featurecorrelation.jpg", : It is highly recommended to use relative paths for images. You
+#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/featurecorrelation.jpg"
+```
+
 <div class="figure">
-<img src="inst/extdata/www/featurecorrelation.jpg" alt="plot of chunk unnamed-chunk-22" width="100%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/featurecorrelation.jpg" alt="plot of chunk unnamed-chunk-22" width="100%" />
 <p class="caption">plot of chunk unnamed-chunk-22</p>
 </div>
 
 #### Output description
 
+
+```
+#> Warning in knitr::include_graphics(system.file("extdata", "www/feature-correlation-output.jpg", : It is highly recommended to use relative paths for
+#> images. You had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/feature-correlation-output.jpg"
+```
+
 <div class="figure">
-<img src="inst/extdata/www/feature-correlation-output.jpg" alt="plot of chunk unnamed-chunk-23" width="40%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/feature-correlation-output.jpg" alt="plot of chunk unnamed-chunk-23" width="40%" />
 <p class="caption">plot of chunk unnamed-chunk-23</p>
 </div>
 
@@ -493,32 +640,33 @@ if nothing return, this is because the input genes has very low expression level
 #> [1] badger_0.2.4         SeuratExplorer_0.1.1 shiny_1.10.0        
 #> 
 #> loaded via a namespace (and not attached):
-#>   [1] RColorBrewer_1.1-3       rstudioapi_0.17.1        dlstats_0.1.7            jsonlite_1.8.8           magrittr_2.0.3          
+#>   [1] RColorBrewer_1.1-3       dlstats_0.1.7            rstudioapi_0.17.1        jsonlite_1.8.8           magrittr_2.0.3          
 #>   [6] spatstat.utils_3.1-3     farver_2.1.2             fs_1.6.4                 vctrs_0.6.5              ROCR_1.0-11             
 #>  [11] memoise_2.0.1            spatstat.explore_3.4-2   shinydashboardPlus_2.0.5 htmltools_0.5.8.1        sass_0.4.10             
 #>  [16] sctransform_0.4.2        parallelly_1.43.0        KernSmooth_2.23-26       bslib_0.9.0              desc_1.4.3              
 #>  [21] htmlwidgets_1.6.4        ica_1.0-3                fontawesome_0.5.3        plyr_1.8.9               plotly_4.10.4           
-#>  [26] zoo_1.8-14               cachem_1.1.0             igraph_2.1.4             mime_0.13                lifecycle_1.0.4         
-#>  [31] pkgconfig_2.0.3          colourpicker_1.3.0       Matrix_1.7-3             R6_2.6.1                 fastmap_1.2.0           
-#>  [36] fitdistrplus_1.2-2       future_1.33.2            digest_0.6.36            colorspace_2.1-0         patchwork_1.3.0         
-#>  [41] shinycssloaders_1.1.0    Seurat_5.3.99.9000       tensor_1.5               RSpectra_0.16-2          irlba_2.3.5.1           
-#>  [46] crosstalk_1.2.1          progressr_0.15.1         spatstat.sparse_3.1-0    httr_1.4.7               polyclip_1.10-6         
-#>  [51] abind_1.4-8              compiler_4.4.3           fastDummies_1.7.5        MASS_7.3-65              tools_4.4.3             
-#>  [56] lmtest_0.9-40            httpuv_1.6.16            future.apply_1.11.3      goftest_1.2-3            glue_1.7.0              
-#>  [61] nlme_3.1-168             promises_1.3.2           grid_4.4.3               Rtsne_0.17               cluster_2.1.8.1         
-#>  [66] reshape2_1.4.4           generics_0.1.4           gtable_0.3.6             spatstat.data_3.1-6      shinyBS_0.61.1          
-#>  [71] tidyr_1.3.1              data.table_1.17.0        sp_2.2-0                 spatstat.geom_3.3-6      RcppAnnoy_0.0.22        
-#>  [76] markdown_2.0             ggrepel_0.9.5            RANN_2.6.2               pillar_1.10.2            stringr_1.5.1           
-#>  [81] yulab.utils_0.2.0        spam_2.11-1              RcppHNSW_0.6.0           later_1.4.2              splines_4.4.3           
-#>  [86] dplyr_1.1.4              lattice_0.22-7           survival_3.8-3           deldir_2.0-4             tidyselect_1.2.1        
-#>  [91] rvcheck_0.2.1            miniUI_0.1.2             pbapply_1.7-2            knitr_1.50               gridExtra_2.3           
-#>  [96] litedown_0.7             scattermore_1.2          xfun_0.52                shinydashboard_0.7.3     matrixStats_1.5.0       
-#> [101] DT_0.33                  stringi_1.8.4            lazyeval_0.2.2           yaml_2.3.10              evaluate_1.0.3          
-#> [106] shinyWidgets_0.9.0       codetools_0.2-20         tibble_3.2.1             BiocManager_1.30.25      cli_3.6.3               
-#> [111] uwot_0.2.3               xtable_1.8-4             reticulate_1.42.0        jquerylib_0.1.4          Rcpp_1.0.12             
-#> [116] globals_0.18.0           spatstat.random_3.3-3    png_0.1-8                spatstat.univar_3.1-2    parallel_4.4.3          
-#> [121] ggplot2_3.5.1            dotCall64_1.2            listenv_0.9.1            viridisLite_0.4.2        scales_1.4.0            
-#> [126] ggridges_0.5.6           SeuratObject_5.1.0       purrr_1.0.2              rlang_1.1.4              cowplot_1.1.3
+#>  [26] zoo_1.8-14               cachem_1.1.0             commonmark_1.9.5         igraph_2.1.4             mime_0.13               
+#>  [31] lifecycle_1.0.4          pkgconfig_2.0.3          colourpicker_1.3.0       Matrix_1.7-3             R6_2.6.1                
+#>  [36] fastmap_1.2.0            fitdistrplus_1.2-2       future_1.33.2            digest_0.6.36            colorspace_2.1-0        
+#>  [41] patchwork_1.3.0          shinycssloaders_1.1.0    Seurat_5.3.99.9000       tensor_1.5               RSpectra_0.16-2         
+#>  [46] irlba_2.3.5.1            crosstalk_1.2.1          progressr_0.15.1         spatstat.sparse_3.1-0    httr_1.4.7              
+#>  [51] polyclip_1.10-6          abind_1.4-8              compiler_4.4.3           fastDummies_1.7.5        MASS_7.3-65             
+#>  [56] tools_4.4.3              lmtest_0.9-40            httpuv_1.6.16            future.apply_1.11.3      goftest_1.2-3           
+#>  [61] glue_1.7.0               nlme_3.1-168             promises_1.3.2           grid_4.4.3               Rtsne_0.17              
+#>  [66] cluster_2.1.8.1          reshape2_1.4.4           generics_0.1.4           gtable_0.3.6             spatstat.data_3.1-6     
+#>  [71] shinyBS_0.61.1           tidyr_1.3.1              data.table_1.17.0        sp_2.2-0                 spatstat.geom_3.3-6     
+#>  [76] RcppAnnoy_0.0.22         ggrepel_0.9.5            RANN_2.6.2               pillar_1.10.2            markdown_2.0            
+#>  [81] stringr_1.5.1            yulab.utils_0.2.0        spam_2.11-1              RcppHNSW_0.6.0           later_1.4.2             
+#>  [86] splines_4.4.3            dplyr_1.1.4              lattice_0.22-7           survival_3.8-3           deldir_2.0-4            
+#>  [91] tidyselect_1.2.1         rvcheck_0.2.1            miniUI_0.1.2             pbapply_1.7-2            knitr_1.50              
+#>  [96] gridExtra_2.3            litedown_0.7             scattermore_1.2          xfun_0.52                shinydashboard_0.7.3    
+#> [101] matrixStats_1.5.0        DT_0.33                  stringi_1.8.4            lazyeval_0.2.2           yaml_2.3.10             
+#> [106] shinyWidgets_0.9.0       evaluate_1.0.3           codetools_0.2-20         tibble_3.2.1             BiocManager_1.30.25     
+#> [111] cli_3.6.3                uwot_0.2.3               xtable_1.8-4             reticulate_1.42.0        jquerylib_0.1.4         
+#> [116] Rcpp_1.0.12              globals_0.18.0           spatstat.random_3.3-3    png_0.1-8                spatstat.univar_3.1-2   
+#> [121] parallel_4.4.3           ggplot2_3.5.1            dotCall64_1.2            listenv_0.9.1            viridisLite_0.4.2       
+#> [126] scales_1.4.0             ggridges_0.5.6           SeuratObject_5.1.0       purrr_1.0.2              rlang_1.1.4             
+#> [131] cowplot_1.1.3
 ```
 
 ## 中文介绍
