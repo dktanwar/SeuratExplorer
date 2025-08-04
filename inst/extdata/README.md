@@ -120,11 +120,6 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/Dimplot-splited.png", : It is highly recommended to use relative paths for
-    #> images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Dimplot-splited.png"
-
 <img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Dimplot-splited.png" width="80%" />
 
 ### Feature Plot
@@ -146,19 +141,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/Featureplot.png", : It is highly recommended to use relative paths for
-    #> images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot.png"
-
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot.png" width="50%" />
-
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/Featureplot-splited.png", : It is highly recommended to use relative paths
-    #> for images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot-splited.png"
-
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot-splited.png" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot-splited.png" width="50%" />
 
 ### Violin Plot
 
@@ -181,33 +164,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-    #> Warning in knitr::include_graphics(system.file("extdata", "www/ViolinPlot.png",
-    #> : It is highly recommended to use relative paths for images. You had absolute
-    #> paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot.png"
-
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot.png" width="50%" />
-
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/ViolinPlot-Stack.png", : It is highly recommended to use relative paths
-    #> for images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-Stack.png"
-
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-Stack.png" width="50%" />
-
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/ViolinPlot-splited.png", : It is highly recommended to use relative paths
-    #> for images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited.png"
-
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited.png" width="50%" />
-
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/ViolinPlot-splited-Stack.png", : It is highly recommended to use relative
-    #> paths for images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited-Stack.png"
-
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited-Stack.png" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-Stack.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited-Stack.png" width="50%" />
 
 ### Dot Plot
 
@@ -232,19 +189,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-    #> Warning in knitr::include_graphics(system.file("extdata", "www/DotPlot.png", :
-    #> It is highly recommended to use relative paths for images. You had absolute
-    #> paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot.png"
-
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot.png" width="50%" />
-
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/DotPlot-Splited.png", : It is highly recommended to use relative paths for
-    #> images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot-Splited.png"
-
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot-Splited.png" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot-Splited.png" width="50%" />
 
 ### Heatmap for cell level expression
 
@@ -268,11 +213,6 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/Heatmap-CellLevel.png", : It is highly recommended to use relative paths
-    #> for images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-CellLevel.png"
-
 <img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-CellLevel.png" width="100%" />
 
 ### Heatmap for group averaged expression
@@ -292,19 +232,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/Heatmap-GroupLevel.png", : It is highly recommended to use relative paths
-    #> for images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel.png"
-
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel.png" width="50%" />
-
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/Heatmap-GroupLevel-2.png", : It is highly recommended to use relative
-    #> paths for images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel-2.png"
-
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel-2.png" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel-2.png" width="50%" />
 
 ### Ridge Plot
 
@@ -325,11 +253,6 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-    #> Warning in knitr::include_graphics(system.file("extdata", "www/RidgePlot.png",
-    #> : It is highly recommended to use relative paths for images. You had absolute
-    #> paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/RidgePlot.png"
-
 <img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/RidgePlot.png" width="50%" />
 
 ### Plot Cell Percentage
@@ -342,19 +265,7 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-    #> Warning in knitr::include_graphics(system.file("extdata", "www/CellRatio.png",
-    #> : It is highly recommended to use relative paths for images. You had absolute
-    #> paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio.png"
-
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio.png" width="50%" />
-
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/CellRatio-Splited.png", : It is highly recommended to use relative paths
-    #> for images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio-Splited.png"
-
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio-Splited.png" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio-Splited.png" width="50%" />
 
 ### Find Cluster Markers and DEGs Analysis
 
@@ -374,26 +285,9 @@ You can modify part calculation parameters before a analysis.
 
 **Screen shots:**
 
-    #> Warning in knitr::include_graphics(system.file("extdata", "www/DEGs-1.png", :
-    #> It is highly recommended to use relative paths for images. You had absolute
-    #> paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-1.png"
-
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-1.png" width="50%" />
-
-    #> Warning in knitr::include_graphics(system.file("extdata", "www/DEGs-2.png", :
-    #> It is highly recommended to use relative paths for images. You had absolute
-    #> paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-2.png"
-
-<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-2.png" width="50%" />
+<img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-1.png" width="50%" /><img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-2.png" width="50%" />
 
 #### Output description
-
-    #> Warning in knitr::include_graphics(system.file("extdata", "www/DEGs-4.jpg", :
-    #> It is highly recommended to use relative paths for images. You had absolute
-    #> paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-4.jpg"
 
 <img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-4.jpg" width="100%" />
 
@@ -441,11 +335,6 @@ each gene, count cells in which this genes is highly expressed, and also
 calculate the mean and median UMI percentage in those highly expressed
 cells.
 
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/Find-Top-Genes-by-Cell.jpg", : It is highly recommended to use relative
-    #> paths for images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Find-Top-Genes-by-Cell.jpg"
-
 <img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Find-Top-Genes-by-Cell.jpg" width="80%" />
 
 #### Output description
@@ -476,11 +365,6 @@ for each cluster, calculate the `top n` highly expressed genes by Mean
 UMI counts. if a cluster has less than 3 cells, this cluster will be
 escaped.
 
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/Find-Top-Genes-by-Mean-UMI-counts.jpg", : It is highly recommended to use
-    #> relative paths for images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg"
-
 <img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg" width="80%" />
 
 #### Output description
@@ -504,11 +388,6 @@ escaped.
 
 Summary interested features by cluster, such as the positive cell
 percentage and mean/median expression level.
-
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/gene-short-summary.jpg", : It is highly recommended to use relative paths
-    #> for images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/gene-short-summary.jpg"
 
 <img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/gene-short-summary.jpg" width="80%" />
 
@@ -544,21 +423,9 @@ cluster, support pearson & spearman methods.
 - `Calculate Correlation for A Gene List`: to calculate the correlation
   value for each pair of the input genes
 
-<!-- -->
-
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/featurecorrelation.jpg", : It is highly recommended to use relative paths
-    #> for images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/featurecorrelation.jpg"
-
 <img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/featurecorrelation.jpg" width="100%" />
 
 #### Output description
-
-    #> Warning in knitr::include_graphics(system.file("extdata",
-    #> "www/feature-correlation-output.jpg", : It is highly recommended to use
-    #> relative paths for images. You had absolute paths:
-    #> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/feature-correlation-output.jpg"
 
 <img src="C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/feature-correlation-output.jpg" width="40%" />
 

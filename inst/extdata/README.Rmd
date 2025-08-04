@@ -86,7 +86,7 @@ launchSeuratExplorer()
 - support data processed by ``Seurat`` V5 and older versions. it may takes a while to update ``Seurat`` object when loading data.
 
 ```{r echo = FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics(system.file("extdata", "www/upload-data.png", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/upload-data.png", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 ### Cell Metadata
@@ -94,7 +94,7 @@ knitr::include_graphics(system.file("extdata", "www/upload-data.png", package ="
 - support download cell metadata in ``csv`` format, which can be used for further analysis.
 
 ```{r  echo = FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics(system.file("extdata", "www/cell-metadata.jpg", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/cell-metadata.jpg", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 ### Dimensional Reduction Plot
@@ -120,7 +120,7 @@ knitr::include_graphics(system.file("extdata", "www/cell-metadata.jpg", package 
 **Example plots:**
 
 ```{r  echo = FALSE, out.width="80%"}
-knitr::include_graphics(system.file("extdata", "www/Dimplot-splited.png", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/Dimplot-splited.png", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 ### Feature Plot
@@ -142,8 +142,8 @@ knitr::include_graphics(system.file("extdata", "www/Dimplot-splited.png", packag
 **Example plots:**
 
 ```{r  echo = FALSE, out.width="50%"}
-knitr::include_graphics(system.file("extdata", "www/Featureplot.png", package ="SeuratExplorer"))
-knitr::include_graphics(system.file("extdata", "www/Featureplot-splited.png", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/Featureplot.png", package ="SeuratExplorer"), rel_path = FALSE)
+knitr::include_graphics(system.file("extdata", "www/Featureplot-splited.png", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 ### Violin Plot
@@ -167,10 +167,10 @@ knitr::include_graphics(system.file("extdata", "www/Featureplot-splited.png", pa
 **Example plots:**
 
 ```{r echo = FALSE, out.width="50%"}
-knitr::include_graphics(system.file("extdata", "www/ViolinPlot.png", package ="SeuratExplorer"))
-knitr::include_graphics(system.file("extdata", "www/ViolinPlot-Stack.png", package ="SeuratExplorer"))
-knitr::include_graphics(system.file("extdata", "www/ViolinPlot-splited.png", package ="SeuratExplorer"))
-knitr::include_graphics(system.file("extdata", "www/ViolinPlot-splited-Stack.png", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/ViolinPlot.png", package ="SeuratExplorer"), rel_path = FALSE)
+knitr::include_graphics(system.file("extdata", "www/ViolinPlot-Stack.png", package ="SeuratExplorer"), rel_path = FALSE)
+knitr::include_graphics(system.file("extdata", "www/ViolinPlot-splited.png", package ="SeuratExplorer"), rel_path = FALSE)
+knitr::include_graphics(system.file("extdata", "www/ViolinPlot-splited-Stack.png", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 ### Dot Plot
@@ -196,8 +196,8 @@ knitr::include_graphics(system.file("extdata", "www/ViolinPlot-splited-Stack.png
 **Example plots:**
 
 ```{r echo = FALSE, out.width="50%"}
-knitr::include_graphics(system.file("extdata", "www/DotPlot.png", package ="SeuratExplorer"))
-knitr::include_graphics(system.file("extdata", "www/DotPlot-Splited.png", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/DotPlot.png", package ="SeuratExplorer"), rel_path = FALSE)
+knitr::include_graphics(system.file("extdata", "www/DotPlot-Splited.png", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 ### Heatmap for cell level expression
@@ -221,7 +221,7 @@ knitr::include_graphics(system.file("extdata", "www/DotPlot-Splited.png", packag
 **Example plots:**
 
 ```{r echo = FALSE}
-knitr::include_graphics(system.file("extdata", "www/Heatmap-CellLevel.png", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/Heatmap-CellLevel.png", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 ### Heatmap for group averaged expression
@@ -241,8 +241,8 @@ knitr::include_graphics(system.file("extdata", "www/Heatmap-CellLevel.png", pack
 **Example plots:**
 
 ```{r echo = FALSE, out.width="50%"}
-knitr::include_graphics(system.file("extdata", "www/Heatmap-GroupLevel.png", package ="SeuratExplorer"))
-knitr::include_graphics(system.file("extdata", "www/Heatmap-GroupLevel-2.png", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/Heatmap-GroupLevel.png", package ="SeuratExplorer"), rel_path = FALSE)
+knitr::include_graphics(system.file("extdata", "www/Heatmap-GroupLevel-2.png", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 ### Ridge Plot
@@ -264,7 +264,7 @@ knitr::include_graphics(system.file("extdata", "www/Heatmap-GroupLevel-2.png", p
 **Example plots:**
 
 ```{r echo = FALSE, out.width="50%"}
-knitr::include_graphics(system.file("extdata", "www/RidgePlot.png", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/RidgePlot.png", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 ### Plot Cell Percentage
@@ -278,8 +278,8 @@ knitr::include_graphics(system.file("extdata", "www/RidgePlot.png", package ="Se
 **Example plots:**
 
 ```{r echo = FALSE, out.width="50%"}
-knitr::include_graphics(system.file("extdata", "www/CellRatio.png", package ="SeuratExplorer"))
-knitr::include_graphics(system.file("extdata", "www/CellRatio-Splited.png", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/CellRatio.png", package ="SeuratExplorer"), rel_path = FALSE)
+knitr::include_graphics(system.file("extdata", "www/CellRatio-Splited.png", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 ### Find Cluster Markers and DEGs Analysis
@@ -297,14 +297,14 @@ You can modify part calculation parameters before a analysis.
 **Screen shots:**
 
 ```{r echo = FALSE, out.width="50%"}
-knitr::include_graphics(system.file("extdata", "www/DEGs-1.png", package ="SeuratExplorer"))
-knitr::include_graphics(system.file("extdata", "www/DEGs-2.png", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/DEGs-1.png", package ="SeuratExplorer"), rel_path = FALSE)
+knitr::include_graphics(system.file("extdata", "www/DEGs-2.png", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 #### Output description
 
 ```{r echo = FALSE}
-knitr::include_graphics(system.file("extdata", "www/DEGs-4.jpg", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/DEGs-4.jpg", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 > [FindMarkers(object, ...)](https://satijalab.org/seurat/reference/findmarkers)
@@ -333,7 +333,7 @@ Step2: summary those genes for each cluster, firstly get all highly expressed ge
 
 
 ```{r echo = FALSE, out.width="80%"}
-knitr::include_graphics(system.file("extdata", "www/Find-Top-Genes-by-Cell.jpg", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/Find-Top-Genes-by-Cell.jpg", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 #### Output description
@@ -360,7 +360,7 @@ knitr::include_graphics(system.file("extdata", "www/Find-Top-Genes-by-Cell.jpg",
 for each cluster, calculate the ``top n`` highly expressed genes by Mean UMI counts. if a cluster has less than 3 cells, this cluster will be escaped.
 
 ```{r echo = FALSE, out.width="80%"}
-knitr::include_graphics(system.file("extdata", "www/Find-Top-Genes-by-Mean-UMI-counts.jpg", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/Find-Top-Genes-by-Mean-UMI-counts.jpg", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 #### Output description
@@ -382,7 +382,7 @@ knitr::include_graphics(system.file("extdata", "www/Find-Top-Genes-by-Mean-UMI-c
 Summary interested features by cluster, such as the positive cell percentage and mean/median expression level.
 
 ```{r echo = FALSE, out.width="80%"}
-knitr::include_graphics(system.file("extdata", "www/gene-short-summary.jpg", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/gene-short-summary.jpg", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 #### Output description
@@ -412,13 +412,13 @@ Can calculate the correlation value of gene pairs within cells from a cluster, s
 - ``Calculate Correlation for A Gene List``: to calculate the correlation value for each pair of the input genes
 
 ```{r echo = FALSE}
-knitr::include_graphics(system.file("extdata", "www/featurecorrelation.jpg", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/featurecorrelation.jpg", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 #### Output description
 
 ```{r echo = FALSE, out.width="40%"}
-knitr::include_graphics(system.file("extdata", "www/feature-correlation-output.jpg", package ="SeuratExplorer"))
+knitr::include_graphics(system.file("extdata", "www/feature-correlation-output.jpg", package ="SeuratExplorer"), rel_path = FALSE)
 ```
 
 - ``GeneA``: the first gene in a Gene pair
