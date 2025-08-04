@@ -1,4 +1,5 @@
 ---
+# knit: (function(inputFile, encoding) {rmarkdown::render(inputFile, encoding = encoding, output_dir = "../../")}) # to update the README page on github. must keep commented for work properly when deployed by Seurat Explorer Server.
 output: github_document
 ---
 
