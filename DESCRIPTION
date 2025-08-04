@@ -34,7 +34,8 @@ Imports:
     qs2,
     circlize,
     reshape2,
-    knitr
+    knitr,
+    badger
 Depends: 
     R (>= 4.1.0),
     shiny

@@ -1,5 +1,4 @@
 ---
-knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = "../../") })
 output: github_document
 ---
 
@@ -119,8 +118,9 @@ launchSeuratExplorer()
 
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/Dimplot-splited.png", : It is highly recommended to use relative paths for images. You had
-#> absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Dimplot-splited.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Dimplot-splited.png", : It is highly recommended to use
+#> relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Dimplot-splited.png"
 ```
 
 <div class="figure">
@@ -148,8 +148,9 @@ launchSeuratExplorer()
 
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/Featureplot.png", : It is highly recommended to use relative paths for images. You had
-#> absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Featureplot.png", : It is highly recommended to use
+#> relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot.png"
 ```
 
 <div class="figure">
@@ -158,8 +159,9 @@ launchSeuratExplorer()
 </div>
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/Featureplot-splited.png", : It is highly recommended to use relative paths for images. You
-#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot-splited.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Featureplot-splited.png", : It is highly recommended to
+#> use relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Featureplot-splited.png"
 ```
 
 <div class="figure">
@@ -189,8 +191,9 @@ launchSeuratExplorer()
 
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/ViolinPlot.png", : It is highly recommended to use relative paths for images. You had
-#> absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/ViolinPlot.png", : It is highly recommended to use
+#> relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot.png"
 ```
 
 <div class="figure">
@@ -199,8 +202,9 @@ launchSeuratExplorer()
 </div>
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/ViolinPlot-Stack.png", : It is highly recommended to use relative paths for images. You
-#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-Stack.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/ViolinPlot-Stack.png", : It is highly recommended to use
+#> relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-Stack.png"
 ```
 
 <div class="figure">
@@ -209,8 +213,9 @@ launchSeuratExplorer()
 </div>
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/ViolinPlot-splited.png", : It is highly recommended to use relative paths for images. You
-#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/ViolinPlot-splited.png", : It is highly recommended to use
+#> relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited.png"
 ```
 
 <div class="figure">
@@ -219,8 +224,9 @@ launchSeuratExplorer()
 </div>
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/ViolinPlot-splited-Stack.png", : It is highly recommended to use relative paths for
-#> images. You had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited-Stack.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/ViolinPlot-splited-Stack.png", : It is highly recommended
+#> to use relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/ViolinPlot-splited-Stack.png"
 ```
 
 <div class="figure">
@@ -252,8 +258,9 @@ launchSeuratExplorer()
 
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/DotPlot.png", : It is highly recommended to use relative paths for images. You had
-#> absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/DotPlot.png", : It is highly recommended to use relative
+#> paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot.png"
 ```
 
 <div class="figure">
@@ -262,8 +269,9 @@ launchSeuratExplorer()
 </div>
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/DotPlot-Splited.png", : It is highly recommended to use relative paths for images. You had
-#> absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot-Splited.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/DotPlot-Splited.png", : It is highly recommended to use
+#> relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DotPlot-Splited.png"
 ```
 
 <div class="figure">
@@ -293,8 +301,9 @@ launchSeuratExplorer()
 
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/Heatmap-CellLevel.png", : It is highly recommended to use relative paths for images. You
-#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-CellLevel.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Heatmap-CellLevel.png", : It is highly recommended to use
+#> relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-CellLevel.png"
 ```
 
 <div class="figure">
@@ -320,8 +329,9 @@ launchSeuratExplorer()
 
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/Heatmap-GroupLevel.png", : It is highly recommended to use relative paths for images. You
-#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Heatmap-GroupLevel.png", : It is highly recommended to use
+#> relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel.png"
 ```
 
 <div class="figure">
@@ -330,8 +340,9 @@ launchSeuratExplorer()
 </div>
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/Heatmap-GroupLevel-2.png", : It is highly recommended to use relative paths for images.
-#> You had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel-2.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Heatmap-GroupLevel-2.png", : It is highly recommended to
+#> use relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Heatmap-GroupLevel-2.png"
 ```
 
 <div class="figure">
@@ -359,8 +370,9 @@ launchSeuratExplorer()
 
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/RidgePlot.png", : It is highly recommended to use relative paths for images. You had
-#> absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/RidgePlot.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/RidgePlot.png", : It is highly recommended to use relative
+#> paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/RidgePlot.png"
 ```
 
 <div class="figure">
@@ -380,8 +392,9 @@ launchSeuratExplorer()
 
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/CellRatio.png", : It is highly recommended to use relative paths for images. You had
-#> absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/CellRatio.png", : It is highly recommended to use relative
+#> paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio.png"
 ```
 
 <div class="figure">
@@ -390,8 +403,9 @@ launchSeuratExplorer()
 </div>
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/CellRatio-Splited.png", : It is highly recommended to use relative paths for images. You
-#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio-Splited.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/CellRatio-Splited.png", : It is highly recommended to use
+#> relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/CellRatio-Splited.png"
 ```
 
 <div class="figure">
@@ -415,8 +429,9 @@ You can modify part calculation parameters before a analysis.
 
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/DEGs-1.png", : It is highly recommended to use relative paths for images. You had absolute
-#> paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-1.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/DEGs-1.png", : It is highly recommended to use relative
+#> paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-1.png"
 ```
 
 <div class="figure">
@@ -425,8 +440,9 @@ You can modify part calculation parameters before a analysis.
 </div>
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/DEGs-2.png", : It is highly recommended to use relative paths for images. You had absolute
-#> paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-2.png"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/DEGs-2.png", : It is highly recommended to use relative
+#> paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-2.png"
 ```
 
 <div class="figure">
@@ -438,8 +454,9 @@ You can modify part calculation parameters before a analysis.
 
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/DEGs-4.jpg", : It is highly recommended to use relative paths for images. You had absolute
-#> paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-4.jpg"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/DEGs-4.jpg", : It is highly recommended to use relative
+#> paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/DEGs-4.jpg"
 ```
 
 <div class="figure">
@@ -474,8 +491,9 @@ Step2: summary those genes for each cluster, firstly get all highly expressed ge
 
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/Find-Top-Genes-by-Cell.jpg", : It is highly recommended to use relative paths for images.
-#> You had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Find-Top-Genes-by-Cell.jpg"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Find-Top-Genes-by-Cell.jpg", : It is highly recommended to
+#> use relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Find-Top-Genes-by-Cell.jpg"
 ```
 
 <div class="figure">
@@ -508,8 +526,9 @@ for each cluster, calculate the ``top n`` highly expressed genes by Mean UMI cou
 
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/Find-Top-Genes-by-Mean-UMI-counts.jpg", : It is highly recommended to use relative paths
-#> for images. You had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/Find-Top-Genes-by-Mean-UMI-counts.jpg", : It is highly
+#> recommended to use relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg"
 ```
 
 <div class="figure">
@@ -537,8 +556,9 @@ Summary interested features by cluster, such as the positive cell percentage and
 
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/gene-short-summary.jpg", : It is highly recommended to use relative paths for images. You
-#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/gene-short-summary.jpg"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/gene-short-summary.jpg", : It is highly recommended to use
+#> relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/gene-short-summary.jpg"
 ```
 
 <div class="figure">
@@ -574,8 +594,9 @@ Can calculate the correlation value of gene pairs within cells from a cluster, s
 
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/featurecorrelation.jpg", : It is highly recommended to use relative paths for images. You
-#> had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/featurecorrelation.jpg"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/featurecorrelation.jpg", : It is highly recommended to use
+#> relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/featurecorrelation.jpg"
 ```
 
 <div class="figure">
@@ -587,8 +608,9 @@ Can calculate the correlation value of gene pairs within cells from a cluster, s
 
 
 ```
-#> Warning in knitr::include_graphics(system.file("extdata", "www/feature-correlation-output.jpg", : It is highly recommended to use relative paths for
-#> images. You had absolute paths: "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/feature-correlation-output.jpg"
+#> Warning in knitr::include_graphics(system.file("extdata", "www/feature-correlation-output.jpg", : It is highly
+#> recommended to use relative paths for images. You had absolute paths:
+#> "C:/Users/Xi_Lab/AppData/Local/R/win-library/4.4/SeuratExplorer/extdata/www/feature-correlation-output.jpg"
 ```
 
 <div class="figure">
@@ -627,8 +649,9 @@ if nothing return, this is because the input genes has very low expression level
 #> 
 #> 
 #> locale:
-#> [1] LC_COLLATE=Chinese (Simplified)_China.utf8  LC_CTYPE=Chinese (Simplified)_China.utf8    LC_MONETARY=Chinese (Simplified)_China.utf8
-#> [4] LC_NUMERIC=C                                LC_TIME=Chinese (Simplified)_China.utf8    
+#> [1] LC_COLLATE=Chinese (Simplified)_China.utf8  LC_CTYPE=Chinese (Simplified)_China.utf8   
+#> [3] LC_MONETARY=Chinese (Simplified)_China.utf8 LC_NUMERIC=C                               
+#> [5] LC_TIME=Chinese (Simplified)_China.utf8    
 #> 
 #> time zone: Asia/Shanghai
 #> tzcode source: internal
@@ -637,36 +660,42 @@ if nothing return, this is because the input genes has very low expression level
 #> [1] stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] badger_0.2.4         SeuratExplorer_0.1.1 shiny_1.10.0        
+#> [1] SeuratExplorer_0.1.1 shiny_1.10.0         badger_0.2.4        
 #> 
 #> loaded via a namespace (and not attached):
-#>   [1] RColorBrewer_1.1-3       dlstats_0.1.7            rstudioapi_0.17.1        jsonlite_1.8.8           magrittr_2.0.3          
-#>   [6] spatstat.utils_3.1-3     farver_2.1.2             fs_1.6.4                 vctrs_0.6.5              ROCR_1.0-11             
-#>  [11] memoise_2.0.1            spatstat.explore_3.4-2   shinydashboardPlus_2.0.5 htmltools_0.5.8.1        sass_0.4.10             
-#>  [16] sctransform_0.4.2        parallelly_1.43.0        KernSmooth_2.23-26       bslib_0.9.0              desc_1.4.3              
-#>  [21] htmlwidgets_1.6.4        ica_1.0-3                fontawesome_0.5.3        plyr_1.8.9               plotly_4.10.4           
-#>  [26] zoo_1.8-14               cachem_1.1.0             commonmark_1.9.5         igraph_2.1.4             mime_0.13               
-#>  [31] lifecycle_1.0.4          pkgconfig_2.0.3          colourpicker_1.3.0       Matrix_1.7-3             R6_2.6.1                
-#>  [36] fastmap_1.2.0            fitdistrplus_1.2-2       future_1.33.2            digest_0.6.36            colorspace_2.1-0        
-#>  [41] patchwork_1.3.0          shinycssloaders_1.1.0    Seurat_5.3.99.9000       tensor_1.5               RSpectra_0.16-2         
-#>  [46] irlba_2.3.5.1            crosstalk_1.2.1          progressr_0.15.1         spatstat.sparse_3.1-0    httr_1.4.7              
-#>  [51] polyclip_1.10-6          abind_1.4-8              compiler_4.4.3           fastDummies_1.7.5        MASS_7.3-65             
-#>  [56] tools_4.4.3              lmtest_0.9-40            httpuv_1.6.16            future.apply_1.11.3      goftest_1.2-3           
-#>  [61] glue_1.7.0               nlme_3.1-168             promises_1.3.2           grid_4.4.3               Rtsne_0.17              
-#>  [66] cluster_2.1.8.1          reshape2_1.4.4           generics_0.1.4           gtable_0.3.6             spatstat.data_3.1-6     
-#>  [71] shinyBS_0.61.1           tidyr_1.3.1              data.table_1.17.0        sp_2.2-0                 spatstat.geom_3.3-6     
-#>  [76] RcppAnnoy_0.0.22         ggrepel_0.9.5            RANN_2.6.2               pillar_1.10.2            markdown_2.0            
-#>  [81] stringr_1.5.1            yulab.utils_0.2.0        spam_2.11-1              RcppHNSW_0.6.0           later_1.4.2             
-#>  [86] splines_4.4.3            dplyr_1.1.4              lattice_0.22-7           survival_3.8-3           deldir_2.0-4            
-#>  [91] tidyselect_1.2.1         rvcheck_0.2.1            miniUI_0.1.2             pbapply_1.7-2            knitr_1.50              
-#>  [96] gridExtra_2.3            litedown_0.7             scattermore_1.2          xfun_0.52                shinydashboard_0.7.3    
-#> [101] matrixStats_1.5.0        DT_0.33                  stringi_1.8.4            lazyeval_0.2.2           yaml_2.3.10             
-#> [106] shinyWidgets_0.9.0       evaluate_1.0.3           codetools_0.2-20         tibble_3.2.1             BiocManager_1.30.25     
-#> [111] cli_3.6.3                uwot_0.2.3               xtable_1.8-4             reticulate_1.42.0        jquerylib_0.1.4         
-#> [116] Rcpp_1.0.12              globals_0.18.0           spatstat.random_3.3-3    png_0.1-8                spatstat.univar_3.1-2   
-#> [121] parallel_4.4.3           ggplot2_3.5.1            dotCall64_1.2            listenv_0.9.1            viridisLite_0.4.2       
-#> [126] scales_1.4.0             ggridges_0.5.6           SeuratObject_5.1.0       purrr_1.0.2              rlang_1.1.4             
-#> [131] cowplot_1.1.3
+#>   [1] RColorBrewer_1.1-3       rstudioapi_0.17.1        dlstats_0.1.7            jsonlite_1.8.8          
+#>   [5] magrittr_2.0.3           spatstat.utils_3.1-3     farver_2.1.2             fs_1.6.4                
+#>   [9] vctrs_0.6.5              ROCR_1.0-11              memoise_2.0.1            spatstat.explore_3.4-2  
+#>  [13] shinydashboardPlus_2.0.5 htmltools_0.5.8.1        sass_0.4.10              sctransform_0.4.2       
+#>  [17] parallelly_1.43.0        KernSmooth_2.23-26       bslib_0.9.0              desc_1.4.3              
+#>  [21] htmlwidgets_1.6.4        ica_1.0-3                fontawesome_0.5.3        plyr_1.8.9              
+#>  [25] plotly_4.10.4            zoo_1.8-14               cachem_1.1.0             igraph_2.1.4            
+#>  [29] mime_0.13                lifecycle_1.0.4          pkgconfig_2.0.3          colourpicker_1.3.0      
+#>  [33] Matrix_1.7-3             R6_2.6.1                 fastmap_1.2.0            fitdistrplus_1.2-2      
+#>  [37] future_1.33.2            digest_0.6.36            colorspace_2.1-0         patchwork_1.3.0         
+#>  [41] shinycssloaders_1.1.0    Seurat_5.3.99.9000       tensor_1.5               RSpectra_0.16-2         
+#>  [45] irlba_2.3.5.1            crosstalk_1.2.1          progressr_0.15.1         spatstat.sparse_3.1-0   
+#>  [49] httr_1.4.7               polyclip_1.10-6          abind_1.4-8              compiler_4.4.3          
+#>  [53] fastDummies_1.7.5        MASS_7.3-65              tools_4.4.3              lmtest_0.9-40           
+#>  [57] httpuv_1.6.16            future.apply_1.11.3      goftest_1.2-3            glue_1.7.0              
+#>  [61] nlme_3.1-168             promises_1.3.2           grid_4.4.3               Rtsne_0.17              
+#>  [65] cluster_2.1.8.1          reshape2_1.4.4           generics_0.1.4           gtable_0.3.6            
+#>  [69] spatstat.data_3.1-6      shinyBS_0.61.1           tidyr_1.3.1              data.table_1.17.0       
+#>  [73] sp_2.2-0                 spatstat.geom_3.3-6      RcppAnnoy_0.0.22         markdown_2.0            
+#>  [77] ggrepel_0.9.5            RANN_2.6.2               pillar_1.10.2            stringr_1.5.1           
+#>  [81] yulab.utils_0.2.0        spam_2.11-1              RcppHNSW_0.6.0           later_1.4.2             
+#>  [85] splines_4.4.3            dplyr_1.1.4              lattice_0.22-7           survival_3.8-3          
+#>  [89] deldir_2.0-4             tidyselect_1.2.1         rvcheck_0.2.1            miniUI_0.1.2            
+#>  [93] pbapply_1.7-2            knitr_1.50               gridExtra_2.3            litedown_0.7            
+#>  [97] scattermore_1.2          xfun_0.52                shinydashboard_0.7.3     matrixStats_1.5.0       
+#> [101] DT_0.33                  stringi_1.8.4            lazyeval_0.2.2           yaml_2.3.10             
+#> [105] evaluate_1.0.3           shinyWidgets_0.9.0       codetools_0.2-20         tibble_3.2.1            
+#> [109] BiocManager_1.30.25      cli_3.6.3                uwot_0.2.3               xtable_1.8-4            
+#> [113] reticulate_1.42.0        jquerylib_0.1.4          Rcpp_1.0.12              globals_0.18.0          
+#> [117] spatstat.random_3.3-3    png_0.1-8                spatstat.univar_3.1-2    parallel_4.4.3          
+#> [121] ggplot2_3.5.1            dotCall64_1.2            listenv_0.9.1            viridisLite_0.4.2       
+#> [125] scales_1.4.0             ggridges_0.5.6           SeuratObject_5.1.0       purrr_1.0.2             
+#> [129] rlang_1.1.4              cowplot_1.1.3
 ```
 
 ## 中文介绍
