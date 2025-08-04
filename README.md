@@ -1,10 +1,16 @@
+---
+output: github_document
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
+
+
+
 
 # SeuratExplorer
 
 <!-- badges: start -->
-
 [![](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![](https://www.r-pkg.org/badges/version/SeuratExplorer)](https://cran.r-project.org/package=SeuratExplorer)
 [![](https://img.shields.io/badge/devel%20version-0.1.1-rossellhayes.svg)](https://github.com/fentouxungui/SeuratExplorer)
@@ -12,33 +18,20 @@
 [![](https://img.shields.io/github/languages/code-size/fentouxungui/SeuratExplorer.svg)](https://github.com/fentouxungui/SeuratExplorer)
 <!-- badges: end -->
 
-> An `Shiny` App for Exploring scRNA-seq Data Processed in `Seurat`
+> An ``Shiny`` App for Exploring scRNA-seq Data Processed in ``Seurat``
 
-A simple, one-command package which runs an interactive dashboard
-capable of common visualizations for single cell RNA-seq.
-`SeuratExplorer` requires a processed `Seurat` object, which is saved as
-`rds` or `qs2` file.
+A simple, one-command package which runs an interactive dashboard capable of common visualizations for single cell RNA-seq. ``SeuratExplorer`` requires a processed ``Seurat`` object, which is saved as ``rds`` or ``qs2`` file.
 
 ## Why build this R package
 
-> Currently, there is still no good tools for visualising the analysis
-> results from `Seurat`, when the bioinformatics analyst hands over the
-> results to the user, if the user does not have any R language
-> foundation, it is still difficult to retrieve the results and
-> re-analysis on their own, and this R package is designed to help such
-> users to visualize and explore the anaysis results. The only thing to
-> do for such users is to configure R and Rstudio on their own
-> computers, and then install `SeuratExplorer`, without any other
-> operations, an optional way is to upload the `Seurat object` file to a
-> server which has been deployed with `shinyserver` and
-> `SeuratExplorer`.
+> Currently, there is still no good tools for visualising the analysis results from ``Seurat``, when the bioinformatics analyst hands over the results to the user, if the user does not have any R language foundation, it is still difficult to retrieve the results and re-analysis on their own, and this R package is designed to help such users to visualize and explore the anaysis results. The only thing to do for such users is to configure R and Rstudio on their own computers, and then install ``SeuratExplorer``, without any other operations, an optional way is to upload the ``Seurat object`` file to a server which has been deployed with ``shinyserver`` and ``SeuratExplorer``.
 
-> Essentially, what `SeuratExplorer` done is just to perform visual
-> operations for command line tools from `Seurat` or other packages.
+> Essentially, what ``SeuratExplorer`` done is just to perform visual operations for command line tools from ``Seurat`` or other packages.
 
 ## Installation
 
 Install the latest version from github - ***Recommended***:
+
 
 ``` r
 if(!require(devtools)){install.packages("devtools")}
@@ -46,6 +39,7 @@ install_github("fentouxungui/SeuratExplorer", dependencies = TRUE)
 ```
 
 Or install from CRAN:
+
 
 ``` r
 # install none-CRAN dependency
@@ -58,6 +52,7 @@ install.packages("SeuratExplorer")
 ```
 
 ## Run app on local
+ 
 
 ``` r
 library(SeuratExplorer)
@@ -66,13 +61,10 @@ launchSeuratExplorer()
 
 ## Deploy on server
 
-You can deploy this app on a shiny server, which allows people to view
-their data on a webpage by uploading the data to server.
+You can deploy this app on a shiny server, which allows people to view their data on a webpage by uploading the data to server.
 
-A live demo: Upload an Rds or qs2 file, with file size no more than
-20GB, to [Demo Site](http://www.nibs.ac.cn:666/SeuratExplorer/). You can
-download a mini demo data from
-[github](https://github.com/fentouxungui/SeuratExplorerServer/blob/main/inst/extdata/source-data/fly/Rds-file/G101_PC20res04.rds).
+A live demo: Upload an Rds or qs2 file, with file size no more than 20GB, to [Demo Site](http://www.nibs.ac.cn:666/SeuratExplorer/). You can download a mini demo data from [github](https://github.com/fentouxungui/SeuratExplorerServer/blob/main/inst/extdata/source-data/fly/Rds-file/G101_PC20res04.rds).
+
 
 ``` r
 # app.R
@@ -84,19 +76,23 @@ launchSeuratExplorer()
 
 ### Load data
 
-- support `Seurat` object saved as `.rds` or `.qs2` file.
+- support ``Seurat`` object saved as ``.rds`` or ``.qs2`` file.
 
-- support data processed by `Seurat` V5 and older versions. it may takes
-  a while to update `Seurat` object when loading data.
+- support data processed by ``Seurat`` V5 and older versions. it may takes a while to update ``Seurat`` object when loading data.
 
-<img src="inst/extdata/www/upload-data.png" width="100%" />
+<div class="figure">
+<img src="inst/extdata/www/upload-data.png" alt="plot of chunk unnamed-chunk-7" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-7</p>
+</div>
 
 ### Cell Metadata
 
-- support download cell metadata in `csv` format, which can be used for
-  further analysis.
+- support download cell metadata in ``csv`` format, which can be used for further analysis.
 
-<img src="inst/extdata/www/cell-metadata.jpg" width="100%" />
+<div class="figure">
+<img src="inst/extdata/www/cell-metadata.jpg" alt="plot of chunk unnamed-chunk-8" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-8</p>
+</div>
 
 ### Dimensional Reduction Plot
 
@@ -120,12 +116,14 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="inst/extdata/www/Dimplot-splited.png" width="80%" />
+<div class="figure">
+<img src="inst/extdata/www/Dimplot-splited.png" alt="plot of chunk unnamed-chunk-9" width="80%" />
+<p class="caption">plot of chunk unnamed-chunk-9</p>
+</div>
 
 ### Feature Plot
 
-- support display multiple genes simultaneous, genes names are
-  case-insensitive. Tips: paste multiple genes from excel
+- support display multiple genes simultaneous, genes names are case-insensitive. Tips: paste multiple genes from excel
 
 - support options for **Dimension Reductions**
 
@@ -141,12 +139,17 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="inst/extdata/www/Featureplot.png" width="50%" /><img src="inst/extdata/www/Featureplot-splited.png" width="50%" />
+<div class="figure">
+<img src="inst/extdata/www/Featureplot.png" alt="plot of chunk unnamed-chunk-10" width="50%" />
+<p class="caption">plot of chunk unnamed-chunk-10</p>
+</div><div class="figure">
+<img src="inst/extdata/www/Featureplot-splited.png" alt="plot of chunk unnamed-chunk-10" width="50%" />
+<p class="caption">plot of chunk unnamed-chunk-10</p>
+</div>
 
 ### Violin Plot
 
-- support display multiple genes simultaneous, genes names are
-  case-insensitive. Tips: paste multiple genes from excel
+- support display multiple genes simultaneous, genes names are case-insensitive. Tips: paste multiple genes from excel
 
 - support options for **Cluster Resolution**
 
@@ -164,12 +167,23 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="inst/extdata/www/ViolinPlot.png" width="50%" /><img src="inst/extdata/www/ViolinPlot-Stack.png" width="50%" /><img src="inst/extdata/www/ViolinPlot-splited.png" width="50%" /><img src="inst/extdata/www/ViolinPlot-splited-Stack.png" width="50%" />
+<div class="figure">
+<img src="inst/extdata/www/ViolinPlot.png" alt="plot of chunk unnamed-chunk-11" width="50%" />
+<p class="caption">plot of chunk unnamed-chunk-11</p>
+</div><div class="figure">
+<img src="inst/extdata/www/ViolinPlot-Stack.png" alt="plot of chunk unnamed-chunk-11" width="50%" />
+<p class="caption">plot of chunk unnamed-chunk-11</p>
+</div><div class="figure">
+<img src="inst/extdata/www/ViolinPlot-splited.png" alt="plot of chunk unnamed-chunk-11" width="50%" />
+<p class="caption">plot of chunk unnamed-chunk-11</p>
+</div><div class="figure">
+<img src="inst/extdata/www/ViolinPlot-splited-Stack.png" alt="plot of chunk unnamed-chunk-11" width="50%" />
+<p class="caption">plot of chunk unnamed-chunk-11</p>
+</div>
 
 ### Dot Plot
 
-- support display multiple genes simultaneous, genes names are
-  case-insensitive. Tips: paste multiple genes from excel
+- support display multiple genes simultaneous, genes names are case-insensitive. Tips: paste multiple genes from excel
 
 - support options for **Cluster Resolution** and subset clusters
 
@@ -189,17 +203,21 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="inst/extdata/www/DotPlot.png" width="50%" /><img src="inst/extdata/www/DotPlot-Splited.png" width="50%" />
+<div class="figure">
+<img src="inst/extdata/www/DotPlot.png" alt="plot of chunk unnamed-chunk-12" width="50%" />
+<p class="caption">plot of chunk unnamed-chunk-12</p>
+</div><div class="figure">
+<img src="inst/extdata/www/DotPlot-Splited.png" alt="plot of chunk unnamed-chunk-12" width="50%" />
+<p class="caption">plot of chunk unnamed-chunk-12</p>
+</div>
 
 ### Heatmap for cell level expression
 
-- support display multiple genes simultaneous, genes names are
-  case-insensitive. Tips: paste multiple genes from excel
+- support display multiple genes simultaneous, genes names are case-insensitive. Tips: paste multiple genes from excel
 
 - support options for **Cluster Resolution** and reorder clusters
 
-- support adjust font size and rotation angle of cluster label, and flip
-  coordinate
+- support adjust font size and rotation angle of cluster label, and flip coordinate
 
 - support adjust the height of group bar
 
@@ -213,12 +231,14 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="inst/extdata/www/Heatmap-CellLevel.png" width="100%" />
+<div class="figure">
+<img src="inst/extdata/www/Heatmap-CellLevel.png" alt="plot of chunk unnamed-chunk-13" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-13</p>
+</div>
 
 ### Heatmap for group averaged expression
 
-- support display multiple genes simultaneous, genes names are
-  case-insensitive. Tips: paste multiple genes from excel
+- support display multiple genes simultaneous, genes names are case-insensitive. Tips: paste multiple genes from excel
 
 - support options for **Cluster Resolution** and reorder clusters
 
@@ -232,12 +252,17 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="inst/extdata/www/Heatmap-GroupLevel.png" width="50%" /><img src="inst/extdata/www/Heatmap-GroupLevel-2.png" width="50%" />
+<div class="figure">
+<img src="inst/extdata/www/Heatmap-GroupLevel.png" alt="plot of chunk unnamed-chunk-14" width="50%" />
+<p class="caption">plot of chunk unnamed-chunk-14</p>
+</div><div class="figure">
+<img src="inst/extdata/www/Heatmap-GroupLevel-2.png" alt="plot of chunk unnamed-chunk-14" width="50%" />
+<p class="caption">plot of chunk unnamed-chunk-14</p>
+</div>
 
 ### Ridge Plot
 
-- support display multiple genes simultaneous, genes names are
-  case-insensitive. Tips: paste multiple genes from excel
+- support display multiple genes simultaneous, genes names are case-insensitive. Tips: paste multiple genes from excel
 
 - support options for **Cluster Resolution** and reorder clusters
 
@@ -253,7 +278,10 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="inst/extdata/www/RidgePlot.png" width="50%" />
+<div class="figure">
+<img src="inst/extdata/www/RidgePlot.png" alt="plot of chunk unnamed-chunk-15" width="50%" />
+<p class="caption">plot of chunk unnamed-chunk-15</p>
+</div>
 
 ### Plot Cell Percentage
 
@@ -265,240 +293,234 @@ launchSeuratExplorer()
 
 **Example plots:**
 
-<img src="inst/extdata/www/CellRatio.png" width="50%" /><img src="inst/extdata/www/CellRatio-Splited.png" width="50%" />
+<div class="figure">
+<img src="inst/extdata/www/CellRatio.png" alt="plot of chunk unnamed-chunk-16" width="50%" />
+<p class="caption">plot of chunk unnamed-chunk-16</p>
+</div><div class="figure">
+<img src="inst/extdata/www/CellRatio-Splited.png" alt="plot of chunk unnamed-chunk-16" width="50%" />
+<p class="caption">plot of chunk unnamed-chunk-16</p>
+</div>
 
 ### Find Cluster Markers and DEGs Analysis
 
-This usually takes longer, please wait patiently.Please save the results
-before start a new analysis, the old results will be overwritten by the
-new results, the results can be downloaded as `csv` format.
+This usually takes longer, please wait patiently.Please save the results before start a new analysis, the old results will be overwritten by the new results, the results can be downloaded as ``csv`` format.
 
 #### Support two ways
 
 - support find markers for all clusters
 
-- support calculate DEGs for self-defined two groups, you can subset
-  cells before calculate DEGs between two groups, default use all cells
-  of two groups.
+- support calculate DEGs for self-defined two groups, you can subset cells before calculate DEGs between two groups, default use all cells of two groups.
 
 You can modify part calculation parameters before a analysis.
 
 **Screen shots:**
 
-<img src="inst/extdata/www/DEGs-1.png" width="50%" /><img src="inst/extdata/www/DEGs-2.png" width="50%" />
+<div class="figure">
+<img src="inst/extdata/www/DEGs-1.png" alt="plot of chunk unnamed-chunk-17" width="50%" />
+<p class="caption">plot of chunk unnamed-chunk-17</p>
+</div><div class="figure">
+<img src="inst/extdata/www/DEGs-2.png" alt="plot of chunk unnamed-chunk-17" width="50%" />
+<p class="caption">plot of chunk unnamed-chunk-17</p>
+</div>
 
 #### Output description
 
-<img src="inst/extdata/www/DEGs-4.jpg" width="100%" />
+<div class="figure">
+<img src="inst/extdata/www/DEGs-4.jpg" alt="plot of chunk unnamed-chunk-18" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-18</p>
+</div>
 
-> [FindMarkers(object,
-> …)](https://satijalab.org/seurat/reference/findmarkers)
+> [FindMarkers(object, ...)](https://satijalab.org/seurat/reference/findmarkers)
 >
-> A data.frame with a ranked list of putative markers as rows, and
-> associated statistics as columns (p-values, ROC score, etc., depending
-> on the test used (test.use)). The following columns are always
-> present:
->
-> avg_logFC: log fold-chage of the average expression between the two
-> groups. Positive values indicate that the gene is more highly
-> expressed in the first group
->
-> pct.1: The percentage of cells where the gene is detected in the first
-> group
->
-> pct.2: The percentage of cells where the gene is detected in the
-> second group
->
-> p_val_adj: Adjusted p-value, based on bonferroni correction using all
-> genes in the dataset
+> A data.frame with a ranked list of putative markers as rows, and associated statistics as columns (p-values, ROC score, etc., depending on the test used (test.use)). The following columns are always present:
+> 
+> avg_logFC: log fold-chage of the average expression between the two groups. Positive values indicate that the gene is more highly expressed in the first group
+> 
+> pct.1: The percentage of cells where the gene is detected in the first group
+> 
+> pct.2: The percentage of cells where the gene is detected in the second group
+> 
+> p_val_adj: Adjusted p-value, based on bonferroni correction using all genes in the dataset
 
 ### Top Expressed Features
 
-Highly expressed genes can reflect the main functions of cells, there
-two ways to do this. the first - `Find Top Genes by Cell` could find
-gene only high express in a few cells, while the second -
-`Find Top Genes by Accumulated UMI counts` is biased to find the highly
-expressed genes in most cells by accumulated UMI counts.
+Highly expressed genes can reflect the main functions of cells, there two ways to do this. the first - ``Find Top Genes by Cell`` could find gene only high express in a few cells, while the second - ``Find Top Genes by Accumulated UMI counts`` is biased to find the highly expressed genes in most cells by accumulated UMI counts.
 
 #### 1. Find Top Genes by Cell
 
 #### How?
 
-Step1: for each cell, find genes that has high UMI percentage, for
-example, if a cell has 10000 UMIs, and the `UMI percentage cutoff` is
-set to 0.01, then all genes that has more than 10000 \* 0.01 = 100 UMIs
-is thought to be the highly expressed genes for this cell.
+Step1: for each cell, find genes that has high UMI percentage, for example, if a cell has 10000 UMIs, and the ``UMI percentage cutoff`` is set to 0.01, then all genes that has more than 10000 * 0.01 = 100 UMIs is thought to be the highly expressed genes for this cell.
 
-Step2: summary those genes for each cluster, firstly get all highly
-expressed genes in a cluster, some genes may has less cells, then for
-each gene, count cells in which this genes is highly expressed, and also
-calculate the mean and median UMI percentage in those highly expressed
-cells.
+Step2: summary those genes for each cluster, firstly get all highly expressed genes in a cluster, some genes may has less cells, then for each gene, count cells in which this genes is highly expressed, and also calculate the mean and median UMI percentage in those highly expressed cells.
 
-<img src="inst/extdata/www/Find-Top-Genes-by-Cell.jpg" width="80%" />
+
+<div class="figure">
+<img src="inst/extdata/www/Find-Top-Genes-by-Cell.jpg" alt="plot of chunk unnamed-chunk-19" width="80%" />
+<p class="caption">plot of chunk unnamed-chunk-19</p>
+</div>
 
 #### Output description
 
-- `celltype`: the cluster name which is define by
-  `Choose A Cluster Resolution`
+- ``celltype``: the cluster name which is define by ``Choose A Cluster Resolution``
 
-- `total.cells`: total cell in this cluster
+- ``total.cells``: total cell in this cluster
 
-- `Gene`: this Gene is highly expressed in at least 1 cell in this
-  cluster
+- ``Gene``: this Gene is highly expressed in at least 1 cell in this cluster
 
-- `total.pos.cells`: how many cells express this gene
+- ``total.pos.cells``: how many cells express this gene
 
-- `total.UMI.pct`: (all UMIs of this gene)/(total UMIs of this cluster)
+- ``total.UMI.pct``: (all UMIs of this gene)/(total UMIs of this cluster)
 
-- `cut.Cells`: how many cells highly express this gene
+- ``cut.Cells``:  how many cells highly express this gene
 
-- `cut.pct.mean`: in those highly expressed cells, the mean expression
-  percentage
+- ``cut.pct.mean``: in those highly expressed cells, the mean expression percentage
 
-- `cut.pct.median`: in those highly expressed cells, the median
-  expression percentage
+- ``cut.pct.median``: in those highly expressed cells, the median expression percentage
+
 
 #### 2. Find Top Genes by Mean UMI counts
 
-for each cluster, calculate the `top n` highly expressed genes by Mean
-UMI counts. if a cluster has less than 3 cells, this cluster will be
-escaped.
+for each cluster, calculate the ``top n`` highly expressed genes by Mean UMI counts. if a cluster has less than 3 cells, this cluster will be escaped.
 
-<img src="inst/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg" width="80%" />
+<div class="figure">
+<img src="inst/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg" alt="plot of chunk unnamed-chunk-20" width="80%" />
+<p class="caption">plot of chunk unnamed-chunk-20</p>
+</div>
 
 #### Output description
 
-- `CellType`: the cluster name which is define by
-  `Choose A Cluster Resolution`
+- ``CellType``: the cluster name which is define by ``Choose A Cluster Resolution``
 
-- `total.cells`: total cell in this cluster
+- ``total.cells``: total cell in this cluster
 
-- `Gene`: the `top n` highly expressed genes
+- ``Gene``: the ``top n`` highly expressed genes 
 
-- `total.pos.cells`: how many cells express this gene
+- ``total.pos.cells``: how many cells express this gene
 
-- `MeanUMICounts`: (total accumulated UMI counts) / (total cells of this
-  cluster)
+- ``MeanUMICounts``: (total accumulated UMI counts) / (total cells of this cluster)
 
-- `PCT`: (total accumulated UMI counts of the gene) / (total UMIs of
-  cluster cells)
+- ``PCT``:  (total accumulated UMI counts of the gene) / (total UMIs of cluster cells)
 
 ### Feature Summary
 
-Summary interested features by cluster, such as the positive cell
-percentage and mean/median expression level.
+Summary interested features by cluster, such as the positive cell percentage and mean/median expression level.
 
-<img src="inst/extdata/www/gene-short-summary.jpg" width="80%" />
+<div class="figure">
+<img src="inst/extdata/www/gene-short-summary.jpg" alt="plot of chunk unnamed-chunk-21" width="80%" />
+<p class="caption">plot of chunk unnamed-chunk-21</p>
+</div>
 
 #### Output description
 
-- `celltype`: the cluster name which is define by
-  `Choose A Cluster Resolution`
+- ``celltype``: the cluster name which is define by ``Choose A Cluster Resolution``
 
-- `TotalCells`: total cell in this cluster
+- ``TotalCells``: total cell in this cluster
 
-- `Gene`: the input genes
+- ``Gene``: the input genes 
 
-- `PCT`: the percentage of how many cells express this gene in this
-  cluster
+- ``PCT``: the percentage of how many cells express this gene in this cluster
 
-- `Expr.mean`: the mean normalized expression in this cluster
+- ``Expr.mean``: the mean normalized expression in this cluster
 
-- `Expr.median`: the median normalized expression in this cluster
+- ``Expr.median``:  the median normalized expression in this cluster
 
 ### Feature Correlation Analysis
 
-Can calculate the correlation value of gene pairs within cells from a
-cluster, support pearson & spearman methods.
+Can calculate the correlation value of gene pairs within cells from a cluster, support pearson & spearman methods.
 
 #### 3 ways to do
 
-- `Find Top Correlated Gene Pairs`: to find top 1000 correlated gene
-  pairs
+- ``Find Top Correlated Gene Pairs``: to find top 1000 correlated gene pairs
 
-- `Find Correlated Genes for A Gene`: to find the most correlated genes
-  for input genes
+- ``Find Correlated Genes for A Gene``: to find the most correlated genes for input genes
 
-- `Calculate Correlation for A Gene List`: to calculate the correlation
-  value for each pair of the input genes
+- ``Calculate Correlation for A Gene List``: to calculate the correlation value for each pair of the input genes
 
-<img src="inst/extdata/www/featurecorrelation.jpg" width="100%" />
+<div class="figure">
+<img src="inst/extdata/www/featurecorrelation.jpg" alt="plot of chunk unnamed-chunk-22" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-22</p>
+</div>
 
 #### Output description
 
-<img src="inst/extdata/www/feature-correlation-output.jpg" width="40%" />
+<div class="figure">
+<img src="inst/extdata/www/feature-correlation-output.jpg" alt="plot of chunk unnamed-chunk-23" width="40%" />
+<p class="caption">plot of chunk unnamed-chunk-23</p>
+</div>
 
-- `GeneA`: the first gene in a Gene pair
+- ``GeneA``: the first gene in a Gene pair
 
-- `GeneB`: the second gene in a Gene pair
+- ``GeneB``:  the second gene in a Gene pair
 
-- `correlation`: the correlation value
+- ``correlation``: the correlation value
 
-if nothing return, this is because the input genes has very low
-expression level, very low expressed genes will be removed before
-analysis.
+if nothing return, this is because the input genes has very low expression level, very low expressed genes will be removed before analysis.
+
 
 ## Key related packages
 
-- [satijalab/seurat](https://github.com/satijalab/seurat): Seurat is an
-  R toolkit for single cell genomics, developed and maintained by the
-  Satija Lab at NYGC.
+- [satijalab/seurat](https://github.com/satijalab/seurat): Seurat is an R toolkit for single cell genomics, developed and maintained by the Satija Lab at NYGC.
 
-- [Hla-Lab/SeuratExplorer](https://github.com/rwcrocker/SeuratExplorer/):
-  An interactive R shiny application for exploring scRNAseq data
-  processed in Seurat.
+- [Hla-Lab/SeuratExplorer](https://github.com/rwcrocker/SeuratExplorer/): An interactive R shiny application for exploring scRNAseq data processed in Seurat.
 
-- [junjunlab/scRNAtoolVis](https://github.com/junjunlab/scRNAtoolVis):
-  Some useful function to make your scRNA-seq plot more beautiful.
+- [junjunlab/scRNAtoolVis](https://github.com/junjunlab/scRNAtoolVis): Some useful function to make your scRNA-seq plot more beautiful.
 
-- [rstudio/shiny-server](https://github.com/rstudio/shiny-server): Shiny
-  Server is a server program that makes Shiny applications available
-  over the web.
+- [rstudio/shiny-server](https://github.com/rstudio/shiny-server): Shiny Server is a server program that makes Shiny applications available over the web.
 
 ## Session Info
 
-    #> R version 4.4.3 (2025-02-28 ucrt)
-    #> Platform: x86_64-w64-mingw32/x64
-    #> Running under: Windows 11 x64 (build 22631)
-    #> 
-    #> Matrix products: default
-    #> 
-    #> 
-    #> locale:
-    #> [1] LC_COLLATE=Chinese (Simplified)_China.utf8 
-    #> [2] LC_CTYPE=Chinese (Simplified)_China.utf8   
-    #> [3] LC_MONETARY=Chinese (Simplified)_China.utf8
-    #> [4] LC_NUMERIC=C                               
-    #> [5] LC_TIME=Chinese (Simplified)_China.utf8    
-    #> 
-    #> time zone: Asia/Shanghai
-    #> tzcode source: internal
-    #> 
-    #> attached base packages:
-    #> [1] stats     graphics  grDevices utils     datasets  methods   base     
-    #> 
-    #> other attached packages:
-    #> [1] badger_0.2.4
-    #> 
-    #> loaded via a namespace (and not attached):
-    #>  [1] gtable_0.3.5        jsonlite_1.8.8      dplyr_1.1.4        
-    #>  [4] compiler_4.4.3      BiocManager_1.30.23 highr_0.11         
-    #>  [7] tidyselect_1.2.1    rvcheck_0.2.1       scales_1.3.0       
-    #> [10] yaml_2.3.8          fastmap_1.2.0       ggplot2_3.5.1      
-    #> [13] R6_2.5.1            generics_0.1.3      knitr_1.47         
-    #> [16] yulab.utils_0.1.4   tibble_3.2.1        desc_1.4.3         
-    #> [19] dlstats_0.1.7       munsell_0.5.1       pillar_1.9.0       
-    #> [22] RColorBrewer_1.1-3  rlang_1.1.4         utf8_1.2.4         
-    #> [25] cachem_1.1.0        xfun_0.45           fs_1.6.4           
-    #> [28] memoise_2.0.1       cli_3.6.3           magrittr_2.0.3     
-    #> [31] digest_0.6.36       grid_4.4.3          rstudioapi_0.16.0  
-    #> [34] lifecycle_1.0.4     vctrs_0.6.5         evaluate_0.24.0    
-    #> [37] glue_1.7.0          fansi_1.0.6         colorspace_2.1-0   
-    #> [40] rmarkdown_2.27      tools_4.4.3         pkgconfig_2.0.3    
-    #> [43] htmltools_0.5.8.1
+
+```
+#> R version 4.4.3 (2025-02-28 ucrt)
+#> Platform: x86_64-w64-mingw32/x64
+#> Running under: Windows 11 x64 (build 26100)
+#> 
+#> Matrix products: default
+#> 
+#> 
+#> locale:
+#> [1] LC_COLLATE=Chinese (Simplified)_China.utf8  LC_CTYPE=Chinese (Simplified)_China.utf8    LC_MONETARY=Chinese (Simplified)_China.utf8
+#> [4] LC_NUMERIC=C                                LC_TIME=Chinese (Simplified)_China.utf8    
+#> 
+#> time zone: Asia/Shanghai
+#> tzcode source: internal
+#> 
+#> attached base packages:
+#> [1] stats     graphics  grDevices utils     datasets  methods   base     
+#> 
+#> other attached packages:
+#> [1] badger_0.2.4         SeuratExplorer_0.1.1 shiny_1.10.0        
+#> 
+#> loaded via a namespace (and not attached):
+#>   [1] RColorBrewer_1.1-3       rstudioapi_0.17.1        dlstats_0.1.7            jsonlite_1.8.8           magrittr_2.0.3          
+#>   [6] spatstat.utils_3.1-3     farver_2.1.2             fs_1.6.4                 vctrs_0.6.5              ROCR_1.0-11             
+#>  [11] memoise_2.0.1            spatstat.explore_3.4-2   shinydashboardPlus_2.0.5 htmltools_0.5.8.1        sass_0.4.10             
+#>  [16] sctransform_0.4.2        parallelly_1.43.0        KernSmooth_2.23-26       bslib_0.9.0              desc_1.4.3              
+#>  [21] htmlwidgets_1.6.4        ica_1.0-3                fontawesome_0.5.3        plyr_1.8.9               plotly_4.10.4           
+#>  [26] zoo_1.8-14               cachem_1.1.0             igraph_2.1.4             mime_0.13                lifecycle_1.0.4         
+#>  [31] pkgconfig_2.0.3          colourpicker_1.3.0       Matrix_1.7-3             R6_2.6.1                 fastmap_1.2.0           
+#>  [36] fitdistrplus_1.2-2       future_1.33.2            digest_0.6.36            colorspace_2.1-0         patchwork_1.3.0         
+#>  [41] shinycssloaders_1.1.0    Seurat_5.3.99.9000       tensor_1.5               RSpectra_0.16-2          irlba_2.3.5.1           
+#>  [46] crosstalk_1.2.1          progressr_0.15.1         spatstat.sparse_3.1-0    httr_1.4.7               polyclip_1.10-6         
+#>  [51] abind_1.4-8              compiler_4.4.3           fastDummies_1.7.5        MASS_7.3-65              tools_4.4.3             
+#>  [56] lmtest_0.9-40            httpuv_1.6.16            future.apply_1.11.3      goftest_1.2-3            glue_1.7.0              
+#>  [61] nlme_3.1-168             promises_1.3.2           grid_4.4.3               Rtsne_0.17               cluster_2.1.8.1         
+#>  [66] reshape2_1.4.4           generics_0.1.4           gtable_0.3.6             spatstat.data_3.1-6      shinyBS_0.61.1          
+#>  [71] tidyr_1.3.1              data.table_1.17.0        sp_2.2-0                 spatstat.geom_3.3-6      RcppAnnoy_0.0.22        
+#>  [76] markdown_2.0             ggrepel_0.9.5            RANN_2.6.2               pillar_1.10.2            stringr_1.5.1           
+#>  [81] yulab.utils_0.2.0        spam_2.11-1              RcppHNSW_0.6.0           later_1.4.2              splines_4.4.3           
+#>  [86] dplyr_1.1.4              lattice_0.22-7           survival_3.8-3           deldir_2.0-4             tidyselect_1.2.1        
+#>  [91] rvcheck_0.2.1            miniUI_0.1.2             pbapply_1.7-2            knitr_1.50               gridExtra_2.3           
+#>  [96] litedown_0.7             scattermore_1.2          xfun_0.52                shinydashboard_0.7.3     matrixStats_1.5.0       
+#> [101] DT_0.33                  stringi_1.8.4            lazyeval_0.2.2           yaml_2.3.10              evaluate_1.0.3          
+#> [106] shinyWidgets_0.9.0       codetools_0.2-20         tibble_3.2.1             BiocManager_1.30.25      cli_3.6.3               
+#> [111] uwot_0.2.3               xtable_1.8-4             reticulate_1.42.0        jquerylib_0.1.4          Rcpp_1.0.12             
+#> [116] globals_0.18.0           spatstat.random_3.3-3    png_0.1-8                spatstat.univar_3.1-2    parallel_4.4.3          
+#> [121] ggplot2_3.5.1            dotCall64_1.2            listenv_0.9.1            viridisLite_0.4.2        scales_1.4.0            
+#> [126] ggridges_0.5.6           SeuratObject_5.1.0       purrr_1.0.2              rlang_1.1.4              cowplot_1.1.3
+```
 
 ## 中文介绍
 
-[微信公众号：
-分析力工厂](https://mp.weixin.qq.com/s/lpvI9OnyN95amOeVGmeyMQ)
+[微信公众号： 分析力工厂](https://mp.weixin.qq.com/s/lpvI9OnyN95amOeVGmeyMQ)

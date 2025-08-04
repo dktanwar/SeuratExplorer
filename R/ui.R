@@ -7,7 +7,7 @@
 #' packages, such as 'fentouxungui/SeuratExplorerServer' from github.
 #'
 #' @import shiny
-#' @import shinydashboard shinyBS shinydashboardPlus
+#' @import shinydashboard shinyBS
 #' @importFrom shinydashboard menuItem menuSubItem
 #' @export
 #' @return return some menu items for the dashboard
@@ -32,7 +32,8 @@ explorer_sidebar_ui <- function(){
                          menuSubItem(text = "DEGs Analysis", tabName = "degs", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Top Expressed Features", tabName = "topgenes", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Feature Summary", tabName = "featuresummary", icon = shiny::icon("angle-double-right")),
-                         menuSubItem(text = "Feature Correlation", tabName = "featurecorrelation", icon = shiny::icon("angle-double-right"))
+                         menuSubItem(text = "Feature Correlation", tabName = "featurecorrelation", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "About", tabName = "about", icon = shiny::icon("angle-double-right"))
                          )
                 )
     )
@@ -40,8 +41,8 @@ explorer_sidebar_ui <- function(){
 
 #' generate the body UI for each menu item specified in `explorer_sidebar_ui`
 #' @param tab_list a tag list for the body UI of shiny dashboard
-#' @import shinydashboard shinycssloaders
-#' @import shiny shinyWidgets shinyBS
+#' @import shinydashboard shinycssloaders shinydashboardPlus
+#' @import shiny shinyWidgets shinyBS knitr
 #' @importFrom shinydashboard tabItem
 #' @importFrom shinycssloaders withSpinner
 #' @importFrom shinyBS bsCollapse bsCollapsePanel
@@ -414,6 +415,12 @@ explorer_body_ui <- function(tab_list){
                                                  withSpinner(DT::dataTableOutput('dataset_correlation')))
                                            )
                                          )
+  )
+  tab_list[["about"]] = tabItem(tabName = "about",
+                                             fluidRow(
+                                               box(title = "About Seurat Explorer", solidHeader = TRUE, status = "primary", width = 12,
+                                                   HTML(markdown::markdownToHTML(knitr::knit("README.Rmd", quiet=T),fragment.only = T)))
+                                             )
   )
   return(tab_list)
 }
