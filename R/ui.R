@@ -419,8 +419,7 @@ explorer_body_ui <- function(tab_list){
   tab_list[["about"]] = tabItem(tabName = "about",
                                              fluidRow(
                                                box(title = "About Seurat Explorer", solidHeader = TRUE, status = "primary", width = 12,
-                                                   # HTML(markdown::markdownToHTML(knitr::knit(system.file("extdata", "README.Rmd", package ="SeuratExplorer"), quiet=T),fragment.only = T))
-                                                   HTML(markdown::markdownToHTML(system.file("extdata", "README.md", package ="SeuratExplorer"),fragment.only = T)))
+                                                   HTML(markdown::markdownToHTML(knitr::knit(system.file("extdata", "README.Rmd", package ="SeuratExplorer"), quiet=T),fragment.only = T)))
                                              )
   )
   return(tab_list)
