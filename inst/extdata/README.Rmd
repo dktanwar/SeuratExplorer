@@ -3,7 +3,7 @@ output: github_document
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-<!-- 如果要生成github主页上的README.md, 需要将此文件复制到R包的主目录下，然后设置for_github参数为TRUE，然后knit，运行完成后删除主目录下的README.Rmd文件 -->
+<!-- 如果要生成github主页上的README.md, 需要将此文件复制到R包的主目录下,然后设置for_github参数为TRUE,然后knit,运行完成后删除主目录下的README.Rmd文件 -->
 
 
 ```{r, include = FALSE}
@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 ```{r echo=FALSE, results="hide", message=FALSE}
 library(badger)
-for_github <- FALSE # 是否用于生成github主页上的Readme.md,如果是,则使用图片的相对路径，否则使用绝对路径！
+for_github <- FALSE # 是否用于生成github主页上的Readme.md,如果是,则使用图片的相对路径,否则使用绝对路径！
 ```
 
 # SeuratExplorer
@@ -28,6 +28,7 @@ for_github <- FALSE # 是否用于生成github主页上的Readme.md,如果是,�
 `r badge_devel("fentouxungui/SeuratExplorer", "rossellhayes")`
 `r badge_cran_download("SeuratExplorer", "grand-total")`
 `r badge_code_size("fentouxungui/SeuratExplorer")`
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/fentouxungui/SeuratExplorer)
 <!-- badges: end -->
 
 > An ``Shiny`` App for Exploring scRNA-seq Data Processed in ``Seurat``

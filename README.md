@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-<!-- 如果要生成github主页上的README.md, 需要将此文件复制到R包的主目录下，然后设置for_github参数为TRUE，然后knit，运行完成后删除主目录下的README.Rmd文件 -->
+<!-- 如果要生成github主页上的README.md, 需要将此文件复制到R包的主目录下,然后设置for_github参数为TRUE,然后knit,运行完成后删除主目录下的README.Rmd文件 -->
 
 # SeuratExplorer
 
@@ -12,6 +12,8 @@
 [![](https://img.shields.io/badge/devel%20version-0.1.1-rossellhayes.svg)](https://github.com/fentouxungui/SeuratExplorer)
 [![](http://cranlogs.r-pkg.org/badges/grand-total/SeuratExplorer)](https://cran.r-project.org/package=SeuratExplorer)
 [![](https://img.shields.io/github/languages/code-size/fentouxungui/SeuratExplorer.svg)](https://github.com/fentouxungui/SeuratExplorer)
+[![Ask
+DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/fentouxungui/SeuratExplorer)
 <!-- badges: end -->
 
 > An `Shiny` App for Exploring scRNA-seq Data Processed in `Seurat`
