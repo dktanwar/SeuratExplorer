@@ -46,6 +46,14 @@ prepare_reduction_options <- function(obj, keywords = c("umap","tsne"), verbose 
   return(reduction.choice)
 }
 
+# get assay options by keywords: default RNA
+prepare_assays_options <- function(obj, verbose = FALSE){
+  requireNamespace("Seurat")
+  assays.choice <- Seurat::Assays(obj)
+  names(assays.choice) <- toupper(assays.choice)
+  if(verbose){message("SeuratExplorer: prepare_assays_options runs successfully!")}
+  return(assays.choice)
+}
 
 # get cluster resolution options from all factor type columns in meta.data
 prepare_cluster_options <- function(df, verbose = FALSE){

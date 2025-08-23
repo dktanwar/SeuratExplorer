@@ -129,6 +129,12 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     selectInput("FeatureDimensionReduction", "Dimension Reduction:", choices = data$reduction_options, selected = data$reduction_default) # set default reduction
   })
 
+  # define assays choices UI
+  output$FeatureAssays.UI <- renderUI({
+    if(verbose){message("SeuratExplorer: preparing FeatureAssays.UI...")}
+    selectInput("FeatureAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
+  })
+
   # define Cluster Annotation choice
   output$FeatureClusterResolution.UI <- renderUI({
     selectInput("FeatureClusterResolution","Cluster Resolution:", choices = data$cluster_options)
@@ -165,7 +171,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   features_dimplot <- reactiveValues(features_current = NA, features_last = NA)
 
   observeEvent(input$FeatureGeneSymbol,{
-    features_input <- CheckGene(InputGene = input$FeatureGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))
+    features_input <- CheckGene(InputGene = input$FeatureGeneSymbol, GeneLibrary =  c(rownames(data$obj@assays[[input$FeatureAssay]]), data$extra_qc_options))
     if (!identical(sort(features_dimplot$features_current), sort(features_input))) {
       features_dimplot$features_last <- features_dimplot$features_current
       features_dimplot$features_current <- features_input
@@ -180,12 +186,14 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if(input$FeatureMaxCutoff == 100){expr_max_cutoff <- NA}else{expr_max_cutoff <- paste0('q', round(input$FeatureMaxCutoff))}
     if (any(is.na(features_dimplot$features_current))) { # when NA value
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when all wrong input, show a blank pic.
-    }else if (input$FeatureShowLabel) { # show label
+    }else{
       isolate(cds <- data$obj)
-      Idents(cds) <- input$FeatureClusterResolution
-      if(is.null(FeatureSplit.Revised())) { # not splited
+      Seurat::Idents(cds) <- input$FeatureClusterResolution
+      Seurat::DefaultAssay(cds) <- input$FeatureAssay
+      if(is.null(FeatureSplit.Revised())) { # not split
         p <- Seurat::FeaturePlot(cds, features = features_dimplot$features_current, pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
-                                 cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), label = TRUE, label.size = input$FeatureLabelSize,
+                                 cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor),
+                                  label = input$FeatureShowLabel, label.size = input$FeatureLabelSize,
                                  alpha = input$FeaturePointAlpha, min.cutoff = expr_min_cutoff, max.cutoff = expr_max_cutoff)
       }else{ # split
         p <- Seurat::FeaturePlot(cds, features = features_dimplot$features_current, pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
@@ -193,20 +201,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                                  label.size = input$FeatureLabelSize, alpha = input$FeaturePointAlpha, min.cutoff = expr_min_cutoff, max.cutoff = expr_max_cutoff)
         if (length( features_dimplot$features_current) == 1) { # only one gene
           plot_numbers <- length(levels(cds@meta.data[,FeatureSplit.Revised()]))
-          p <- p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
-        }
-      }
-    }else{ # not show label
-      if(is.null(FeatureSplit.Revised())) { # not splited
-        p <- Seurat::FeaturePlot(data$obj, features = features_dimplot$features_current, pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
-                                 cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), alpha = input$FeaturePointAlpha,
-                                 min.cutoff = expr_min_cutoff, max.cutoff = expr_max_cutoff)
-      }else{ # split
-        p <- Seurat::FeaturePlot(data$obj, features = features_dimplot$features_current, pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
-                                 cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), split.by = FeatureSplit.Revised(),
-                                 alpha = input$FeaturePointAlpha, min.cutoff = expr_min_cutoff, max.cutoff = expr_max_cutoff)
-        if (length( features_dimplot$features_current) == 1) { # only one gene
-          plot_numbers <- length(levels(data$obj@meta.data[,FeatureSplit.Revised()]))
           p <- p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
         }
       }
@@ -229,7 +223,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   features_vlnplot <- reactiveValues(features_current = NA, features_last = NA)
 
   observeEvent(input$VlnGeneSymbol,{
-    features_input <- CheckGene(InputGene = input$VlnGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))
+    features_input <- CheckGene(InputGene = input$VlnGeneSymbol, GeneLibrary =  c(rownames(data$obj@assays[[input$VlnAssay]]), data$extra_qc_options))
     if (!identical(sort(features_vlnplot$features_current), sort(features_input))) {
       features_vlnplot$features_last <- features_vlnplot$features_current
       features_vlnplot$features_current <- features_input
@@ -268,6 +262,12 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     shinyWidgets::pickerInput(inputId = "VlnIdentsSelected", label = "Clusters Used:",
                               choices = levels(data$obj@meta.data[,input$VlnClusterResolution]), selected = levels(data$obj@meta.data[,input$VlnClusterResolution]),
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
+  })
+
+  # define assays choices UI
+  output$VlnAssays.UI <- renderUI({
+    if(verbose){message("SeuratExplorer: preparing VlnAssays.UI...")}
+    selectInput("VlnAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
   })
 
   # define Split Choice UI
@@ -367,6 +367,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
+      Seurat::DefaultAssay(cds) <- input$VlnAssay
       cds@meta.data[,input$VlnClusterResolution] <- factor(cds@meta.data[,input$VlnClusterResolution], levels = input$VlnClusterOrder)
       SeuratObject::Idents(cds) <- input$VlnClusterResolution
       if(length(features_vlnplot$features_current) == 1) { # only One Gene
@@ -407,7 +408,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   features_dotplot <- reactiveValues(features_current = NA, features_last = NA)
 
   observeEvent(input$DotGeneSymbol,{
-    features_input <- CheckGene(InputGene = input$DotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))
+    features_input <- CheckGene(InputGene = input$DotGeneSymbol, GeneLibrary =  c(rownames(data$obj@assays[[input$DotAssay]]), data$extra_qc_options))
     if (!identical(sort(features_dotplot$features_current), sort(features_input))) {
       features_dotplot$features_last <- features_dotplot$features_current
       features_dotplot$features_current <- features_input
@@ -453,6 +454,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     selectInput("DotSplitBy","Split by:", choices = c("None" = "None", data$split_options))
   })
 
+
   # Revise Split selection which will be appropriate for DimPlot, FeaturePlot and Vlnplot functions.
   DotSplit.Revised <- reactive({
     req(input$DotSplitBy)
@@ -463,6 +465,12 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     }else{
       return(input$DotSplitBy)
     }
+  })
+
+  # define assays choices UI
+  output$DotAssays.UI <- renderUI({
+    if(verbose){message("SeuratExplorer: preparing DotAssays.UI...")}
+    selectInput("DotAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
   })
 
   # Conditional panel: when split is NULL, You can set the corresponding color for highest and lowest value,
@@ -487,6 +495,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
+      Seurat::DefaultAssay(cds) <- input$DotAssay
       Idents(cds) <- input$DotClusterResolution
       cds@meta.data[,input$DotClusterResolution] <- factor(cds@meta.data[,input$DotClusterResolution], levels = input$DotClusterOrder)
       if (is.null(DotSplit.Revised())) {
@@ -523,7 +532,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   features_heatmap <- reactiveValues(features_current = NA, features_last = NA)
 
   observeEvent(input$HeatmapGeneSymbol,{
-    features_input <- CheckGene(InputGene = input$HeatmapGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))
+    features_input <- CheckGene(InputGene = input$HeatmapGeneSymbol, GeneLibrary =  c(rownames(data$obj@assays[[input$HeatmapAssay]]), data$extra_qc_options))
     if (!identical(sort(features_heatmap$features_current), sort(features_input))) {
       features_heatmap$features_last <- features_heatmap$features_current
       features_heatmap$features_current <- features_input
@@ -552,6 +561,12 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     shinyBS::updateCollapse(session, "collapseHeatmap", open = "0")
   }))
 
+  # define assays choices UI
+  output$HeatmapAssays.UI <- renderUI({
+    if(verbose){message("SeuratExplorer: preparing HeatmapAssays.UI...")}
+    selectInput("HeatmapAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
+  })
+
   heatmap_width  <- reactive({ session$clientData$output_heatmap_width })
 
   output$heatmap <- renderPlot({
@@ -560,6 +575,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
+      Seurat::DefaultAssay(cds) <- input$HeatmapAssay
       cds@meta.data[,input$HeatmapClusterResolution] <- factor(cds@meta.data[,input$HeatmapClusterResolution], levels = input$HeatmapClusterOrder)
       if (!all(features_heatmap$features_current %in% Seurat::VariableFeatures(cds))) {
         cds <- Seurat::ScaleData(object = cds, features = unique(c(Seurat::VariableFeatures(cds), features_heatmap$features_current))) # use only one gene to scaledata() will throw an error
@@ -588,7 +604,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   features_heatmap_averaged <- reactiveValues(features_current = NA, features_last = NA)
 
   observeEvent(input$AveragedHeatmapGeneSymbol,{
-    features_input <- CheckGene(InputGene = input$AveragedHeatmapGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))
+    features_input <- CheckGene(InputGene = input$AveragedHeatmapGeneSymbol, GeneLibrary =  c(rownames(data$obj@assays[[input$AveragedHeatmapAssay]]), data$extra_qc_options))
     if (!identical(sort(features_heatmap_averaged$features_current), sort(features_input))) {
       features_heatmap_averaged$features_last <- features_heatmap_averaged$features_current
       features_heatmap_averaged$features_current <- features_input
@@ -626,6 +642,12 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
   })
 
+  # define assays choices UI
+  output$AveragedHeatmapAssays.UI <- renderUI({
+    if(verbose){message("SeuratExplorer: preparing AveragedHeatmapAssays.UI...")}
+    selectInput("AveragedHeatmapAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
+  })
+
   averagedheatmap_width  <- reactive({ session$clientData$output_averagedheatmap_width })
 
   output$averagedheatmap <- renderPlot({
@@ -634,11 +656,12 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
+      Seurat::DefaultAssay(cds) <- input$AveragedHeatmapAssay
       cds@meta.data[,input$AveragedHeatmapClusterResolution] <- factor(cds@meta.data[,input$AveragedHeatmapClusterResolution], levels = input$AveragedHeatmapClusterOrder)
       Seurat::Idents(cds) <- input$AveragedHeatmapClusterResolution
       cds <- subset_Seurat(cds, idents = input$AveragedHeatmapIdentsSelected)
       p <- suppressMessages(AverageHeatmap(object = cds, markerGene = features_heatmap_averaged$features_current, group.by = input$AveragedHeatmapClusterResolution,
-                          feature.fontsize = input$AveragedHeatmapFeatureTextSize,cluster.fontsize = input$AveragedHeatmapClusterTextSize,
+                          feature.fontsize = input$AveragedHeatmapFeatureTextSize,cluster.fontsize = input$AveragedHeatmapClusterTextSize, assays = input$AveragedHeatmapAssay,
                           column_names_rot = input$AveragedHeatmapClusterTextRatateAngle, cluster_columns = input$AveragedHeatmapClusterClusters,
                           cluster_rows = input$AveragedHeatmapClusterFeatures))
     }
@@ -663,20 +686,13 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   features_ridgeplot <- reactiveValues(features_current = NA, features_last = NA)
 
   observeEvent(input$RidgeplotGeneSymbol,{
-    features_input <- CheckGene(InputGene = input$RidgeplotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))
+    features_input <- CheckGene(InputGene = input$RidgeplotGeneSymbol, GeneLibrary = c(rownames(data$obj@assays[[input$RidgeplotAssay]]), data$extra_qc_options))
     if (!identical(sort(features_ridgeplot$features_current), sort(features_input))) {
       features_ridgeplot$features_last <- features_ridgeplot$features_current
       features_ridgeplot$features_current <- features_input
     }
   })
 
-
-  # # Check the input gene
-  # Ridgeplot.Gene.Revised <- reactive({
-  #   req(input$RidgeplotGeneSymbol)
-  #   if(verbose){message("SeuratExplorer: preparing Ridgeplot.Gene.Revised...")}
-  #   ifelse(is.na(input$RidgeplotGeneSymbol), yes = return(NA), no = return(CheckGene(InputGene = input$RidgeplotGeneSymbol, GeneLibrary =  c(rownames(data$obj), data$extra_qc_options))))
-  # })
 
   output$Ridgeplothints.UI <- renderUI({
     if(verbose){message("SeuratExplorer: preparing Ridgeplothints.UI...")}
@@ -710,6 +726,13 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                               choices = levels(data$obj@meta.data[,input$RidgeplotClusterResolution]), selected = levels(data$obj@meta.data[,input$RidgeplotClusterResolution]),
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
   })
+
+  # define assays choices UI
+  output$RidgeplotAssays.UI <- renderUI({
+    if(verbose){message("SeuratExplorer: preparing RidgeplotAssays.UI...")}
+    selectInput("RidgeplotAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
+  })
+
 
   # Conditional panel: show this panel when input multiple genes and stack is set to TRUE
   output$Ridgeplot_stack_show = reactive({
@@ -748,6 +771,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
+      Seurat::DefaultAssay(cds) <- input$RidgeplotAssay
       cds@meta.data[,input$RidgeplotClusterResolution] <- factor(cds@meta.data[,input$RidgeplotClusterResolution], levels = input$RidgeplotClusterOrder)
       Idents(cds) <- input$RidgeplotClusterResolution
       p <- Seurat::RidgePlot(object = cds, features = features_ridgeplot$features_current, ncol = input$RidgeplotNumberOfColumns,stack = input$RidgeplotStackPlot,
@@ -880,6 +904,12 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   outputOptions(output, 'DEGs_ready', suspendWhenHidden=FALSE)
 
+  # define assays choices UI
+  output$DEGsAssays.UI <- renderUI({
+    if(verbose){message("SeuratExplorer: preparing DEGsAssays.UI...")}
+    selectInput("DEGsAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
+  })
+
   # Part-1: Cluster Markers
 
   # define Cluster Annotation choice
@@ -891,6 +921,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   observeEvent(input$DEGsClusterMarkersAnalysis, {
     if(verbose){message("SeuratExplorer: preparing DEGsClusterMarkersAnalysis...")}
     isolate(cds <- data$obj)
+    Seurat::DefaultAssay(cds) <- input$DEGsAssay
     Seurat::Idents(cds) <- input$ClusterMarkersClusterResolution
     if (length(unique(as.character(Idents(cds)))) < 2) {
       showModal(modalDialog(title = "Error...", "Please select a cluster resolution with more than one group!",easyClose = TRUE,footer = NULL, size = "l"))
@@ -953,6 +984,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     }else{
       showModal(modalDialog(title = "Calculating DEGs...", "Please wait for a few minutes!", footer= NULL, size = "l"))
       isolate(cds <- data$obj)
+      Seurat::DefaultAssay(cds) <- input$DEGsAssay
       Seurat::Idents(cds) <- input$IntraClusterDEGsSubsetCells
       cds <- subset_Seurat(cds, idents = input$IntraClusterDEGsSubsetCellsSelectedClusters)
       Seurat::Idents(cds) <- input$IntraClusterDEGsCustomizedGroups
@@ -969,6 +1001,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   # part-4: reset parameters
   observeEvent(input$SetDefault, {
     if(verbose){message("SeuratExplorer: reset DEGs parameters...")}
+    updateSelectInput(session = session, inputId = "DEGsAssay", selected = data$assay_default)
     updateSelectInput(session = session, inputId = "testuse", selected = "wilcox")
     updateSliderInput(session, "logfcthreshold", value = 0.1 )
     updateSliderInput(session, "minpct", value = 0.01 )
@@ -1085,7 +1118,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   # Warning
   output$topgenes_info = renderText({
     paste0('This usually takes longer, please wait patiently. Save current results before a new analysis
-      - Find Top Genes by Cell: firstly, for each cell, find genes that has high UMI percentage, then summary those genes for each cluster, details see github page.
+      - Find Top Genes by Cell: firstly, for each cell, find genes that has high UMI percentage, then summary those genes for each cluster, details see About page.
       - Find Top Genes by mean UMI Counts: for each cluster, calculate the top n highly expressed genes by mean UMI counts.')
   })
 
@@ -1179,7 +1212,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       if(is.na(input$FeatureSummarySymbol)){
         GeneRevised <- NA
       }else{
-        GeneRevised <- CheckGene(InputGene = input$FeatureSummarySymbol, GeneLibrary =  rownames(data$obj))
+        GeneRevised <- CheckGene(InputGene = input$FeatureSummarySymbol, GeneLibrary =  rownames(data$obj@assays[[input$FeatureAssay]]))
       }
       if (any(is.na(GeneRevised))) {
         showModal(modalDialog(title = "Error", check_genes_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
@@ -1268,7 +1301,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if (!"RNA" %in% SeuratObject::Assays(data$obj)) {
       showModal(modalDialog(title = "Error", check_sct_assay_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
     }else{
-      feature.revised <- ReviseGene(Agene = trimws(input$MostCorrelatedAGene), GeneLibrary = rownames(data$obj))
+      feature.revised <- ReviseGene(Agene = trimws(input$MostCorrelatedAGene), GeneLibrary = rownames(data$obj@assays[[input$FeatureAssay]]))
       if(is.na(feature.revised)){
         showModal(modalDialog(title = "Error", "the input gene can not be found, please check...", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
       }else{
@@ -1295,7 +1328,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       if(is.na(input$CorrelationGeneList)){
         GeneRevised <- NA
       }else{
-        GeneRevised <- CheckGene(InputGene = input$CorrelationGeneList, GeneLibrary =  rownames(data$obj))
+        GeneRevised <- CheckGene(InputGene = input$CorrelationGeneList, GeneLibrary =  rownames(data$obj@assays[[input$FeatureAssay]]))
       }
       if (any(is.na(GeneRevised))) {
         showModal(modalDialog(title = "Error", check_genes_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
@@ -1349,7 +1382,7 @@ server <- function(input, output, session) {
   # reactiveValues: Create an object for storing reactive values,similar to a list,
   # but with special capabilities for reactive programming.
   data = reactiveValues(obj = NULL, loaded = FALSE, Name = NULL, Path = NULL, species = NULL,
-                        reduction_options = NULL, reduction_default = NULL,
+                        reduction_options = NULL, reduction_default = NULL, assay_default = 'RNA',
                         cluster_options = NULL, cluster_default = NULL,
                         split_maxlevel = getOption("SeuratExplorerSplitOptionMaxLevel"),
                         split_options = NULL,
@@ -1365,6 +1398,8 @@ server <- function(input, output, session) {
     validate(need(expr = ext %in% c("rds","qs2","Rds"), message = "Please upload a .rds or a .qs2 file"))
     data$obj <- prepare_seurat_object(obj = readSeurat(path = input$dataset_file$datapath), verbose = getOption('SeuratExplorerVerbose'))
     data$reduction_options <- prepare_reduction_options(obj = data$obj, keywords = getOption("SeuratExplorerReductionKeyWords"), verbose = getOption('SeuratExplorerVerbose'))
+    data$assays_options <- prepare_assays_options(obj = data$obj, verbose = getOption('SeuratExplorerVerbose'))
+    data$assay_default <- ifelse(data$assay_default %in% data$assays_options,data$assay_default,data$assays_options[1]) # update the default assay
     data$cluster_options <- prepare_cluster_options(df = data$obj@meta.data, verbose = getOption('SeuratExplorerVerbose'))
     data$split_options <- prepare_split_options(df = data$obj@meta.data, max.level = data$split_maxlevel, verbose = getOption('SeuratExplorerVerbose'))
     data$extra_qc_options <- prepare_qc_options(df = data$obj@meta.data, types = c("double","integer","numeric"), verbose = getOption('SeuratExplorerVerbose'))
