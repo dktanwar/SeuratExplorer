@@ -63,6 +63,32 @@ prepare_cluster_options <- function(df, verbose = FALSE){
   return(cluster.options)
 }
 
+# get all genes or annotation from assays
+prepare_gene_annotations <- function(obj, verbose = FALSE){
+  anno_list <- list()
+  for (aassay in Assays(obj)) {
+    if ('annotation' %in% slotNames(obj[[aassay]])) { # if exist annotation slot in assay
+      anno_df <- try(as.data.frame(obj[[aassay]]$annotation), silent = TRUE)
+      if (class(anno_df) == "try-error") {
+        message('the annotation slot from assay - ', aassay,' can not be transfered to a data.frame!')
+      }else{
+        if(nrow(anno_df) != 0){
+          if (all(c('seqnames', 'start', 'end') %in% colnames(anno_df))) {
+            anno_df$FeatureName <- paste(anno_df$seqnames, anno_df$start, anno_df$end, sep = "-")
+          }
+          anno_list[[aassay]] <- anno_df
+        }
+      }
+    }else{ # if not exist annotation slot, use all rownames
+      anno_df <- data.frame(FeatureName = rownames(obj[[aassay]]))
+      anno_list[[aassay]] <- anno_df
+    }
+  }
+  if(verbose){message("SeuratExplorer: prepare_gene_annotations runs successfully!")}
+  return(anno_list)
+}
+
+
 # get split options from eligible factor columns in meta.data which has less levels than max_level
 prepare_split_options <- function(df, max.level = 4, verbose = FALSE){
   cluster.options <- colnames(df)[sapply(df, is.factor)]

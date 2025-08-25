@@ -178,6 +178,15 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     }
   })
 
+  # though none errors show, very slow for Error in Seurat::FeaturePlot: None of the requested features were found: CD8A, CD4, SHANK3 in slot  data
+  # observe({
+  #   features_input <- CheckGene(InputGene = input$FeatureGeneSymbol, GeneLibrary =  c(rownames(data$obj@assays[[input$FeatureAssay]]), data$extra_qc_options))
+  #   if (!identical(sort(features_dimplot$features_current), sort(features_input))) {
+  #     features_dimplot$features_last <- features_dimplot$features_current
+  #     features_dimplot$features_current <- features_input
+  #   }
+  # })
+
   featureplot_width  <- reactive({ session$clientData$output_featureplot_width })
 
   output$featureplot <- renderPlot({
@@ -1363,7 +1372,67 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                                                 list(extend = 'csv', title = "feature-correlation"),
                                                 list(extend = 'excel', title = "feature-correlation"))))
   })
+
+  ############################## Search features
+  # define assays choices UI
+  output$featuresdfAssay.UI <- renderUI({
+    if(verbose){message("SeuratExplorer: preparing featuresdfAssay.UI...")}
+    selectInput("featuresdfAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
+  })
+
+  # output the features dataset
+  output$dataset_features <- DT::renderDT(server=TRUE,{
+    req(input$featuresdfAssay)
+    # Show data
+    DT::datatable(data$gene_annotions_list[[input$featuresdfAssay]],
+                  extensions = 'Buttons',
+                  options = list(scrollX=TRUE,
+                                 paging = TRUE, searching = TRUE,
+                                 fixedColumns = TRUE, autoWidth = TRUE,
+                                 ordering = TRUE, dom = 'Bfrtip',
+                                 buttons = list('copy',
+                                                list(extend = 'csv', title = paste0("features-from-", input$featuresdfAssay)),
+                                                list(extend = 'excel', title = paste0("features-from-", input$featuresdfAssay)))))
+  })
+
+  ############################### Render metadata table
+  # Server set to TRUE: https://stackoverflow.com/questions/50039186/add-download-buttons-in-dtrenderdatatable
+  # when sever is set to TRUE, to download the whole data in DT button extensions.https://github.com/rstudio/DT/issues/267
+  output$dataset_meta <- DT::renderDT(server=TRUE,{
+    req(data$obj)
+    # Show data
+    DT::datatable(data$obj@meta.data,
+                  callback = DT::JS("$('div.dwnld').append($('#download_meta_data'));"),
+                  extensions = 'Buttons',
+                  options = list(scrollX=TRUE,
+                                 # lengthMenu = c(5,10,15),
+                                 #paging = TRUE,
+                                 #searching = TRUE,
+                                 #fixedColumns = TRUE,
+                                 #autoWidth = TRUE,
+                                 ordering = TRUE,
+                                 dom = 'B<"dwnld">frtip',
+                                 buttons = list('copy')
+                  ))
+  })
+
+  output$download_meta_data <- downloadHandler(
+    filename = function() {
+      "cell-metadata.csv"
+    },
+    content = function(file) {
+      write.csv(data$obj@meta.data, file)
+    }
+  )
+
+  ############################### Render Object structure
+  output$object_structure <- renderPrint({
+    req(data$obj)
+    str(data$obj, max.level = input$ObjectStrutureLevel) # Display the structure of the data frame
+  })
+
 }
+
 
 #' Server
 #' @import shiny shinydashboard shinyWidgets
@@ -1401,6 +1470,7 @@ server <- function(input, output, session) {
     data$assays_options <- prepare_assays_options(obj = data$obj, verbose = getOption('SeuratExplorerVerbose'))
     data$assay_default <- ifelse(data$assay_default %in% data$assays_options,data$assay_default,data$assays_options[1]) # update the default assay
     data$cluster_options <- prepare_cluster_options(df = data$obj@meta.data, verbose = getOption('SeuratExplorerVerbose'))
+    data$gene_annotions_list <- prepare_gene_annotations(obj = data$obj, verbose = getOption('SeuratExplorerVerbose'))
     data$split_options <- prepare_split_options(df = data$obj@meta.data, max.level = data$split_maxlevel, verbose = getOption('SeuratExplorerVerbose'))
     data$extra_qc_options <- prepare_qc_options(df = data$obj@meta.data, types = c("double","integer","numeric"), verbose = getOption('SeuratExplorerVerbose'))
   })
@@ -1410,43 +1480,6 @@ server <- function(input, output, session) {
     req(data$obj)
     data$loaded = !is.null(data$obj)
   })
-
-  ############################### Render metadata table
-  # Server set to TRUE: https://stackoverflow.com/questions/50039186/add-download-buttons-in-dtrenderdatatable
-  # when sever is set to TRUE, to download the whole data in DT button extensions.https://github.com/rstudio/DT/issues/267
-  output$dataset_meta <- DT::renderDT(server=TRUE,{
-    req(data$obj)
-    # Show data
-    DT::datatable(data$obj@meta.data,
-                  callback = DT::JS("$('div.dwnld').append($('#download_meta_data'));"),
-                  extensions = 'Buttons',
-                  options = list(scrollX=TRUE,
-                                 # lengthMenu = c(5,10,15),
-                                 #paging = TRUE,
-                                 #searching = TRUE,
-                                 #fixedColumns = TRUE,
-                                 #autoWidth = TRUE,
-                                 ordering = TRUE,
-                                 dom = 'B<"dwnld">frtip',
-                                 buttons = list('copy')
-                  ))
-  })
-
-  output$download_meta_data <- downloadHandler(
-    filename = function() {
-      "cell-metadata.csv"
-    },
-    content = function(file) {
-      write.csv(data$obj@meta.data, file)
-    }
-  )
-
-  ############################### Render Object structure
-  output$object_structure <- renderPrint({
-    req(data$obj)
-    str(data$obj, max.level = 3) # Display the structure of the data frame
-  })
-
 
   # Conditional panel control based on loaded obj, after loaded, show other UIs
   output$file_loaded = reactive({

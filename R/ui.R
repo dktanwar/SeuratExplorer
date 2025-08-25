@@ -33,6 +33,9 @@ explorer_sidebar_ui <- function(){
                          menuSubItem(text = "Top Expressed Features", tabName = "topgenes", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Feature Summary", tabName = "featuresummary", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Feature Correlation", tabName = "featurecorrelation", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Search Features", tabName = "featuresdf", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Cells Metadata", tabName = "cellmetadata", icon = shiny::icon("angle-double-right")),
+                         menuSubItem(text = "Object Structure", tabName = "objectstructure", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "About", tabName = "about", icon = shiny::icon("angle-double-right"))
                          )
                 )
@@ -423,11 +426,32 @@ explorer_body_ui <- function(tab_list){
                                            )
                                          )
   )
-  tab_list[["about"]] = tabItem(tabName = "about",
+  tab_list[["featuresdf"]] = tabItem(tabName = "featuresdf",
                                              fluidRow(
-                                               box(title = "About Seurat Explorer", solidHeader = TRUE, status = "primary", width = 12,
-                                                   HTML(markdown::markdownToHTML(knitr::knit(system.file("extdata", "README.Rmd", package ="SeuratExplorer"), quiet=T),fragment.only = T)))
+                                               box(title = "Search Features", solidHeader = TRUE, status = "primary", width = 12,
+                                                   withSpinner(uiOutput("featuresdfAssay.UI"), proxy.height = "10px"),
+                                                   withSpinner(DT::dataTableOutput('dataset_features')))
                                              )
+  )
+  tab_list[["cellmetadata"]] = tabItem(tabName = "cellmetadata",
+                                     fluidRow(
+                                       box(title = "Metadata of Cells", collapsible = TRUE, width = 12,solidHeader = TRUE, status = "primary", # align = "center",
+                                           withSpinner(tagList(downloadButton("download_meta_data","Download"),
+                                                               DT::dataTableOutput('dataset_meta'))))
+                                     )
+  )
+  tab_list[["objectstructure"]] = tabItem(tabName = "objectstructure",
+                                       fluidRow(
+                                         box(title = "Structure of Seurat Object", collapsible = TRUE, width = 12,solidHeader = TRUE, status = "primary",
+                                             sliderInput("ObjectStrutureLevel", label = "Structure Depth:", min = 1, max = 10, value = 3),
+                                             withSpinner(verbatimTextOutput("object_structure")))
+                                       )
+  )
+  tab_list[["about"]] = tabItem(tabName = "about",
+                                fluidRow(
+                                  box(title = "About Seurat Explorer", solidHeader = TRUE, status = "primary", width = 12,
+                                      HTML(markdown::markdownToHTML(knitr::knit(system.file("extdata", "README.Rmd", package ="SeuratExplorer"), quiet=T),fragment.only = T)))
+                                )
   )
   return(tab_list)
 }
@@ -470,16 +494,8 @@ ui <-  function(){
                                   fluidRow(
                                     # upload a file
                                     box(status = "primary", title = "Upload Data", width = 12, collapsible = TRUE, solidHeader = TRUE,
-                                        fileInput("dataset_file", "Choose A rds or qs2 file of Seurat Object:", accept = c('.rds', ".qs2"))),
-                                    # put conditionalPanel inside box or put box inside the conditionalPanel? depends on weather to show a empty box when loading
-                                    conditionalPanel(
-                                      condition = "output.file_loaded",
-                                      box(title = "Metadata of Cells", collapsible = TRUE, width = 12,solidHeader = TRUE, status = "primary", # align = "center",
-                                          withSpinner(tagList(downloadButton("download_meta_data","Download"),
-                                                                               DT::dataTableOutput('dataset_meta')))),
-                                      box(title = "Structure of Seurat Object", collapsible = TRUE, collapsed = TRUE, width = 12,solidHeader = TRUE, status = "primary",
-                                          withSpinner(verbatimTextOutput("object_structure")))
-                                    ))
+                                        fileInput("dataset_file", "Choose A rds or qs2 file of Seurat Object:", accept = c('.rds', ".qs2")))
+                                    )
                                   )
 
   tab_list <- explorer_body_ui(tab_list = tab_list)
