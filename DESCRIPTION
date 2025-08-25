@@ -35,7 +35,7 @@ Imports:
     circlize,
     reshape2,
     knitr,
-    badger
+    markdown
 Depends: 
     R (>= 4.1.0),
     shiny
@@ -45,7 +45,8 @@ Suggests:
     MAST,
     limma,
     DESeq2,
-    Signac
+    Signac,
+    badger
 Remotes:
     bioc::release/ComplexHeatmap,
     github::immunogenomics/presto,

@@ -6,7 +6,7 @@
 #' to generate some menu items for the dashboard, which can be integrated to other
 #' packages, such as 'fentouxungui/SeuratExplorerServer' from github.
 #'
-#' @import shiny
+#' @import shiny markdown
 #' @import shinydashboard shinyBS
 #' @importFrom shinydashboard menuItem menuSubItem
 #' @export
@@ -44,7 +44,7 @@ explorer_sidebar_ui <- function(){
 
 #' generate the body UI for each menu item specified in `explorer_sidebar_ui`
 #' @param tab_list a tag list for the body UI of shiny dashboard
-#' @import shinydashboard shinycssloaders shinydashboardPlus
+#' @import shinydashboard
 #' @import shiny shinyWidgets shinyBS knitr
 #' @importFrom shinydashboard tabItem
 #' @importFrom shinycssloaders withSpinner

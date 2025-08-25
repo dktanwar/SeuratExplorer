@@ -64,12 +64,22 @@ prepare_cluster_options <- function(df, verbose = FALSE){
 }
 
 # get all genes or annotation from assays
+#' extract the features from row names or annotation slot of assays
+#'
+#' @param obj a Seurat object
+#' @param verbose whether output messages
+#'
+#' @importFrom methods slotNames is
+#' @return a list with data.frames
+#'
+#' @examples
+#' #NULL
 prepare_gene_annotations <- function(obj, verbose = FALSE){
   anno_list <- list()
   for (aassay in Assays(obj)) {
     if ('annotation' %in% slotNames(obj[[aassay]])) { # if exist annotation slot in assay
       anno_df <- try(as.data.frame(obj[[aassay]]$annotation), silent = TRUE)
-      if (class(anno_df) == "try-error") {
+      if (is(anno_df, "try-error")) {
         message('the annotation slot from assay - ', aassay,' can not be transfered to a data.frame!')
       }else{
         if(nrow(anno_df) != 0){
@@ -797,3 +807,17 @@ check_SCT_assay <- function(seu_obj){
 check_sct_assay_error <- "The RNA assay is not found in Seurat Object, Contact the technican for details!"
 
 check_genes_error <- "None of the input genes can be found!"
+
+# for plot features related functions when none of the input features can be recognized
+empty_plot <- ggplot2::ggplot() +
+  ggplot2::annotate('text', x = 0, y = 0, label = 'Please input correct features!\n Unrecognized features will be removed automatically.\n You can check the features in "Search Features" page.', color = 'darkgrey', size = 6)  +
+  ggplot2::theme_bw() +
+  ggplot2::geom_blank() +
+  ggplot2::theme(axis.title = ggplot2::element_blank(),
+                 axis.text = ggplot2::element_blank(),
+                 axis.ticks = ggplot2::element_blank())
+
+
+
+
+

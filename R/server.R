@@ -10,6 +10,7 @@
 #' @param data the Seurat object and related parameters
 #'
 #' @import Seurat SeuratObject
+#' @importFrom utils str
 #' @importFrom grDevices dev.off pdf
 #' @importFrom stats na.omit
 #' @export
@@ -194,23 +195,29 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if(input$FeatureMinCutoff == 0){expr_min_cutoff <- NA}else{expr_min_cutoff <- paste0('q', round(input$FeatureMinCutoff))}
     if(input$FeatureMaxCutoff == 100){expr_max_cutoff <- NA}else{expr_max_cutoff <- paste0('q', round(input$FeatureMaxCutoff))}
     if (any(is.na(features_dimplot$features_current))) { # when NA value
-      p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when all wrong input, show a blank pic.
+      p <- empty_plot # when all wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
       Seurat::Idents(cds) <- input$FeatureClusterResolution
       Seurat::DefaultAssay(cds) <- input$FeatureAssay
-      if(is.null(FeatureSplit.Revised())) { # not split
-        p <- Seurat::FeaturePlot(cds, features = features_dimplot$features_current, pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
+      # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
+      if(!any(features_dimplot$features_current %in% rownames(cds[[input$FeatureAssay]]))){
+        p <- empty_plot
+      }else{
+        if(is.null(FeatureSplit.Revised())) { # not split
+          p <- Seurat::FeaturePlot(cds, features = features_dimplot$features_current, pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
                                  cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor),
                                   label = input$FeatureShowLabel, label.size = input$FeatureLabelSize,
                                  alpha = input$FeaturePointAlpha, min.cutoff = expr_min_cutoff, max.cutoff = expr_max_cutoff)
-      }else{ # split
-        p <- Seurat::FeaturePlot(cds, features = features_dimplot$features_current, pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
+
+        }else{ # split
+          p <- Seurat::FeaturePlot(cds, features = features_dimplot$features_current, pt.size = input$FeaturePointSize, reduction = input$FeatureDimensionReduction,
                                  cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor), split.by = FeatureSplit.Revised(), label = TRUE,
                                  label.size = input$FeatureLabelSize, alpha = input$FeaturePointAlpha, min.cutoff = expr_min_cutoff, max.cutoff = expr_max_cutoff)
-        if (length( features_dimplot$features_current) == 1) { # only one gene
-          plot_numbers <- length(levels(cds@meta.data[,FeatureSplit.Revised()]))
-          p <- p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
+          if (length( features_dimplot$features_current) == 1) { # only one gene
+            plot_numbers <- length(levels(cds@meta.data[,FeatureSplit.Revised()]))
+            p <- p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
+          }
         }
       }
     }
@@ -373,29 +380,34 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   output$vlnplot <- renderPlot({
     if(verbose){message("SeuratExplorer: preparing vlnplot...")}
     if (any(is.na(features_vlnplot$features_current))) { # when NA value
-      p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+      p <- empty_plot # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
       Seurat::DefaultAssay(cds) <- input$VlnAssay
       cds@meta.data[,input$VlnClusterResolution] <- factor(cds@meta.data[,input$VlnClusterResolution], levels = input$VlnClusterOrder)
       SeuratObject::Idents(cds) <- input$VlnClusterResolution
-      if(length(features_vlnplot$features_current) == 1) { # only One Gene
-        p <- Seurat::VlnPlot(cds, features = features_vlnplot$features_current, split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot,
-                             pt.size = input$VlnPointSize, alpha = input$VlnPointAlpha, idents = input$VlnIdentsSelected) &
-          ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
-                         axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
-      }else{ # multiple genes
-        p <- Seurat::VlnPlot(cds, features = features_vlnplot$features_current, split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot,
-                             stack = input$VlnStackPlot,flip = input$VlnFlipPlot, fill.by = input$VlnFillBy, idents = input$VlnIdentsSelected,
-                             pt.size = input$VlnPointSize, alpha = input$VlnPointAlpha) &
-          ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
-                         axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
-      }
-      if (input$Vlnfillcolorplatte != 'default' & input$VlnSplitBy == 'None'){
-        # color
-        fill.colors <- getColors(color.platte = color_list, choice = input$Vlnfillcolorplatte, n = length(levels(Idents(cds))))
-        names(fill.colors) <- levels(Idents(cds))
-        p <- p & scale_fill_manual(values = fill.colors)
+      # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
+      if(!any(features_vlnplot$features_current %in% rownames(cds[[input$VlnAssay]]))){
+        p <- empty_plot
+      }else{
+        if(length(features_vlnplot$features_current) == 1) { # only One Gene
+          p <- Seurat::VlnPlot(cds, features = features_vlnplot$features_current, split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot,
+                               pt.size = input$VlnPointSize, alpha = input$VlnPointAlpha, idents = input$VlnIdentsSelected) &
+            ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
+                           axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
+        }else{ # multiple genes
+          p <- Seurat::VlnPlot(cds, features = features_vlnplot$features_current, split.by = VlnSplit.Revised(), split.plot = input$VlnSplitPlot,
+                               stack = input$VlnStackPlot,flip = input$VlnFlipPlot, fill.by = input$VlnFillBy, idents = input$VlnIdentsSelected,
+                               pt.size = input$VlnPointSize, alpha = input$VlnPointAlpha) &
+            ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
+                           axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
+        }
+        if (input$Vlnfillcolorplatte != 'default' & input$VlnSplitBy == 'None'){
+          # color
+          fill.colors <- getColors(color.platte = color_list, choice = input$Vlnfillcolorplatte, n = length(levels(Idents(cds))))
+          names(fill.colors) <- levels(Idents(cds))
+          p <- p & scale_fill_manual(values = fill.colors)
+        }
       }
       ggplot2::ggsave(paste0(temp_dir,"/vlnplot.pdf"), p, width = vlnplot_width() * px2cm, height = vlnplot_width() * input$VlnPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
       return(p)
@@ -501,27 +513,32 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   output$dotplot <- renderPlot({
     if(verbose){message("SeuratExplorer: preparing dotplot...")}
     if (any(is.na(features_dotplot$features_current))) { # NA
-      p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+      p <- empty_plot # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
       Seurat::DefaultAssay(cds) <- input$DotAssay
       Idents(cds) <- input$DotClusterResolution
       cds@meta.data[,input$DotClusterResolution] <- factor(cds@meta.data[,input$DotClusterResolution], levels = input$DotClusterOrder)
-      if (is.null(DotSplit.Revised())) {
-        p <- Seurat::DotPlot(cds, features = features_dotplot$features_current, group.by = input$DotClusterResolution,
-                             idents = input$DotIdentsSelected,
-                             split.by = DotSplit.Revised(), cluster.idents = input$DotClusterIdents, dot.scale = input$DotDotScale,
-                             cols = c(input$DotPlotLowestExprColor, input$DotPlotHighestExprColor))
+      # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
+      if(!any(features_dotplot$features_current %in% rownames(cds[[input$DotAssay]]))){
+        p <- empty_plot
       }else{
-        split.levels.length <- length(levels(cds@meta.data[,DotSplit.Revised()]))
-        p <- Seurat::DotPlot(cds, features = features_dotplot$features_current, group.by = input$DotClusterResolution,
-                             idents = input$DotIdentsSelected,
-                             split.by = DotSplit.Revised(), cluster.idents = input$DotClusterIdents, dot.scale = input$DotDotScale,
-                             cols = scales::hue_pal()(split.levels.length))
+        if (is.null(DotSplit.Revised())) {
+          p <- Seurat::DotPlot(cds, features = features_dotplot$features_current, group.by = input$DotClusterResolution,
+                               idents = input$DotIdentsSelected,
+                               split.by = DotSplit.Revised(), cluster.idents = input$DotClusterIdents, dot.scale = input$DotDotScale,
+                               cols = c(input$DotPlotLowestExprColor, input$DotPlotHighestExprColor))
+        }else{
+          split.levels.length <- length(levels(cds@meta.data[,DotSplit.Revised()]))
+          p <- Seurat::DotPlot(cds, features = features_dotplot$features_current, group.by = input$DotClusterResolution,
+                               idents = input$DotIdentsSelected,
+                               split.by = DotSplit.Revised(), cluster.idents = input$DotClusterIdents, dot.scale = input$DotDotScale,
+                               cols = scales::hue_pal()(split.levels.length))
+        }
+        p <- p & ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$DotXlabelSize), axis.text.y = ggplot2::element_text(size = input$DotYlabelSize))
+        if (input$DotRotateAxis) { p <- p + Seurat::RotatedAxis() }
+        if (input$DotFlipCoordinate) { p <- p + ggplot2::coord_flip() }
       }
-      p <- p & ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$DotXlabelSize), axis.text.y = ggplot2::element_text(size = input$DotYlabelSize))
-      if (input$DotRotateAxis) { p <- p + Seurat::RotatedAxis() }
-      if (input$DotFlipCoordinate) { p <- p + ggplot2::coord_flip() }
     }
     ggplot2::ggsave(paste0(temp_dir,"/dotplot.pdf"), p, width = dotplot_width() * px2cm, height = dotplot_width() * input$DotPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
     return(p)
@@ -581,19 +598,23 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   output$heatmap <- renderPlot({
     if(verbose){message("SeuratExplorer: preparing heatmap...")}
     if (any(is.na(features_heatmap$features_current))) { # NA
-      p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+      p <- empty_plot # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
       Seurat::DefaultAssay(cds) <- input$HeatmapAssay
       cds@meta.data[,input$HeatmapClusterResolution] <- factor(cds@meta.data[,input$HeatmapClusterResolution], levels = input$HeatmapClusterOrder)
-      if (!all(features_heatmap$features_current %in% Seurat::VariableFeatures(cds))) {
-        cds <- Seurat::ScaleData(object = cds, features = unique(c(Seurat::VariableFeatures(cds), features_heatmap$features_current))) # use only one gene to scaledata() will throw an error
+      # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
+      if(!any(features_heatmap$features_current %in% rownames(cds[[input$HeatmapAssay]]))){
+        p <- empty_plot
+      }else{
+        if (!all(features_heatmap$features_current %in% Seurat::VariableFeatures(cds))) {
+          cds <- Seurat::ScaleData(object = cds, features = unique(c(Seurat::VariableFeatures(cds), features_heatmap$features_current))) # use only one gene to scaledata() will throw an error
+        }
+        p <- Seurat::DoHeatmap(object = cds, features = features_heatmap$features_current, group.by = input$HeatmapClusterResolution, size = input$HeatmapTextSize,
+                               hjust = input$HeatmapTextHjust, vjust = input$HeatmapTextVjust, angle = input$HeatmapTextRatateAngle,
+                               group.bar.height = input$HeatmapGroupBarHeight, lines.width = input$HeatmapLineWidth) &
+          ggplot2::theme(axis.text.y = ggplot2::element_text(size = input$HeatmapFeatureTextSize))
       }
-
-      p <- Seurat::DoHeatmap(object = cds, features = features_heatmap$features_current, group.by = input$HeatmapClusterResolution, size = input$HeatmapTextSize,
-                        hjust = input$HeatmapTextHjust, vjust = input$HeatmapTextVjust, angle = input$HeatmapTextRatateAngle,
-                        group.bar.height = input$HeatmapGroupBarHeight, lines.width = input$HeatmapLineWidth) &
-        ggplot2::theme(axis.text.y = ggplot2::element_text(size = input$HeatmapFeatureTextSize))
     }
     ggplot2::ggsave(paste0(temp_dir,"/heatmap.pdf"), p, width = heatmap_width() * px2cm, height = heatmap_width() * input$HeatmapPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
     return(p)
@@ -662,17 +683,22 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   output$averagedheatmap <- renderPlot({
     if(verbose){message("SeuratExplorer: preparing averagedheatmap...")}
     if (any(is.na(features_heatmap_averaged$features_current))) { # NA
-      p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+      p <- empty_plot # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
       Seurat::DefaultAssay(cds) <- input$AveragedHeatmapAssay
       cds@meta.data[,input$AveragedHeatmapClusterResolution] <- factor(cds@meta.data[,input$AveragedHeatmapClusterResolution], levels = input$AveragedHeatmapClusterOrder)
       Seurat::Idents(cds) <- input$AveragedHeatmapClusterResolution
       cds <- subset_Seurat(cds, idents = input$AveragedHeatmapIdentsSelected)
-      p <- suppressMessages(AverageHeatmap(object = cds, markerGene = features_heatmap_averaged$features_current, group.by = input$AveragedHeatmapClusterResolution,
-                          feature.fontsize = input$AveragedHeatmapFeatureTextSize,cluster.fontsize = input$AveragedHeatmapClusterTextSize, assays = input$AveragedHeatmapAssay,
-                          column_names_rot = input$AveragedHeatmapClusterTextRatateAngle, cluster_columns = input$AveragedHeatmapClusterClusters,
-                          cluster_rows = input$AveragedHeatmapClusterFeatures))
+      # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
+      if(!any(features_heatmap_averaged$features_current %in% rownames(cds[[input$AveragedHeatmapAssay]]))){
+        p <- empty_plot
+      }else{
+        p <- suppressMessages(AverageHeatmap(object = cds, markerGene = features_heatmap_averaged$features_current, group.by = input$AveragedHeatmapClusterResolution,
+                                             feature.fontsize = input$AveragedHeatmapFeatureTextSize,cluster.fontsize = input$AveragedHeatmapClusterTextSize, assays = input$AveragedHeatmapAssay,
+                                             column_names_rot = input$AveragedHeatmapClusterTextRatateAngle, cluster_columns = input$AveragedHeatmapClusterClusters,
+                                             cluster_rows = input$AveragedHeatmapClusterFeatures))
+      }
     }
     pdf(file = paste0(temp_dir,"/AveragedHeatmap.pdf"), width = (averagedheatmap_width() * px2cm)/2.54, height = (averagedheatmap_width() * input$AveragedHeatmapPlotHWRatio * px2cm)/2.54)
     print(p)
@@ -777,16 +803,21 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   output$ridgeplot <- renderPlot({
     if(verbose){message("SeuratExplorer: preparing ridgeplot...")}
     if (any(is.na(features_ridgeplot$features_current))) { # NA
-      p <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::geom_blank() # when no symbol or wrong input, show a blank pic.
+      p <- empty_plot # when no symbol or wrong input, show a blank pic.
     }else{
       isolate(cds <- data$obj)
       Seurat::DefaultAssay(cds) <- input$RidgeplotAssay
       cds@meta.data[,input$RidgeplotClusterResolution] <- factor(cds@meta.data[,input$RidgeplotClusterResolution], levels = input$RidgeplotClusterOrder)
       Idents(cds) <- input$RidgeplotClusterResolution
-      p <- Seurat::RidgePlot(object = cds, features = features_ridgeplot$features_current, ncol = input$RidgeplotNumberOfColumns,stack = input$RidgeplotStackPlot,
-                             fill.by = input$RidgeplotFillBy, idents = input$RidgeplotIdentsSelected) &
-        ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$RidgeplotXlabelSize),
-                       axis.text.y = ggplot2::element_text(size = input$RidgeplotYlabelSize))
+      # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
+      if(!any(features_ridgeplot$features_current %in% rownames(cds[[input$RidgeplotAssay]]))){
+        p <- empty_plot
+      }else{
+        p <- Seurat::RidgePlot(object = cds, features = features_ridgeplot$features_current, ncol = input$RidgeplotNumberOfColumns,stack = input$RidgeplotStackPlot,
+                               fill.by = input$RidgeplotFillBy, idents = input$RidgeplotIdentsSelected) &
+          ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$RidgeplotXlabelSize),
+                         axis.text.y = ggplot2::element_text(size = input$RidgeplotYlabelSize))
+      }
     }
     ggplot2::ggsave(paste0(temp_dir,"/ridgeplot.pdf"), p, width = ridgeplot_width() * px2cm, height = ridgeplot_width() * input$RidgeplotHWRatio * px2cm, units = "cm", limitsize = FALSE)
     return(p)
