@@ -77,22 +77,25 @@ prepare_cluster_options <- function(df, verbose = FALSE){
 prepare_gene_annotations <- function(obj, verbose = FALSE){
   anno_list <- list()
   for (aassay in Assays(obj)) {
-    if ('annotation' %in% slotNames(obj[[aassay]])) { # if exist annotation slot in assay
-      anno_df <- try(as.data.frame(obj[[aassay]]$annotation), silent = TRUE)
-      if (is(anno_df, "try-error")) {
-        message('the annotation slot from assay - ', aassay,' can not be transfered to a data.frame!')
-      }else{
-        if(nrow(anno_df) != 0){
-          if (all(c('seqnames', 'start', 'end') %in% colnames(anno_df))) {
-            anno_df$FeatureName <- paste(anno_df$seqnames, anno_df$start, anno_df$end, sep = "-")
-          }
-          anno_list[[aassay]] <- anno_df
-        }
-      }
-    }else{ # if not exist annotation slot, use all rownames
-      anno_df <- data.frame(FeatureName = rownames(obj[[aassay]]))
-      anno_list[[aassay]] <- anno_df
-    }
+    # the annotation in ATAC assay is not the real features of the assay! just annotations from genome.
+    # if ('annotation' %in% slotNames(obj[[aassay]])) { # if exist annotation slot in assay
+    #   anno_df <- try(as.data.frame(obj[[aassay]]$annotation), silent = TRUE)
+    #   if (is(anno_df, "try-error")) {
+    #     message('the annotation slot from assay - ', aassay,' can not be transfered to a data.frame!')
+    #   }else{
+    #     if(nrow(anno_df) != 0){
+    #       if (all(c('seqnames', 'start', 'end') %in% colnames(anno_df))) {
+    #         anno_df$FeatureName <- paste(anno_df$seqnames, anno_df$start, anno_df$end, sep = "-")
+    #       }
+    #       anno_list[[aassay]] <- anno_df
+    #     }
+    #   }
+    # }else{ # if not exist annotation slot, use all rownames
+    #   anno_df <- data.frame(FeatureName = rownames(obj[[aassay]]))
+    #   anno_list[[aassay]] <- anno_df
+    # }
+    anno_df <- data.frame(FeatureName = rownames(obj[[aassay]]))
+    anno_list[[aassay]] <- anno_df
   }
   if(verbose){message("SeuratExplorer: prepare_gene_annotations runs successfully!")}
   return(anno_list)
