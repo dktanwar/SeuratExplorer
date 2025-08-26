@@ -92,7 +92,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   output$dimplot <- renderPlot({
     if(verbose){message("SeuratExplorer: preparing dimplot...")}
-    isolate(cds <- data$obj) # not a memory saving way
+    cds <- data$obj # not a memory saving way
     # for highlight cells
     if (any(is.null(input$DimHighlightedClusters))) {
       dim_cells_highlighted <- NULL
@@ -197,7 +197,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if (any(is.na(features_dimplot$features_current))) { # when NA value
       p <- empty_plot # when all wrong input, show a blank pic.
     }else{
-      isolate(cds <- data$obj)
+      cds <- data$obj
       Seurat::Idents(cds) <- input$FeatureClusterResolution
       Seurat::DefaultAssay(cds) <- input$FeatureAssay
       # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
@@ -382,7 +382,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if (any(is.na(features_vlnplot$features_current))) { # when NA value
       p <- empty_plot # when no symbol or wrong input, show a blank pic.
     }else{
-      isolate(cds <- data$obj)
+      cds <- data$obj
       Seurat::DefaultAssay(cds) <- input$VlnAssay
       cds@meta.data[,input$VlnClusterResolution] <- factor(cds@meta.data[,input$VlnClusterResolution], levels = input$VlnClusterOrder)
       SeuratObject::Idents(cds) <- input$VlnClusterResolution
@@ -515,7 +515,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if (any(is.na(features_dotplot$features_current))) { # NA
       p <- empty_plot # when no symbol or wrong input, show a blank pic.
     }else{
-      isolate(cds <- data$obj)
+      cds <- data$obj
       Seurat::DefaultAssay(cds) <- input$DotAssay
       Idents(cds) <- input$DotClusterResolution
       cds@meta.data[,input$DotClusterResolution] <- factor(cds@meta.data[,input$DotClusterResolution], levels = input$DotClusterOrder)
@@ -600,7 +600,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if (any(is.na(features_heatmap$features_current))) { # NA
       p <- empty_plot # when no symbol or wrong input, show a blank pic.
     }else{
-      isolate(cds <- data$obj)
+      cds <- data$obj
       Seurat::DefaultAssay(cds) <- input$HeatmapAssay
       cds@meta.data[,input$HeatmapClusterResolution] <- factor(cds@meta.data[,input$HeatmapClusterResolution], levels = input$HeatmapClusterOrder)
       # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
@@ -685,7 +685,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if (any(is.na(features_heatmap_averaged$features_current))) { # NA
       p <- empty_plot # when no symbol or wrong input, show a blank pic.
     }else{
-      isolate(cds <- data$obj)
+      cds <- data$obj
       Seurat::DefaultAssay(cds) <- input$AveragedHeatmapAssay
       cds@meta.data[,input$AveragedHeatmapClusterResolution] <- factor(cds@meta.data[,input$AveragedHeatmapClusterResolution], levels = input$AveragedHeatmapClusterOrder)
       Seurat::Idents(cds) <- input$AveragedHeatmapClusterResolution
@@ -805,7 +805,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if (any(is.na(features_ridgeplot$features_current))) { # NA
       p <- empty_plot # when no symbol or wrong input, show a blank pic.
     }else{
-      isolate(cds <- data$obj)
+      cds <- data$obj
       Seurat::DefaultAssay(cds) <- input$RidgeplotAssay
       cds@meta.data[,input$RidgeplotClusterResolution] <- factor(cds@meta.data[,input$RidgeplotClusterResolution], levels = input$RidgeplotClusterOrder)
       Idents(cds) <- input$RidgeplotClusterResolution
@@ -899,7 +899,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     req(input$CellratioFillChoice)
     req(input$CellratioFillOrder)
     if(verbose){message("SeuratExplorer: preparing cellratioplot...")}
-    isolate(cds <- data$obj)
+    cds <- data$obj
     if (is.null(FacetChoice.Revised())) { # not facet
       p <- cellRatioPlot(object = cds, sample.name = input$CellratioXChoice, sample.order = input$CellratioXOrder,
                          celltype.name = input$CellratioFillChoice, celltype.order = input$CellratioFillOrder,
@@ -960,7 +960,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   observeEvent(input$DEGsClusterMarkersAnalysis, {
     if(verbose){message("SeuratExplorer: preparing DEGsClusterMarkersAnalysis...")}
-    isolate(cds <- data$obj)
+    cds <- data$obj
     Seurat::DefaultAssay(cds) <- input$DEGsAssay
     Seurat::Idents(cds) <- input$ClusterMarkersClusterResolution
     if (length(unique(as.character(Idents(cds)))) < 2) {
@@ -1023,7 +1023,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       showModal(modalDialog(title = "Error:","Please specify the case & control samples and clusters used. Press ESC to close.",easyClose = TRUE,footer = NULL))
     }else{
       showModal(modalDialog(title = "Calculating DEGs...", "Please wait for a few minutes!", footer= NULL, size = "l"))
-      isolate(cds <- data$obj)
+      cds <- data$obj
       Seurat::DefaultAssay(cds) <- input$DEGsAssay
       Seurat::Idents(cds) <- input$IntraClusterDEGsSubsetCells
       cds <- subset_Seurat(cds, idents = input$IntraClusterDEGsSubsetCellsSelectedClusters)
@@ -1182,7 +1182,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       showModal(modalDialog(title = "Error", check_sct_assay_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
     }else{
       showModal(modalDialog(title = "Calculating Top Genes at Cell Level...", "Please wait for a few minutes!", footer= NULL, size = "l"))
-      isolate(cds <- data$obj)
+      cds <- data$obj
       TopGenes$topgenes <- top_genes(SeuratObj = cds, expr.cut = input$percentcut/100, group.by = input$TopGenesClusterResolution)
       removeModal()
       if (nrow(TopGenes$topgenes) > 0) {
@@ -1199,7 +1199,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       showModal(modalDialog(title = "Error", check_sct_assay_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
     }else{
       showModal(modalDialog(title = "Calculating Accumulated Top Genes...", "Please wait for a few minutes!", footer= NULL, size = "l"))
-      isolate(cds <- data$obj)
+      cds <- data$obj
       TopGenes$topgenes <- top_accumulated_genes(SeuratObj = cds, top = input$topcut, group.by = input$TopGenesClusterResolution)
       removeModal()
       if (nrow(TopGenes$topgenes) > 0) {
@@ -1258,7 +1258,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
         showModal(modalDialog(title = "Error", check_genes_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
       }else{
         showModal(modalDialog(title = "Summarizing features...", "Please wait for a few minutes!", footer= NULL, size = "l"))
-        isolate(cds <- data$obj)
+        cds <- data$obj
         FeatureSummary$summary <- summary_features(SeuratObj = cds, features = GeneRevised, group.by = input$FeatureSummaryClusterResolution)
         removeModal()
         FeatureSummary$summary_ready <- TRUE
@@ -1322,7 +1322,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       showModal(modalDialog(title = "Error", check_sct_assay_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
     }else{
       showModal(modalDialog(title = "Calculating", "Calculate top correlated gene pairs, which usually takes longer...", footer= NULL, size = "l"))
-      isolate(cds <- data$obj)
+      cds <- data$obj
       Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
       cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
       FeatureCorrelation$summary <- calculate_top_correlations(SeuratObj = cds, method = input$correlationmethod)
@@ -1346,7 +1346,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
         showModal(modalDialog(title = "Error", "the input gene can not be found, please check...", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
       }else{
         showModal(modalDialog(title = "Calculating", "Calculate the most correlated genes for the input gene, which usually takes longer...", footer= NULL, size = "l"))
-        isolate(cds <- data$obj)
+        cds <- data$obj
         Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
         cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
         FeatureCorrelation$summary <- calculate_most_correlated(SeuratObj = cds, feature = feature.revised, method = input$correlationmethod)
@@ -1376,7 +1376,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
         showModal(modalDialog(title = "Error", "Please input at least two genes!", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
       }else{
         showModal(modalDialog(title = "Calculating", "Calculate the correlation for the specified gene list...", footer= NULL, size = "l"))
-        isolate(cds <- data$obj)
+        cds <- data$obj
         Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
         cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
         FeatureCorrelation$summary <- calculate_correlation(SeuratObj = cds, features = GeneRevised, method = input$correlationmethod)
