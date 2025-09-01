@@ -12,8 +12,7 @@
 [![](https://img.shields.io/badge/devel%20version-0.1.2-rossellhayes.svg)](https://github.com/fentouxungui/SeuratExplorer)
 [![](http://cranlogs.r-pkg.org/badges/grand-total/SeuratExplorer)](https://cran.r-project.org/package=SeuratExplorer)
 [![](https://img.shields.io/github/languages/code-size/fentouxungui/SeuratExplorer.svg)](https://github.com/fentouxungui/SeuratExplorer)
-[![Ask
-DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/fentouxungui/SeuratExplorer)
+[![AskDeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/fentouxungui/SeuratExplorer)
 <!-- badges: end -->
 
 > An `Shiny` App for Exploring scRNA-seq Data Processed in `Seurat`
@@ -497,8 +496,7 @@ analysis.
     #> [25] pkgconfig_2.0.3     rstudioapi_0.17.1   farver_2.1.2       
     #> [28] digest_0.6.36       R6_2.6.1            tidyselect_1.2.1   
     #> [31] pillar_1.10.2       magrittr_2.0.3      tools_4.4.3        
-    #> [34] gtable_0.3.6        desc_1.4.3          yulab.utils_0.2.0  
-    #> [37] ggplot2_3.5.1
+    #> [34] gtable_0.3.6        yulab.utils_0.2.0   ggplot2_3.5.1
 
 ## 中文介绍
 

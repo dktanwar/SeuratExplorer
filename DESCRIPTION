@@ -45,8 +45,7 @@ Suggests:
     MAST,
     limma,
     DESeq2,
-    Signac,
-    badger
+    Signac
 Remotes:
     bioc::release/ComplexHeatmap,
     github::immunogenomics/presto,

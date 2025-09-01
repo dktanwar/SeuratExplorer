@@ -22,13 +22,23 @@ for_github <- FALSE # 是否用于生成github主页上的Readme.md,如果是,�
 
 # SeuratExplorer
 
-<!-- badges: start -->
+
+```{r eval=FALSE, echo=FALSE, results="hide", message=FALSE}
+# backup some codes or badges
 `r badge_lifecycle("stable")`
 `r badge_cran_release("SeuratExplorer")`
 `r badge_devel("fentouxungui/SeuratExplorer", "rossellhayes")`
 `r badge_cran_download("SeuratExplorer", "grand-total")`
 `r badge_code_size("fentouxungui/SeuratExplorer")`
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/fentouxungui/SeuratExplorer)
+```
+
+<!-- badges: start -->
+[![](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![](https://www.r-pkg.org/badges/version/SeuratExplorer)](https://cran.r-project.org/package=SeuratExplorer)
+[![](https://img.shields.io/badge/devel%20version-0.1.2-rossellhayes.svg)](https://github.com/fentouxungui/SeuratExplorer)
+[![](http://cranlogs.r-pkg.org/badges/grand-total/SeuratExplorer)](https://cran.r-project.org/package=SeuratExplorer)
+[![](https://img.shields.io/github/languages/code-size/fentouxungui/SeuratExplorer.svg)](https://github.com/fentouxungui/SeuratExplorer)
+[![AskDeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/fentouxungui/SeuratExplorer)
 <!-- badges: end -->
 
 > An ``Shiny`` App for Exploring scRNA-seq Data Processed in ``Seurat``
