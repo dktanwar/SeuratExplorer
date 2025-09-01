@@ -409,9 +409,9 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
           p <- p & scale_fill_manual(values = fill.colors)
         }
       }
-      ggplot2::ggsave(paste0(temp_dir,"/vlnplot.pdf"), p, width = vlnplot_width() * px2cm, height = vlnplot_width() * input$VlnPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
-      return(p)
     }
+    ggplot2::ggsave(paste0(temp_dir,"/vlnplot.pdf"), p, width = vlnplot_width() * px2cm, height = vlnplot_width() * input$VlnPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
+    return(p)
   }, height = function(){session$clientData$output_vlnplot_width * input$VlnPlotHWRatio}) # box plot: height = width default
 
 
