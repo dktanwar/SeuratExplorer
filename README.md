@@ -13,7 +13,7 @@
 [![](http://cranlogs.r-pkg.org/badges/grand-total/SeuratExplorer)](https://cran.r-project.org/package=SeuratExplorer)
 [![](https://img.shields.io/github/languages/code-size/fentouxungui/SeuratExplorer.svg)](https://github.com/fentouxungui/SeuratExplorer)
 [![AskDeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/fentouxungui/SeuratExplorer)
-[![AskZreadAI]()](https://zread.ai/fentouxungui/SeuratExplorer)
+[![AskZreadAI](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAFVBMVEVHcExNTU1NTU1NTU1NTU1NTU1NTU3ZF4DVAAAABnRSTlMA2SenpEsg9CcuAAAAU0lEQVQ4jd2TwQoAIAhD05n//8lBWlHiNah3cxPBiaVcoVIHS4Ep1UtSg4fPLtBLDfB6bikuzMW5s1JQOZQdKBLnd99ikdQfUUs2OhzryYb4OHdp0MsEgmbuBjIAAAAASUVORK5CYII=)](https://zread.ai/fentouxungui/SeuratExplorer)
 <!-- badges: end -->
 
 > An `Shiny` App for Exploring scRNA-seq Data Processed in `Seurat`
