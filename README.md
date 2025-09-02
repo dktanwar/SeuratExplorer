@@ -13,6 +13,7 @@
 [![](http://cranlogs.r-pkg.org/badges/grand-total/SeuratExplorer)](https://cran.r-project.org/package=SeuratExplorer)
 [![](https://img.shields.io/github/languages/code-size/fentouxungui/SeuratExplorer.svg)](https://github.com/fentouxungui/SeuratExplorer)
 [![AskDeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/fentouxungui/SeuratExplorer)
+[![AskZreadAI]()](https://zread.ai/fentouxungui/SeuratExplorer)
 <!-- badges: end -->
 
 > An `Shiny` App for Exploring scRNA-seq Data Processed in `Seurat`
