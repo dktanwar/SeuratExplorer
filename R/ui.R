@@ -64,7 +64,7 @@ explorer_body_ui <- function(tab_list){
                                         div(style = "display:inline-block; float:right",downloadBttn(outputId = "downloaddimplot",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
-                                        withSpinner(uiOutput("DimReductions.UI"), proxy.height = "10px"),
+                                        withSpinner(uiOutput("DimDimensionReduction.UI"), proxy.height = "10px"),
                                         withSpinner(uiOutput("DimClusterResolution.UI"), proxy.height = "10px"),
                                         # refer to: https://ebailey78.github.io/shinyBS/docs/Collapses.html
                                         bsCollapse(id = "collapseDimplot", open = "Change Cluster Order",
@@ -90,7 +90,7 @@ explorer_body_ui <- function(tab_list){
                                         box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                             textAreaInput("FeatureGeneSymbol", "Gene Symbol:", value = "", height = '80px', resize = "vertical"),
                                             withSpinner(uiOutput("Featurehints.UI"), proxy.height = "10px"),
-                                            withSpinner(uiOutput("FeatureReductions.UI"), proxy.height = "10px"),
+                                            withSpinner(uiOutput("FeatureDimensionReduction.UI"), proxy.height = "10px"),
                                             withSpinner(uiOutput("FeatureAssays.UI"), proxy.height = "10px"),
                                             withSpinner(uiOutput("FeatureClusterResolution.UI"), proxy.height = "10px"),
                                             checkboxInput("FeatureShowLabel",label = "Show Cluster Label", FALSE),
@@ -367,7 +367,7 @@ explorer_body_ui <- function(tab_list){
                                  shinydashboardPlus::box(title = 'Information', textOutput("topgenes_info"), background = "green", width = 12, closable = TRUE),
                                  tags$style(type="text/css", "#topgenes_info {white-space: pre-wrap;}"),
                                  box(title = "Step1: Common Settings", solidHeader = TRUE, status = "primary", width = 3,
-                                 withSpinner(uiOutput("TopGenesClusteResolution.UI"), proxy.height = "10px"),
+                                 withSpinner(uiOutput("TopGenesClusterResolution.UI"), proxy.height = "10px"),
                                  withSpinner(uiOutput("TopGenesSelectedClusters.UI"), proxy.height = "10px"),
                                  withSpinner(uiOutput("TopGenesAssays.UI"), proxy.height = "10px"),
                                  checkboxInput("TopGenesClusterLevel",label = "by each cluster", TRUE)),
@@ -392,7 +392,7 @@ explorer_body_ui <- function(tab_list){
                                      tags$style(type="text/css", "#featuresummary_info {white-space: pre-wrap;}"),
                                      box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                          textAreaInput("FeatureSummarySymbol", "Input Gene Symbols:", value = "", height = '100px', resize = "vertical"),
-                                         withSpinner(uiOutput("FeatureSummaryClusteResolution.UI"), proxy.height = "10px"),
+                                         withSpinner(uiOutput("FeatureSummaryClusterResolution.UI"), proxy.height = "10px"),
                                          withSpinner(uiOutput("FeatureSummarySelectedClusters.UI"), proxy.height = "10px"),
                                          withSpinner(uiOutput("FeatureSummaryAssays.UI"), proxy.height = "10px"),
                                          checkboxInput("FeatureSummaryClusterLevel",label = "by each cluster", TRUE),
@@ -409,7 +409,7 @@ explorer_body_ui <- function(tab_list){
                                            shinydashboardPlus::box(title = 'Information',textOutput("featurecorrelation_info"), background = "green", width = 12, closable = TRUE),
                                            tags$style(type="text/css", "#featurecorrelation_info {white-space: pre-wrap;}"),
                                            box(title = "Step1: Common Settings", solidHeader = TRUE, status = "primary", width = 3,
-                                               withSpinner(uiOutput("FeatureCorrelationClusteResolution.UI"), proxy.height = "10px"),
+                                               withSpinner(uiOutput("FeatureCorrelationClusterResolution.UI"), proxy.height = "10px"),
                                                withSpinner(uiOutput("FeatureCorrelationIdentsSelected.UI"), proxy.height = "10px"),
                                                withSpinner(uiOutput("FeatureCorrelationAssays.UI"), proxy.height = "10px"),
                                                selectInput("correlationmethod","Correlation Method:", choices = c(pearson = "pearson", spearman = "spearman"))),
@@ -436,7 +436,7 @@ explorer_body_ui <- function(tab_list){
   tab_list[["featuresdf"]] = tabItem(tabName = "featuresdf",
                                              fluidRow(
                                                box(title = "Search Features", solidHeader = TRUE, status = "primary", width = 12,
-                                                   withSpinner(uiOutput("featuresdfAssay.UI"), proxy.height = "10px"),
+                                                   withSpinner(uiOutput("FeaturesDataframeAssays.UI"), proxy.height = "10px"),
                                                    withSpinner(DT::dataTableOutput('dataset_features')))
                                              )
   )

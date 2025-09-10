@@ -31,19 +31,59 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   # https://stackoverflow.com/questions/32535773/using-un-exported-function-from-another-r-package
   subset_Seurat <- utils::getFromNamespace('subset.Seurat', 'SeuratObject')
 
+  # batch define some output elements
+  ## dimension reduction options for dimplot and featureplot
+  dimension_reduction_UI_names <- c('DimDimensionReduction', 'FeatureDimensionReduction')
+  dimension_reduction_df <- data.frame(Element =  paste0(dimension_reduction_UI_names, '.UI'), UIID = dimension_reduction_UI_names)
+  output_dimension_reduction <- lapply(1:nrow(dimension_reduction_df), function(i){
+    output[[dimension_reduction_df$Element[i]]] <- renderUI({
+      if(verbose){message(paste0("SeuratExplorer: preparing ", dimension_reduction_df$Element[i], "..."))}
+      selectInput(dimension_reduction_df$UIID[i], 'Dimension Reduction:', choices = data$reduction_options, selected = data$reduction_default) # set default reduction
+    })
+  })
+
+  ## cluster resolution options for dimplot, featureplot, etc.
+  resolution_UI_names <- c('DimClusterResolution', 'FeatureClusterResolution', 'VlnClusterResolution', 'DotClusterResolution', 'HeatmapClusterResolution', 'AveragedHeatmapClusterResolution',
+                           'RidgeplotClusterResolution', 'ClusterMarkersClusterResolution', 'TopGenesClusterResolution','FeatureSummaryClusterResolution', 'FeatureCorrelationClusterResolution')
+  resolution_df <- data.frame(Element = paste0(resolution_UI_names, '.UI'), UIID = resolution_UI_names)
+  output_resolution <- lapply(1:nrow(resolution_df), function(i){
+    output[[resolution_df$Element[i]]] <- renderUI({
+      if(verbose){message(paste0("SeuratExplorer: preparing ", resolution_df$Element[i], "..."))}
+      selectInput(resolution_df$UIID[i], 'Cluster Resolution:', choices = data$cluster_options, selected = data$cluster_default)
+    })
+  })
+
+  # ## Cluster order # Not Word when need values from input, such as: input[[cluster_order_UI_df$UIRelyOn[i]]]
+  # cluster_order_UI_names <- c('DimClusterOrder')
+  # cluster_order_UI_relyon <- c('DimClusterResolution')
+  # cluster_order_UI_df <- data.frame(Eelement = paste0(cluster_order_UI_names, '.UI'),
+  #                                   UIID = cluster_order_UI_names,
+  #                                   UIRelyOn = cluster_order_UI_relyon)
+  # output_cluster_order <- lapply(1:nrow(cluster_order_UI_df), function(i){
+  #   output[[cluster_order_UI_df$Element[i]]] <- renderUI({
+  #     # req(input[[cluster_order_UI_df$UIRelyOn[i]]])
+  #     if(verbose){message(paste0("SeuratExplorer: preparing ", cluster_order_UI_df$Element[i], "..."))}
+  #     items_full <- input[[cluster_order_UI_df$UIRelyOn[i]]]
+  #     shinyjqui::orderInput(inputId = cluster_order_UI_df$UIID[i], label = 'Drag to order', items = levels(data$obj@meta.data[,items_full]),width = '100%')
+  #   })
+  # })
+
+  ## define assays choices UI
+  assay_UI_names <- c('FeatureAssay', 'VlnAssay', 'DotAssay', 'HeatmapAssay', 'AveragedHeatmapAssay', 'RidgeplotAssay',
+                      'DEGsAssay', 'TopGenesAssay', 'FeatureSummaryAssay','FeatureCorrelationAssay', 'FeaturesDataframeAssay')
+  assay_df <- data.frame(Element = paste0(assay_UI_names, 's.UI'), UIID = assay_UI_names)
+  output_assay <- lapply(1:nrow(assay_df), function(i){
+    output[[assay_df$Element[i]]] <- renderUI({
+      if(verbose){message(paste0("SeuratExplorer: preparing ", assay_df$Element[i], "..."))}
+      selectInput(assay_df$UIID[i], "Assay:", choices = data$assays_options, selected = data$assay_default)
+    })
+  })
+
+  ## batch addin
+  do.call(tagList, c(output_dimension_reduction, output_resolution, output_assay))
+
+
   ############################# Dimension Reduction Plot
-  # define reductions choices UI
-  output$DimReductions.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing DimReductions.UI...")}
-    selectInput("DimDimensionReduction", "Dimension Reduction:", choices = data$reduction_options, selected = data$reduction_default) # set default reduction
-  })
-
-  # define Cluster Annotation choice
-  output$DimClusterResolution.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing DimClusterResolution.UI...")}
-    selectInput("DimClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
-  })
-
   # define Cluster order
   output$DimClusterOrder.UI <- renderUI({
     if(verbose){message("SeuratExplorer: preparing DimClusterOrder.UI...")}
@@ -99,7 +139,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     }else{
       dim_cells_highlighted <- colnames(cds)[cds@meta.data[,input$DimClusterResolution] %in% input$DimHighlightedClusters]
     }
-
     cds@meta.data[,input$DimClusterResolution] <- factor(cds@meta.data[,input$DimClusterResolution], levels = input$DimClusterOrder)
     if (is.null(DimSplit.Revised())) { # not splited
       p <- Seurat::DimPlot(cds, reduction = input$DimDimensionReduction, label = input$DimShowLabel, pt.size = input$DimPointSize, label.size = input$DimLabelSize,
@@ -124,23 +163,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     })
 
   ################################ Feature Plot
-  # define reductions choices UI
-  output$FeatureReductions.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing FeatureReductions.UI...")}
-    selectInput("FeatureDimensionReduction", "Dimension Reduction:", choices = data$reduction_options, selected = data$reduction_default) # set default reduction
-  })
-
-  # define assays choices UI
-  output$FeatureAssays.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing FeatureAssays.UI...")}
-    selectInput("FeatureAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
-  })
-
-  # define Cluster Annotation choice
-  output$FeatureClusterResolution.UI <- renderUI({
-    selectInput("FeatureClusterResolution","Cluster Resolution:", choices = data$cluster_options)
-  })
-
   # define Split Choice UI
   output$FeatureSplit.UI <- renderUI({
     if(verbose){message("SeuratExplorer: preparing FeatureSplit.UI...")}
@@ -253,12 +275,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
              strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
 
-  # define Cluster Annotation choice
-  output$VlnClusterResolution.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing VlnClusterResolution.UI...")}
-    selectInput("VlnClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
-  })
-
   # define Cluster order
   output$VlnClusterOrder.UI <- renderUI({
     if(verbose){message("SeuratExplorer: preparing VlnClusterOrder.UI...")}
@@ -278,12 +294,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     shinyWidgets::pickerInput(inputId = "VlnIdentsSelected", label = "Clusters Used:",
                               choices = levels(data$obj@meta.data[,input$VlnClusterResolution]), selected = levels(data$obj@meta.data[,input$VlnClusterResolution]),
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
-  })
-
-  # define assays choices UI
-  output$VlnAssays.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing VlnAssays.UI...")}
-    selectInput("VlnAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
   })
 
   # define Split Choice UI
@@ -442,12 +452,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     helpText(strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
 
-  # define Cluster Annotation choice
-  output$DotClusterResolution.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing DotClusterResolution.UI...")}
-    selectInput("DotClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
-  })
-
   # define Cluster order
   output$DotClusterOrder.UI <- renderUI({
     if(verbose){message("SeuratExplorer: preparing DotClusterOrder.UI...")}
@@ -486,12 +490,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     }else{
       return(input$DotSplitBy)
     }
-  })
-
-  # define assays choices UI
-  output$DotAssays.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing DotAssays.UI...")}
-    selectInput("DotAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
   })
 
   # Conditional panel: when split is NULL, You can set the corresponding color for highest and lowest value,
@@ -570,12 +568,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     helpText(strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
 
-  # define Cluster Annotation choice
-  output$HeatmapClusterResolution.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing HeatmapClusterResolution.UI...")}
-    selectInput("HeatmapClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
-  })
-
   # define Cluster order
   output$HeatmapClusterOrder.UI <- renderUI({
     if(verbose){message("SeuratExplorer: preparing HeatmapClusterOrder.UI...")}
@@ -586,12 +578,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if(verbose){message("SeuratExplorer: updateCollapse for collapseHeatmap...")}
     shinyBS::updateCollapse(session, "collapseHeatmap", open = "0")
   }))
-
-  # define assays choices UI
-  output$HeatmapAssays.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing HeatmapAssays.UI...")}
-    selectInput("HeatmapAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
-  })
 
   heatmap_width  <- reactive({ session$clientData$output_heatmap_width })
 
@@ -646,12 +632,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     helpText(strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
 
-  # define Cluster Annotation choice
-  output$AveragedHeatmapClusterResolution.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing AveragedHeatmapClusterResolution.UI...")}
-    selectInput("AveragedHeatmapClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
-  })
-
   # define Cluster order
   output$AveragedHeatmapClusterOrder.UI <- renderUI({
     if(verbose){message("SeuratExplorer: preparing AveragedHeatmapClusterOrder.UI...")}
@@ -670,12 +650,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     shinyWidgets::pickerInput(inputId = "AveragedHeatmapIdentsSelected", label = "Clusters Used:",
                               choices = levels(data$obj@meta.data[,input$AveragedHeatmapClusterResolution]), selected = levels(data$obj@meta.data[,input$AveragedHeatmapClusterResolution]),
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
-  })
-
-  # define assays choices UI
-  output$AveragedHeatmapAssays.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing AveragedHeatmapAssays.UI...")}
-    selectInput("AveragedHeatmapAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
   })
 
   averagedheatmap_width  <- reactive({ session$clientData$output_averagedheatmap_width })
@@ -736,12 +710,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
              strong("Tips: You can paste multiple genes from a column in excel."),style = "font-size:12px;")
   })
 
-  # define Cluster Annotation choice
-  output$RidgeplotClusterResolution.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing RidgeplotClusterResolution.UI...")}
-    selectInput("RidgeplotClusterResolution","Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
-  })
-
   # define Cluster order
   output$RidgeplotClusterOrder.UI <- renderUI({
     if(verbose){message("SeuratExplorer: preparing RidgeplotClusterOrder.UI...")}
@@ -761,13 +729,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                               choices = levels(data$obj@meta.data[,input$RidgeplotClusterResolution]), selected = levels(data$obj@meta.data[,input$RidgeplotClusterResolution]),
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
   })
-
-  # define assays choices UI
-  output$RidgeplotAssays.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing RidgeplotAssays.UI...")}
-    selectInput("RidgeplotAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
-  })
-
 
   # Conditional panel: show this panel when input multiple genes and stack is set to TRUE
   output$Ridgeplot_stack_show = reactive({
@@ -891,7 +852,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   cellratioplot_width  <- reactive({ session$clientData$output_cellratioplot_width})
 
-
   # plot
   output$cellratioplot <- renderPlot({
     req(input$CellratioXChoice)
@@ -944,19 +904,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   outputOptions(output, 'DEGs_ready', suspendWhenHidden=FALSE)
 
-  # define assays choices UI
-  output$DEGsAssays.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing DEGsAssays.UI...")}
-    selectInput("DEGsAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
-  })
-
   # Part-1: Cluster Markers
-
-  # define Cluster Annotation choice
-  output$ClusterMarkersClusterResolution.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing ClusterMarkersClusterResolution.UI...")}
-    selectInput("ClusterMarkersClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
-  })
 
   observeEvent(input$DEGsClusterMarkersAnalysis, {
     if(verbose){message("SeuratExplorer: preparing DEGsClusterMarkersAnalysis...")}
@@ -1171,12 +1119,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   outputOptions(output, 'TopGenes_ready', suspendWhenHidden=FALSE)
 
   # define Cluster Annotation choice
-  output$TopGenesClusteResolution.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing TopGenesClusteResolution.UI...")}
-    selectInput("TopGenesClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
-  })
-
-  # define Cluster Annotation choice
   output$TopGenesSelectedClusters.UI <- renderUI({
     req(input$TopGenesClusterResolution)
     if(verbose){message("SeuratExplorer: preparing TopGenesSelectedClusters.UI...")}
@@ -1184,13 +1126,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                               choices = levels(data$obj@meta.data[,input$TopGenesClusterResolution]),
                               selected = levels(data$obj@meta.data[,input$TopGenesClusterResolution]),
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
-  })
-
-
-  # define assays choices UI
-  output$TopGenesAssays.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing TopGenesAssays.UI...")}
-    selectInput("TopGenesAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
   })
 
   observeEvent(input$TopGenesAnalysis, {
@@ -1263,12 +1198,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   outputOptions(output, 'FeatureSummary_ready', suspendWhenHidden=FALSE)
 
   # define Cluster Annotation choice
-  output$FeatureSummaryClusteResolution.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing FeatureSummaryClusteResolution.UI...")}
-    selectInput("FeatureSummaryClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
-  })
-
-  # define Cluster Annotation choice
   output$FeatureSummarySelectedClusters.UI <- renderUI({
     req(input$FeatureSummaryClusterResolution)
     if(verbose){message("SeuratExplorer: preparing FeatureSummarySelectedClusters.UI...")}
@@ -1276,13 +1205,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                               choices = levels(data$obj@meta.data[,input$FeatureSummaryClusterResolution]),
                               selected = levels(data$obj@meta.data[,input$FeatureSummaryClusterResolution]),
                               options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
-  })
-
-
-  # define assays choices UI
-  output$FeatureSummaryAssays.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing FeatureSummaryAssays.UI...")}
-    selectInput("FeatureSummaryAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
   })
 
   observeEvent(input$FeatureSummaryAnalysis, {
@@ -1341,18 +1263,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   })
 
   outputOptions(output, 'FeatureCorrelation_ready', suspendWhenHidden=FALSE)
-
-  # define Cluster Annotation choice
-  output$FeatureCorrelationClusteResolution.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing FeatureCorrelationClusteResolution.UI...")}
-    selectInput("FeatureCorrelationClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
-  })
-
-  # define assays choices UI
-  output$FeatureCorrelationAssays.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing FeatureCorrelationAssays.UI...")}
-    selectInput("FeatureCorrelationAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
-  })
 
   # define the idents used
   output$FeatureCorrelationIdentsSelected.UI <- renderUI({
@@ -1442,25 +1352,19 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   })
 
   ############################## Search features
-  # define assays choices UI
-  output$featuresdfAssay.UI <- renderUI({
-    if(verbose){message("SeuratExplorer: preparing featuresdfAssay.UI...")}
-    selectInput("featuresdfAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
-  })
-
   # output the features dataset
   output$dataset_features <- DT::renderDT(server=TRUE,{
-    req(input$featuresdfAssay)
+    req(input$FeaturesDataframeAssay)
     # Show data
-    DT::datatable(data$gene_annotions_list[[input$featuresdfAssay]],
+    DT::datatable(data$gene_annotions_list[[input$FeaturesDataframeAssay]],
                   extensions = 'Buttons',
                   options = list(scrollX=TRUE,
                                  paging = TRUE, searching = TRUE,
                                  fixedColumns = TRUE, autoWidth = TRUE,
                                  ordering = TRUE, dom = 'Bfrtip',
                                  buttons = list('copy',
-                                                list(extend = 'csv', title = paste0("features-from-", input$featuresdfAssay)),
-                                                list(extend = 'excel', title = paste0("features-from-", input$featuresdfAssay)))))
+                                                list(extend = 'csv', title = paste0("features-from-", input$FeaturesDataframeAssay)),
+                                                list(extend = 'excel', title = paste0("features-from-", input$FeaturesDataframeAssay)))))
   })
 
   ############################### Render metadata table
