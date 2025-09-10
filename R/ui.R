@@ -390,6 +390,9 @@ explorer_body_ui <- function(tab_list){
                                      box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                          textAreaInput("FeatureSummarySymbol", "Input Gene Symbols:", value = "", height = '100px', resize = "vertical"),
                                          withSpinner(uiOutput("FeatureSummaryClusteResolution.UI"), proxy.height = "10px"),
+                                         withSpinner(uiOutput("FeatureSummarySelectedClusters.UI"), proxy.height = "10px"),
+                                         withSpinner(uiOutput("FeatureSummaryAssays.UI"), proxy.height = "10px"),
+                                         checkboxInput("FeatureSummaryClusterLevel",label = "by each cluster", TRUE),
                                          actionButton("FeatureSummaryAnalysis", "Submit", icon = shiny::icon("magnifying-glass-chart"), class = "btn-primary")),
                                      box(title = "Gene Short Summary:", collapsible = TRUE, width = 9,solidHeader = TRUE, status = "primary",align = "center",
                                          conditionalPanel(

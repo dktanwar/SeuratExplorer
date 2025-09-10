@@ -475,39 +475,47 @@ top_accumulated_genes <- function(SeuratObj, top, group.by){
 }
 
 
-summary_features <- function(SeuratObj, features, group.by){
+summary_features <- function(SeuratObj, features, group.by, assay = 'RNA'){
   requireNamespace("dplyr")
   requireNamespace("Seurat")
-  if (class(SeuratObj@assays$RNA)[1] == "Assay5") {
+  if (class(SeuratObj[[assay]])[1] == "Assay5") { # only found RNA assay can has Assay5 class!
     SeuratObj <- JoinLayers(SeuratObj)
-    normalized.expr <- as.matrix(SeuratObj@assays$RNA@layers$data)
+    normalized.expr <- as.matrix(SeuratObj[[assay]]@layers$data)
   } else {
-    normalized.expr <- as.matrix(SeuratObj@assays$RNA$data)
+    normalized.expr <- as.matrix(SeuratObj[[assay]]$data)
   }
-  all.cell.types <- unique(SeuratObj@meta.data[,group.by])
-  for (celltype in all.cell.types) {
-    cells.sub <- colnames(SeuratObj)[as.character(SeuratObj@meta.data[,group.by]) == celltype]
-    if (length(cells.sub) < 3) {
-      next
+  if (!is.null(group.by)) {
+    all.cell.types <- unique(SeuratObj@meta.data[,group.by])
+    res <- list()
+    for (celltype in all.cell.types) {
+      cells.sub <- colnames(SeuratObj)[as.character(SeuratObj@meta.data[,group.by]) == celltype]
+      if (length(cells.sub) < 3) {
+        next
+      }
+      res[[celltype]] <- summary_features_core(expr_mat=normalized.expr[,cells.sub], features=features, group = celltype)
     }
-    normalized.expr.sub <- normalized.expr[,cells.sub]
-    mean.expr <- apply(normalized.expr.sub[features,,drop = FALSE], 1, mean)
-    median.expr <- apply(normalized.expr.sub[features,,drop = FALSE], 1, stats::median)
-    pct <- apply(normalized.expr.sub[features,,drop = FALSE] > 0, 1, mean)
-    single.res <- data.frame(Gene = features, Expr.mean = round(mean.expr,digits = 4), Expr.median = round(median.expr, digits = 4), PCT = round(pct,digits = 4))
-    single.res$CellType <- celltype
-    single.res$TotalCells <- ncol(normalized.expr.sub)
-    single.res <- single.res[,c("CellType", "TotalCells","Gene", "PCT", "Expr.mean", "Expr.median")]
-    rownames(single.res) <- NULL
-    if (celltype == all.cell.types[1]) {
-      res <- single.res
-    }else{
-      res <- rbind(res, single.res)
-    }
+    res <- Reduce(rbind, res)
+    rownames(res) <- NULL
+  }else{
+    res <- summary_features_core(expr_mat=normalized.expr, features=features, group = 'AllSelectedCells')
   }
-  rownames(res) <- NULL
   return(res)
 }
+
+
+summary_features_core <- function(expr_mat, features, group = 'merged'){
+  mean.expr <- apply(expr_mat[features,,drop = FALSE], 1, mean)
+  median.expr <- apply(expr_mat[features,,drop = FALSE], 1, stats::median)
+  pct <- apply(expr_mat[features,,drop = FALSE] > 0, 1, mean)
+  single.res <- data.frame(Gene = features, Expr.mean = round(mean.expr,digits = 4), Expr.median = round(median.expr, digits = 4), PCT = round(pct,digits = 4))
+  single.res$CellType <- group
+  single.res$TotalCells <- ncol(expr_mat)
+  single.res <- single.res[,c("CellType", "TotalCells","Gene", "PCT", "Expr.mean", "Expr.median")]
+  rownames(single.res) <- NULL
+  return(single.res)
+}
+
+
 
 calculate_top_correlations <- function(SeuratObj, method, top = 1000){
   if (class(SeuratObj@assays$RNA)[1] == "Assay5") {

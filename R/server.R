@@ -1244,25 +1244,44 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     selectInput("FeatureSummaryClusterResolution","Choose A Cluster Resolution:", choices = data$cluster_options, selected = data$cluster_default)
   })
 
+  # define Cluster Annotation choice
+  output$FeatureSummarySelectedClusters.UI <- renderUI({
+    req(input$FeatureSummaryClusterResolution)
+    if(verbose){message("SeuratExplorer: preparing FeatureSummarySelectedClusters.UI...")}
+    shinyWidgets::pickerInput(inputId = "FeatureSummarySelectedClusters", label = "Subset cells:",
+                              choices = levels(data$obj@meta.data[,input$FeatureSummaryClusterResolution]),
+                              selected = levels(data$obj@meta.data[,input$FeatureSummaryClusterResolution]),
+                              options = shinyWidgets::pickerOptions(actionsBox = TRUE, size = 10, selectedTextFormat = "count > 3"), multiple = TRUE)
+  })
+
+
+  # define assays choices UI
+  output$FeatureSummaryAssays.UI <- renderUI({
+    if(verbose){message("SeuratExplorer: preparing FeatureSummaryAssays.UI...")}
+    selectInput("FeatureSummaryAssay", "Assay:", choices = data$assays_options, selected = data$assay_default)
+  })
+
   observeEvent(input$FeatureSummaryAnalysis, {
     if(verbose){message("SeuratExplorer: preparing FeatureSummaryAnalysis...")}
-    if (!"RNA" %in% SeuratObject::Assays(data$obj)) {
-      showModal(modalDialog(title = "Error", check_sct_assay_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+    if(is.na(input$FeatureSummarySymbol)){
+      GeneRevised <- NA
     }else{
-      if(is.na(input$FeatureSummarySymbol)){
-        GeneRevised <- NA
+      GeneRevised <- CheckGene(InputGene = input$FeatureSummarySymbol, GeneLibrary =  rownames(data$obj))
+    }
+    if (any(is.na(GeneRevised))) {
+      showModal(modalDialog(title = "Error", check_genes_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+    }else{
+      showModal(modalDialog(title = "Summarizing features...", "Please wait for a few minutes!", footer= NULL, size = "l"))
+      cds <- data$obj
+      Idents(cds) <- input$FeatureSummaryClusterResolution
+      cds <- subset(cds, idents = input$FeatureSummarySelectedClusters)
+      if (input$FeatureSummaryClusterLevel) {
+        FeatureSummary$summary <- summary_features(SeuratObj = cds, features = GeneRevised, group.by = input$FeatureSummaryClusterResolution, assay = input$FeatureSummaryAssay)
       }else{
-        GeneRevised <- CheckGene(InputGene = input$FeatureSummarySymbol, GeneLibrary =  rownames(data$obj@assays[[input$FeatureAssay]]))
+        FeatureSummary$summary <- summary_features(SeuratObj = cds, features = GeneRevised, group.by = NULL, assay = input$FeatureSummaryAssay)
       }
-      if (any(is.na(GeneRevised))) {
-        showModal(modalDialog(title = "Error", check_genes_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
-      }else{
-        showModal(modalDialog(title = "Summarizing features...", "Please wait for a few minutes!", footer= NULL, size = "l"))
-        cds <- data$obj
-        FeatureSummary$summary <- summary_features(SeuratObj = cds, features = GeneRevised, group.by = input$FeatureSummaryClusterResolution)
-        removeModal()
-        FeatureSummary$summary_ready <- TRUE
-      }
+      removeModal()
+      FeatureSummary$summary_ready <- TRUE
     }
   })
 
@@ -1341,7 +1360,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if (!"RNA" %in% SeuratObject::Assays(data$obj)) {
       showModal(modalDialog(title = "Error", check_sct_assay_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
     }else{
-      feature.revised <- ReviseGene(Agene = trimws(input$MostCorrelatedAGene), GeneLibrary = rownames(data$obj@assays[[input$FeatureAssay]]))
+      feature.revised <- ReviseGene(Agene = trimws(input$MostCorrelatedAGene), GeneLibrary = rownames(data$obj))
       if(is.na(feature.revised)){
         showModal(modalDialog(title = "Error", "the input gene can not be found, please check...", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
       }else{
@@ -1368,7 +1387,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       if(is.na(input$CorrelationGeneList)){
         GeneRevised <- NA
       }else{
-        GeneRevised <- CheckGene(InputGene = input$CorrelationGeneList, GeneLibrary =  rownames(data$obj@assays[[input$FeatureAssay]]))
+        GeneRevised <- CheckGene(InputGene = input$CorrelationGeneList, GeneLibrary =  rownames(data$obj))
       }
       if (any(is.na(GeneRevised))) {
         showModal(modalDialog(title = "Error", check_genes_error, footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
