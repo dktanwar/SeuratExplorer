@@ -53,7 +53,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     })
   })
 
-  # ## Cluster order # Not Word when need values from input, such as: input[[cluster_order_UI_df$UIRelyOn[i]]]
+  # ## Cluster order # Not Work when need values from input, such as: input[[cluster_order_UI_df$UIRelyOn[i]]]
   # cluster_order_UI_names <- c('DimClusterOrder')
   # cluster_order_UI_relyon <- c('DimClusterResolution')
   # cluster_order_UI_df <- data.frame(Eelement = paste0(cluster_order_UI_names, '.UI'),
@@ -1306,7 +1306,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       if (nrow(FeatureCorrelation$summary) > 0) {
         FeatureCorrelation$summary_ready <- TRUE
       }else{
-        showModal(modalDialog(title = "Error", "No gene paris found, probably for some genes has very low expression value.", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
+        showModal(modalDialog(title = "Error", "No gene paris are found, probably for some genes has very low expression value.", footer= modalButton("Dismiss"), easyClose = TRUE, size = "l"))
       }
     }
   })

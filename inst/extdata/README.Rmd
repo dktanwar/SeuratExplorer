@@ -92,6 +92,32 @@ library(SeuratExplorer)
 launchSeuratExplorer()
 ```
 
+## about Assay option
+
+latest version allow for assay switching, thereby support multiple data types, including:
+
+- scRNA-seq, usually the default 'RNA' assay.
+
+- scATAC-seq, usually named with "ATAC", and "ACTIVITY" based on former.
+
+- Xenium data, usually named with 'Xenium'.
+
+- Visium HD data, usually named with 'Xenium'.
+
+- CITE-seq data,for the data of antibody-derived tags, usually named with 'ADT'.
+
+etc.
+
+Besides:
+
+- SCT assay for using SCT normalization method
+
+- cellbender assay by using cellbender output
+
+- lsi assay from LSI weight reduction
+
+etc.
+
 ## Introduction
 
 ### Load data
@@ -166,6 +192,8 @@ if(for_github){
 
 - support download plot in pdf format, what you see is what you get
 
+- support Assay switch
+
 **Example plots:**
 
 ```{r  echo = FALSE, out.width="50%"}
@@ -195,6 +223,8 @@ if(for_github){
 - support adjust the height/width ratio of the plot
 
 - support download plot in pdf format, what you see is what you get
+
+- support Assay switch
 
 **Example plots:**
 
@@ -233,6 +263,8 @@ if (for_github){
 
 - support download plot in pdf format, what you see is what you get
 
+- support Assay switch
+
 **Example plots:**
 
 ```{r echo = FALSE, out.width="50%"}
@@ -264,6 +296,8 @@ if (for_github) {
 
 - support download plot in pdf format, what you see is what you get
 
+- support Assay switch
+
 **Example plots:**
 
 ```{r echo = FALSE}
@@ -287,6 +321,8 @@ if (for_github) {
 - support adjust the height/width ratio of the plot
 
 - support download plot in pdf format, what you see is what you get
+
+- support Assay switch
 
 **Example plots:**
 
@@ -315,6 +351,8 @@ if (for_github) {
 - support adjust the height/width ratio of the plot
 
 - support download plot in pdf format, what you see is what you get
+
+- support Assay switch
 
 **Example plots:**
 
@@ -358,6 +396,8 @@ This usually takes longer, please wait patiently.Please save the results before 
 
 You can modify part calculation parameters before a analysis.
 
+- support Assay switch
+
 **Screen shots:**
 
 ```{r echo = FALSE, out.width="50%"}
@@ -396,6 +436,8 @@ if (for_github) {
 ### Top Expressed Features
 
 Highly expressed genes can reflect the main functions of cells, there two ways to do this. the first - ``Find Top Genes by Cell`` could find gene only high express in a few cells, while the second - ``Find Top Genes by Accumulated UMI counts`` is biased to find the highly expressed genes in most cells by accumulated UMI counts.
+
+- support Assay switch
 
 #### 1. Find Top Genes by Cell
 
@@ -437,6 +479,8 @@ if (for_github) {
 
 for each cluster, calculate the ``top n`` highly expressed genes by Mean UMI counts. if a cluster has less than 3 cells, this cluster will be escaped.
 
+- support Assay switch
+
 ```{r echo = FALSE, out.width="80%"}
 if (for_github) {
   knitr::include_graphics("./inst/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg")
@@ -462,6 +506,8 @@ if (for_github) {
 ### Feature Summary
 
 Summary interested features by cluster, such as the positive cell percentage and mean/median expression level.
+
+- support Assay switch
 
 ```{r echo = FALSE, out.width="80%"}
 if (for_github) {

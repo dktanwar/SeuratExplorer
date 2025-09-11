@@ -84,6 +84,34 @@ library(SeuratExplorer)
 launchSeuratExplorer()
 ```
 
+## about Assay option
+
+latest version allow for assay switching, thereby support multiple data
+types, including:
+
+- scRNA-seq, usually the default ‘RNA’ assay.
+
+- scATAC-seq, usually named with “ATAC”, and “ACTIVITY” based on former.
+
+- Xenium data, usually named with ‘Xenium’.
+
+- Visium HD data, usually named with ‘Xenium’.
+
+- CITE-seq data,for the data of antibody-derived tags, usually named
+  with ‘ADT’.
+
+etc.
+
+Besides:
+
+- SCT assay for using SCT normalization method
+
+- cellbender assay by using cellbender output
+
+- lsi assay from LSI weight reduction
+
+etc.
+
 ## Introduction
 
 ### Load data
@@ -143,6 +171,8 @@ launchSeuratExplorer()
 
 - support download plot in pdf format, what you see is what you get
 
+- support Assay switch
+
 **Example plots:**
 
 <img src="./inst/extdata/www/Featureplot-splited.png" width="50%" />
@@ -165,6 +195,8 @@ launchSeuratExplorer()
 - support adjust the height/width ratio of the plot
 
 - support download plot in pdf format, what you see is what you get
+
+- support Assay switch
 
 **Example plots:**
 
@@ -191,6 +223,8 @@ launchSeuratExplorer()
 
 - support download plot in pdf format, what you see is what you get
 
+- support Assay switch
+
 **Example plots:**
 
 <img src="./inst/extdata/www/DotPlot-Splited.png" width="50%" />
@@ -215,6 +249,8 @@ launchSeuratExplorer()
 
 - support download plot in pdf format, what you see is what you get
 
+- support Assay switch
+
 **Example plots:**
 
 <img src="./inst/extdata/www/Heatmap-CellLevel.png" width="100%" />
@@ -233,6 +269,8 @@ launchSeuratExplorer()
 - support adjust the height/width ratio of the plot
 
 - support download plot in pdf format, what you see is what you get
+
+- support Assay switch
 
 **Example plots:**
 
@@ -254,6 +292,8 @@ launchSeuratExplorer()
 - support adjust the height/width ratio of the plot
 
 - support download plot in pdf format, what you see is what you get
+
+- support Assay switch
 
 **Example plots:**
 
@@ -286,6 +326,8 @@ new results, the results can be downloaded as `csv` format.
   of two groups.
 
 You can modify part calculation parameters before a analysis.
+
+- support Assay switch
 
 **Screen shots:**
 
@@ -323,6 +365,8 @@ two ways to do this. the first - `Find Top Genes by Cell` could find
 gene only high express in a few cells, while the second -
 `Find Top Genes by Accumulated UMI counts` is biased to find the highly
 expressed genes in most cells by accumulated UMI counts.
+
+- support Assay switch
 
 #### 1. Find Top Genes by Cell
 
@@ -369,6 +413,8 @@ for each cluster, calculate the `top n` highly expressed genes by Mean
 UMI counts. if a cluster has less than 3 cells, this cluster will be
 escaped.
 
+- support Assay switch
+
 <img src="./inst/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg" width="80%" />
 
 #### Output description
@@ -392,6 +438,8 @@ escaped.
 
 Summary interested features by cluster, such as the positive cell
 percentage and mean/median expression level.
+
+- support Assay switch
 
 <img src="./inst/extdata/www/gene-short-summary.jpg" width="80%" />
 
@@ -482,22 +530,11 @@ analysis.
     #> attached base packages:
     #> [1] stats     graphics  grDevices utils     datasets  methods   base     
     #> 
-    #> other attached packages:
-    #> [1] badger_0.2.4
-    #> 
     #> loaded via a namespace (and not attached):
-    #>  [1] vctrs_0.6.5         cli_3.6.3           knitr_1.50         
-    #>  [4] rlang_1.1.4         xfun_0.52           generics_0.1.4     
-    #>  [7] jsonlite_1.8.8      glue_1.7.0          htmltools_0.5.8.1  
-    #> [10] scales_1.4.0        rmarkdown_2.29      dlstats_0.1.7      
-    #> [13] grid_4.4.3          evaluate_1.0.3      tibble_3.2.1       
-    #> [16] fastmap_1.2.0       yaml_2.3.10         lifecycle_1.0.4    
-    #> [19] BiocManager_1.30.25 rvcheck_0.2.1       compiler_4.4.3     
-    #> [22] dplyr_1.1.4         fs_1.6.4            RColorBrewer_1.1-3 
-    #> [25] pkgconfig_2.0.3     rstudioapi_0.17.1   farver_2.1.2       
-    #> [28] digest_0.6.36       R6_2.6.1            tidyselect_1.2.1   
-    #> [31] pillar_1.10.2       magrittr_2.0.3      tools_4.4.3        
-    #> [34] gtable_0.3.6        yulab.utils_0.2.0   ggplot2_3.5.1
+    #>  [1] compiler_4.4.3    fastmap_1.2.0     cli_3.6.3         tools_4.4.3      
+    #>  [5] htmltools_0.5.8.1 rstudioapi_0.17.1 yaml_2.3.10       rmarkdown_2.29   
+    #>  [9] knitr_1.50        xfun_0.52         digest_0.6.36     rlang_1.1.4      
+    #> [13] evaluate_1.0.3
 
 ## 中文介绍
 
