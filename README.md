@@ -95,7 +95,7 @@ types, including:
 
 - Xenium data, usually named with ‘Xenium’.
 
-- Visium HD data, usually named with ‘Xenium’.
+- Visium HD data, usually named with ‘Visium’.
 
 - CITE-seq data,for the data of antibody-derived tags, usually named
   with ‘ADT’.
