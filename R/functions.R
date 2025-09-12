@@ -46,10 +46,24 @@ prepare_reduction_options <- function(obj, keywords = c("umap","tsne"), verbose 
   return(reduction.choice)
 }
 
-# get assay options by keywords: default RNA
-prepare_assays_options <- function(obj, verbose = FALSE){
+# get assay and slots info
+prepare_assays_slots <- function(obj, verbose = FALSE, data_slot =  c('counts', 'data', 'scale.data')){
   requireNamespace("Seurat")
-  assays.choice <- Seurat::Assays(obj)
+  # assay at least has one slot of counts, data, scale.data
+  assay_slot_list <- list()
+  for (i in  Seurat::Assays(obj)) {
+    slot_names <- slotNames(obj[[i]])
+    slot_names <- data_slot[data_slot %in% slot_names]
+    if (length(slot_names!=0)) {
+      assay_slot_list[[i]] <- slot_names
+    }
+  }
+  if(verbose){message("SeuratExplorer: prepare_assays_slots runs successfully!")}
+  return(assay_slot_list)
+}
+
+prepare_assays_options <-function(Alist, verbose = FALSE){
+  assays.choice <- names(Alist)
   names(assays.choice) <- toupper(assays.choice)
   if(verbose){message("SeuratExplorer: prepare_assays_options runs successfully!")}
   return(assays.choice)
@@ -643,7 +657,7 @@ AverageHeatmap <- function(
                                   features = markerGene,
                                   group.by = group.by,
                                   assays = assays,
-                                  slot = slot
+                                  layer = slot
         )
       )
     )

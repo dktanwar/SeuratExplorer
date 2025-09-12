@@ -92,6 +92,7 @@ explorer_body_ui <- function(tab_list){
                                             withSpinner(uiOutput("Featurehints.UI"), proxy.height = "10px"),
                                             withSpinner(uiOutput("FeatureDimensionReduction.UI"), proxy.height = "10px"),
                                             withSpinner(uiOutput("FeatureAssays.UI"), proxy.height = "10px"),
+                                            withSpinner(uiOutput("FeatureAssaySlots.UI"), proxy.height = "10px"),
                                             withSpinner(uiOutput("FeatureClusterResolution.UI"), proxy.height = "10px"),
                                             checkboxInput("FeatureShowLabel",label = "Show Cluster Label", FALSE),
                                             withSpinner(uiOutput("FeatureSplit.UI"), proxy.height = "10px"),
@@ -123,6 +124,7 @@ explorer_body_ui <- function(tab_list){
                                                                                      style = "info", value = "0")),
                                         withSpinner(uiOutput("VlnIdentsSelected.UI"), proxy.height = "10px"),
                                         withSpinner(uiOutput("VlnAssays.UI"), proxy.height = "10px"),
+                                        withSpinner(uiOutput("VlnAssaySlots.UI"), proxy.height = "10px"),
                                         withSpinner(uiOutput("VlnSplitBy.UI"), proxy.height = "10px"),
                                         conditionalPanel(
                                           condition = "output.Vlnplot_splitoption_twolevels",
@@ -199,6 +201,7 @@ explorer_body_ui <- function(tab_list){
                                                                                      withSpinner(uiOutput("HeatmapClusterOrder.UI"), proxy.height = "10px"),
                                                                                      style = "info", value = "0")),
                                         withSpinner(uiOutput("HeatmapAssays.UI"), proxy.height = "10px"),
+                                        withSpinner(uiOutput("HeatmapAssaySlots.UI"), proxy.height = "10px"),
                                         sliderInput("HeatmapTextSize", label = "Cluster Text Size:", min = 1, max = 12, value = 6, step = 0.5),
                                         sliderInput("HeatmapTextHjust", label = "Cluster Text Hjust:", min = -10, max = 20, value = 0, step = 0.5),
                                         sliderInput("HeatmapTextVjust", label = "Cluster Text Vjust:", min = -5, max = 5, value = 0, step = 0.1),
@@ -251,6 +254,7 @@ explorer_body_ui <- function(tab_list){
                                                                                        style = "info", value = "0")),
                                           withSpinner(uiOutput("RidgeplotIdentsSelected.UI"), proxy.height = "10px"),
                                           withSpinner(uiOutput("RidgeplotAssays.UI"), proxy.height = "10px"),
+                                          withSpinner(uiOutput("RidgeplotAssaySlots.UI"), proxy.height = "10px"),
                                           conditionalPanel(
                                             condition = "output.Ridgeplot_stack_NotSelected",
                                             sliderInput("RidgeplotNumberOfColumns", label = "Number of columns:", min = 1, max = 10, value = 1),
