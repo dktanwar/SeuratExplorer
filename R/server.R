@@ -1368,7 +1368,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     # Show data
     if (nrow(DEGs$degs) == 0 | is.null(DEGs$degs)) {
       showModal(modalDialog(title = "Error",
-                            "None of DEGs found, contact technican for details!",
+                            "None of DEGs found, You may try change the default Assay in 'Custom Parameters' page, or contact technican for details!",
                             footer= modalButton("Dismiss"),
                             easyClose = TRUE,
                             size = "l"))
