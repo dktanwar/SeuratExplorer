@@ -89,6 +89,8 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                               # use isolate for in case of error:
                               # Can't access reactive value 'assay_slots' outside of reactive consumer.
                               'VlnAssay' = isolate(data$assay_slots),
+                              # DotPlot right now can only FetchData from data slot of the assay,
+                              # so only assays with data slot can be supplied for the assay options
                               'DotAssay' = 'data',
                               'HeatmapAssay' = c('data', 'scale.data'),
                               'AveragedHeatmapAssay' = 'data',
@@ -111,8 +113,9 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   }
 
   ## define assays choices UI
-  assay_df <- data.frame(Element = paste0(names(assay_and_slots), 's.UI'),
-                         UIID = names(assay_and_slots))
+  assay_df <- data.frame(Element = paste0(names(assay_allowed_slots), 's.UI'),
+                         UIID = names(assay_allowed_slots))
+
   output_assay <- lapply(1:nrow(assay_df), function(i){
     output[[assay_df$Element[i]]] <- renderUI({
       if(verbose){message(paste0("SeuratExplorer: preparing ", assay_df$Element[i], "..."))}
@@ -127,16 +130,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     })
   })
 
-  # ## DotPlot right now can only FetchData from data slot of the assay, so only assays with data slot can be supplied for the assay options
-  # assay_dataSlot_UI_names <- c('DotAssay')
-  # assay_dataSlot_df <- data.frame(Element = paste0(assay_dataSlot_UI_names, 's.UI'), UIID = assay_dataSlot_UI_names)
-  # output_assay_dataslot <- lapply(1:nrow(assay_dataSlot_df), function(i){
-  #   output[[assay_dataSlot_df$Element[i]]] <- renderUI({
-  #     if(verbose){message(paste0("SeuratExplorer: preparing ", assay_dataSlot_df$Element[i], "..."))}
-  #     assays_options <- names(data$assays_slots_options[unlist(lapply(data$assays_slots_options,function(x) 'data' %in% x))])
-  #     selectInput(assay_dataSlot_df$UIID[i], "Assay:", choices = assays_options, selected = ifelse(data$assay_default %in% assays_options, data$assay_default, assays_options[1]))
-  #   })
-  # })
 
   ## batch addin
   do.call(tagList, c(output_dimension_reduction, output_resolution, output_assay))
