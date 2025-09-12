@@ -53,6 +53,9 @@ prepare_assays_slots <- function(obj, verbose = FALSE, data_slot =  c('counts', 
   assay_slot_list <- list()
   for (i in  Seurat::Assays(obj)) {
     slot_names <- slotNames(obj[[i]])
+    if ('layers' %in% slot_names) {
+      slot_names <- Layers(obj[[i]])
+    }
     slot_names <- data_slot[data_slot %in% slot_names]
     if (length(slot_names!=0)) {
       assay_slot_list[[i]] <- slot_names
