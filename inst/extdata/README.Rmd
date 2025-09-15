@@ -92,9 +92,14 @@ library(SeuratExplorer)
 launchSeuratExplorer()
 ```
 
-## about Assay option
+## Assay option
 
-latest version allow for assay switching, thereby support multiple data types, including:
+> [Seurat Assay](https://github.com/satijalab/seurat/wiki/Assay)
+
+> The Assay class stores single cell data.For typical scRNA-seq experiments, a Seurat object will have a single Assay ("RNA"). This assay will also store multiple 'transformations' of the data, including raw counts (@counts slot), normalized data (@data slot), and scaled data for dimensional reduction (@scale.data slot).
+
+
+SeuratExplorer allows for assay switching, thereby multiple data types can be supported, including:
 
 - scRNA-seq, usually the default 'RNA' assay.
 
@@ -117,6 +122,14 @@ Besides:
 - lsi assay from LSI weight reduction
 
 etc.
+
+**Slots**
+
+- counts: Stores unnormalized data such as raw counts or TPMs
+
+- data: Normalized data matrix
+
+- scale.data:	Scaled data matrix
 
 ## Introduction
 
@@ -192,7 +205,7 @@ if(for_github){
 
 - support download plot in pdf format, what you see is what you get
 
-- support Assay switch
+- support switch Assays which contain any one of the slots: counts, data, scale.data
 
 **Example plots:**
 
@@ -224,7 +237,7 @@ if(for_github){
 
 - support download plot in pdf format, what you see is what you get
 
-- support Assay switch
+- support switch Assays which contain any one of the slots: counts, data, scale.data
 
 **Example plots:**
 
@@ -263,7 +276,7 @@ if (for_github){
 
 - support download plot in pdf format, what you see is what you get
 
-- support Assay switch
+- support switch Assays which contain slot: data
 
 **Example plots:**
 
@@ -322,7 +335,7 @@ if (for_github) {
 
 - support download plot in pdf format, what you see is what you get
 
-- support Assay switch
+- support switch Assays which contain any one of the slots: data, scale.data
 
 **Example plots:**
 
@@ -352,7 +365,7 @@ if (for_github) {
 
 - support download plot in pdf format, what you see is what you get
 
-- support Assay switch
+- support switch Assays which contain any one of the slots: counts, data, scale.data
 
 **Example plots:**
 
@@ -396,7 +409,7 @@ This usually takes longer, please wait patiently.Please save the results before 
 
 You can modify part calculation parameters before a analysis.
 
-- support Assay switch
+- support switch Assays which contain any one of the slots: counts, data
 
 **Screen shots:**
 
@@ -479,7 +492,7 @@ if (for_github) {
 
 for each cluster, calculate the ``top n`` highly expressed genes by Mean UMI counts. if a cluster has less than 3 cells, this cluster will be escaped.
 
-- support Assay switch
+- support switch Assays which contain slot: counts
 
 ```{r echo = FALSE, out.width="80%"}
 if (for_github) {
@@ -507,7 +520,7 @@ if (for_github) {
 
 Summary interested features by cluster, such as the positive cell percentage and mean/median expression level.
 
-- support Assay switch
+- support switch Assays which contain slot: data
 
 ```{r echo = FALSE, out.width="80%"}
 if (for_github) {
@@ -534,6 +547,8 @@ if (for_github) {
 ### Feature Correlation Analysis
 
 Can calculate the correlation value of gene pairs within cells from a cluster, support pearson & spearman methods.
+
+- support switch Assays which contain slot: data
 
 #### 3 ways to do
 
@@ -569,6 +584,48 @@ if (for_github) {
 
 if nothing return, this is because the input genes has very low expression level, very low expressed genes will be removed before analysis.
 
+### Search Features
+
+all features(genes) extracted from the row names of assay, can be used search features.
+
+- support switch Assays which contain any one of the slots: counts, data, scale.data
+
+### Metadata of Cells
+
+The metadata of all cells extracted from the meta.data slot of Seurat object, ehich contains descriptive information for each cell, such as quality control metrics, cell type classifications, batch information, and experimental conditions. This metadata is crucial for organizing, filtering, integrating, and visualizing single-cell RNA-seq data.
+
+
+### Structure of Seurat Object
+
+> The Seurat object is an S4 class in R designed to store and manage single-cell expression data and associated analyses. It is a highly structured and self-contained object, allowing for the integration of various data modalities and analytical results.
+
+> Key Slots and their Contents:
+
+> assays: This is a list containing one or more Assay objects. Each Assay object represents a specific type of expression data.
+> Each Assay object itself contains slots like counts (raw data), data (normalized data), scale.data (scaled data), and meta.features (feature-level metadata).
+
+> meta.data:
+> A data frame storing cell-level metadata. This includes information such as the number of features detected per cell (nFeature_RNA), original identity classes (orig.ident), and can be extended with additional information (e.g., cell type annotations, sample information).
+
+> active.assay:
+> A character string indicating the name of the currently active or default assay for analysis.
+
+> active.ident:
+> Stores the active cluster identity for each cell, typically resulting from clustering analyses.
+
+> reductions:
+> A list of DimReduc objects, each representing a dimensionality reduction technique applied to the data (e.g., PCA, UMAP, tSNE). These objects store the lower-dimensional embeddings of the cells.
+
+> graphs:
+> A list of Graph objects, typically storing nearest-neighbor graphs used in clustering and other analyses.
+images:
+> For spatial transcriptomics data, this slot stores Image objects containing spatial image data and information linking spots to their physical locations.
+
+> project.name:
+> A character string holding the name of the project.
+
+> misc:
+> A list for storing miscellaneous information not fitting into other specific slots.
 
 ## Key related packages
 
