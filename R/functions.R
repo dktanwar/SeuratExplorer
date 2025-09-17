@@ -412,6 +412,8 @@ top_genes <- function(SeuratObj, percent.cut = 0.01, group.by, assay = 'RNA') {
   if (class(SeuratObj[[assay]])[1] == "Assay5") {
     SeuratObj <- JoinLayers(SeuratObj)
     counts.expr <- as.matrix(SeuratObj[[assay]]@layers$counts)
+    rownames(counts.expr) <- rownames(SeuratObj[[assay]])
+    colnames(counts.expr) <- colnames(SeuratObj[[assay]])
   } else { # if type is assay
     counts.expr <- as.matrix(SeuratObj[[assay]]$counts)
   }
@@ -463,6 +465,8 @@ top_accumulated_genes <- function(SeuratObj, top_n = 100, group.by, assay = 'RNA
   if (class(SeuratObj[[assay]])[1] == "Assay5") {
     SeuratObj <- JoinLayers(SeuratObj)
     counts.expr <- as.matrix(SeuratObj[[assay]]@layers$counts)
+    rownames(counts.expr) <- rownames(SeuratObj[[assay]])
+    colnames(counts.expr) <- colnames(SeuratObj[[assay]])
   } else {
     counts.expr <- as.matrix(SeuratObj[[assay]]$counts)
   }
@@ -507,6 +511,8 @@ summary_features <- function(SeuratObj, features, group.by, assay = 'RNA'){
   if (class(SeuratObj[[assay]])[1] == "Assay5") { # only found RNA assay can has Assay5 class!
     SeuratObj <- JoinLayers(SeuratObj)
     normalized.expr <- as.matrix(SeuratObj[[assay]]@layers$data)
+    rownames(normalized.expr) <- rownames(SeuratObj[[assay]])
+    colnames(normalized.expr) <- colnames(SeuratObj[[assay]])
   } else {
     normalized.expr <- as.matrix(SeuratObj[[assay]]$data)
   }
@@ -547,6 +553,8 @@ calculate_top_correlations <- function(SeuratObj, method, top = 1000, assay = 'R
   if (class(SeuratObj[[assay]])[1] == "Assay5") {
     SeuratObj <- JoinLayers(SeuratObj)
     normalized.expr <- as.matrix(SeuratObj[[assay]]@layers$data)
+    rownames(normalized.expr) <- rownames(SeuratObj[[assay]])
+    colnames(normalized.expr) <- colnames(SeuratObj[[assay]])
   } else {
     normalized.expr <- as.matrix(SeuratObj[[assay]]$data)
   }
@@ -570,6 +578,8 @@ calculate_most_correlated <- function(SeuratObj, feature, method, assay = 'RNA')
   if (class(SeuratObj[[assay]])[1] == "Assay5") {
     SeuratObj <- JoinLayers(SeuratObj)
     normalized.expr <- as.matrix(SeuratObj[[assay]]@layers$data)
+    rownames(normalized.expr) <- rownames(SeuratObj[[assay]])
+    colnames(normalized.expr) <- colnames(SeuratObj[[assay]])
   } else {
     normalized.expr <- as.matrix(SeuratObj[[assay]]$data)
   }
@@ -590,6 +600,8 @@ calculate_correlation <- function(SeuratObj, features, method, assay = 'RNA'){
   if (class(SeuratObj[[assay]])[1] == "Assay5") {
     SeuratObj <- JoinLayers(SeuratObj)
     normalized.expr <- as.matrix(SeuratObj[[assay]]@layers$data)
+    rownames(normalized.expr) <- rownames(SeuratObj[[assay]])
+    colnames(normalized.expr) <- colnames(SeuratObj[[assay]])
   } else {
     normalized.expr <- as.matrix(SeuratObj[[assay]]$data)
   }
