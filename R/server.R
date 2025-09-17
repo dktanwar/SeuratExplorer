@@ -326,7 +326,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       Seurat::Idents(cds) <- input$FeatureClusterResolution
       Seurat::DefaultAssay(cds) <- input$FeatureAssay
       # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
-      if(!any(features_dimplot$features_current %in% rownames(cds[[input$FeatureAssay]]))){
+      if(!any(features_dimplot$features_current %in% c(rownames(cds[[input$FeatureAssay]]),data$extra_qc_options))){
         p <- empty_plot
       }else{
         if(is.null(FeatureSplit.Revised())) { # not split
@@ -548,7 +548,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                                                            levels = input$VlnClusterOrder)
       SeuratObject::Idents(cds) <- input$VlnClusterResolution
       # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
-      if(!any(features_vlnplot$features_current %in% rownames(cds[[input$VlnAssay]]))){
+      if(!any(features_vlnplot$features_current %in% c(rownames(cds[[input$VlnAssay]]),data$extra_qc_options))){
         p <- empty_plot
       }else{
         if(length(features_vlnplot$features_current) == 1) { # only One Gene
@@ -615,8 +615,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   observeEvent(input$DotGeneSymbol,{
     features_input <- CheckGene(InputGene = input$DotGeneSymbol,
-                                GeneLibrary =  c(rownames(data$obj@assays[[input$DotAssay]]),
-                                                 data$extra_qc_options))
+                                GeneLibrary =  rownames(data$obj@assays[[input$DotAssay]]))
     if (!identical(sort(features_dotplot$features_current), sort(features_input))) {
       features_dotplot$features_last <- features_dotplot$features_current
       features_dotplot$features_current <- features_input
@@ -771,8 +770,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   observeEvent(input$HeatmapGeneSymbol,{
     features_input <- CheckGene(InputGene = input$HeatmapGeneSymbol,
-                                GeneLibrary =  c(rownames(data$obj@assays[[input$HeatmapAssay]]),
-                                                 data$extra_qc_options))
+                                GeneLibrary =  rownames(data$obj@assays[[input$HeatmapAssay]]))
     if (!identical(sort(features_heatmap$features_current), sort(features_input))) {
       features_heatmap$features_last <- features_heatmap$features_current
       features_heatmap$features_current <- features_input
@@ -859,8 +857,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   observeEvent(input$AveragedHeatmapGeneSymbol,{
     features_input <- CheckGene(InputGene = input$AveragedHeatmapGeneSymbol,
-                                GeneLibrary =  c(rownames(data$obj@assays[[input$AveragedHeatmapAssay]]),
-                                                 data$extra_qc_options))
+                                GeneLibrary =  rownames(data$obj@assays[[input$AveragedHeatmapAssay]]))
     if (!identical(sort(features_heatmap_averaged$features_current), sort(features_input))) {
       features_heatmap_averaged$features_last <- features_heatmap_averaged$features_current
       features_heatmap_averaged$features_current <- features_input
@@ -1055,7 +1052,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                                                                  levels = input$RidgeplotClusterOrder)
       Idents(cds) <- input$RidgeplotClusterResolution
       # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
-      if(!any(features_ridgeplot$features_current %in% rownames(cds[[input$RidgeplotAssay]]))){
+      if(!any(features_ridgeplot$features_current %in% c(rownames(cds[[input$RidgeplotAssay]]), data$extra_qc_options))){
         p <- empty_plot
       }else{
         p <- Seurat::RidgePlot(object = cds,
