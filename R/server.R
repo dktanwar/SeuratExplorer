@@ -1416,7 +1416,11 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   output$ExternalLinks.UI <- renderUI({
     row_count <- input$dataset_degs_rows_selected
-    selected.gene <- DEGs$degs[row_count, 'gene']
+    if ('gene' %in% colnames(DEGs$degs)) {
+      selected.gene <- DEGs$degs[row_count, 'gene']
+    }else{
+      selected.gene <- rownames(DEGs$degs)[row_count]
+    }
     selected.db <- db[[input$selectspecies]]
     if (!selected.gene %in% selected.db[,input$selectsgenetype]) {
       return(renderText("Gene not found, please check parameters above, or this gene not existed in the database."))
