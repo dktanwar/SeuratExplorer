@@ -18,7 +18,7 @@ Imports:
     methods,
     Seurat (>= 5.0.0),
     SeuratObject (>= 5.0.0),
-    ggplot2,
+    ggplot2 (< 4.0.0),
     shinydashboard,
     shinydashboardPlus,
     DT,
