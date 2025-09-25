@@ -854,6 +854,254 @@ empty_plot <- ggplot2::ggplot() +
                  axis.text = ggplot2::element_blank(),
                  axis.ticks = ggplot2::element_blank())
 
+# Interactive plotting functions
+#' Convert a Seurat DimPlot to an interactive plotly object
+#'
+#' @param p A ggplot object from Seurat::DimPlot
+#' @param obj The Seurat object
+#' @param reduction The reduction to use
+#' @param group.by The metadata column to group by
+#' @param height Height in pixels for the plot
+#' @return A plotly object
+interactive_dimplot <- function(p, obj, reduction = "umap", group.by = "seurat_clusters", height = NULL) {
+  requireNamespace("plotly")
+  
+  # Convert to plotly with enhanced interactivity
+  plotly_obj <- plotly::ggplotly(p, tooltip = "all") %>%
+    plotly::layout(
+      hovermode = "closest",
+      dragmode = "pan",
+      title = list(text = paste("Interactive", toupper(reduction), "Plot"), font = list(size = 16)),
+      height = height,
+      xaxis = list(
+        title = list(text = paste0(toupper(reduction), "_1"), font = list(size = 14)),
+        showgrid = TRUE,
+        gridcolor = "rgba(128,128,128,0.2)",
+        zeroline = FALSE
+      ),
+      yaxis = list(
+        title = list(text = paste0(toupper(reduction), "_2"), font = list(size = 14)),
+        showgrid = TRUE,
+        gridcolor = "rgba(128,128,128,0.2)",
+        zeroline = FALSE
+      ),
+      legend = list(
+        x = 1.02,
+        y = 1,
+        bgcolor = "rgba(255,255,255,0.8)",
+        bordercolor = "rgba(0,0,0,0.2)",
+        borderwidth = 1
+      )
+    ) %>%
+    plotly::config(
+      displayModeBar = TRUE,
+      modeBarButtonsToRemove = c("select2d", "lasso2d", "autoScale2d"),
+      toImageButtonOptions = list(
+        format = "png",
+        filename = "dimplot_interactive",
+        height = 600,
+        width = 800,
+        scale = 2
+      ),
+      displaylogo = FALSE
+    )
+  
+  return(plotly_obj)
+}
+
+#' Convert a Seurat FeaturePlot to an interactive plotly object
+#'
+#' @param p A ggplot object from Seurat::FeaturePlot
+#' @param obj The Seurat object
+#' @param features The features being plotted
+#' @param reduction The reduction to use
+#' @param slot The data slot used
+#' @return A plotly object
+interactive_featureplot <- function(p, obj, features, reduction = "umap", slot = "data", height = NULL) {
+  requireNamespace("plotly")
+  
+  # Convert to plotly with enhanced interactivity
+  plotly_obj <- plotly::ggplotly(p, tooltip = "all") %>%
+    plotly::layout(
+      hovermode = "closest",
+      dragmode = "pan",
+      title = list(
+        text = paste("Interactive Feature Plot:", paste(features, collapse = ", ")), 
+        font = list(size = 16)
+      ),
+      height = height,
+      xaxis = list(
+        title = list(text = paste0(toupper(reduction), "_1"), font = list(size = 14)),
+        showgrid = TRUE,
+        gridcolor = "rgba(128,128,128,0.2)",
+        zeroline = FALSE
+      ),
+      yaxis = list(
+        title = list(text = paste0(toupper(reduction), "_2"), font = list(size = 14)),
+        showgrid = TRUE,
+        gridcolor = "rgba(128,128,128,0.2)",
+        zeroline = FALSE
+      ),
+      coloraxis = list(
+        colorbar = list(
+          title = list(text = "Expression", font = list(size = 12)),
+          tickfont = list(size = 10)
+        )
+      )
+    ) %>%
+    plotly::config(
+      displayModeBar = TRUE,
+      modeBarButtonsToRemove = c("select2d", "lasso2d", "autoScale2d"),
+      toImageButtonOptions = list(
+        format = "png",
+        filename = "featureplot_interactive",
+        height = 600,
+        width = 800,
+        scale = 2
+      ),
+      displaylogo = FALSE
+    )
+  
+  return(plotly_obj)
+}
+
+#' Convert a Seurat VlnPlot to an interactive plotly object
+#'
+#' @param p A ggplot object from Seurat::VlnPlot
+#' @param obj The Seurat object
+#' @param features The features being plotted
+#' @param group.by The metadata column to group by
+#' @param slot The data slot used
+#' @return A plotly object
+interactive_vlnplot <- function(p, obj, features, group.by = "seurat_clusters", slot = "data", height = NULL) {
+  requireNamespace("plotly")
+  
+  # Convert to plotly with enhanced interactivity
+  plotly_obj <- plotly::ggplotly(p, tooltip = "all") %>%
+    plotly::layout(
+      hovermode = "closest",
+      dragmode = "pan",
+      title = list(
+        text = paste("Interactive Violin Plot:", paste(features, collapse = ", ")), 
+        font = list(size = 16)
+      ),
+      height = height,
+      xaxis = list(
+        title = list(text = "Clusters", font = list(size = 14)),
+        tickangle = -45,
+        showgrid = TRUE,
+        gridcolor = "rgba(128,128,128,0.1)"
+      ),
+      yaxis = list(
+        title = list(text = "Expression", font = list(size = 14)),
+        showgrid = TRUE,
+        gridcolor = "rgba(128,128,128,0.1)"
+      ),
+      legend = list(
+        orientation = "v",
+        x = 1.02,
+        y = 1,
+        bgcolor = "rgba(255,255,255,0.8)",
+        bordercolor = "rgba(0,0,0,0.2)",
+        borderwidth = 1
+      )
+    ) %>%
+    plotly::config(
+      displayModeBar = TRUE,
+      modeBarButtonsToRemove = c("select2d", "lasso2d", "autoScale2d"),
+      toImageButtonOptions = list(
+        format = "png",
+        filename = "violinplot_interactive",
+        height = 600,
+        width = 800,
+        scale = 2
+      ),
+      displaylogo = FALSE
+    )
+  
+  return(plotly_obj)
+}
+
+#' Convert a Seurat DotPlot to an interactive plotly object
+#'
+#' @param p A ggplot object from Seurat::DotPlot
+#' @param obj The Seurat object
+#' @param features The features being plotted
+#' @param group.by The metadata column to group by
+#' @return A plotly object
+interactive_dotplot <- function(p, obj, features, group.by = "seurat_clusters", height = NULL) {
+  requireNamespace("plotly")
+  
+  # Convert to plotly with enhanced interactivity
+  plotly_obj <- plotly::ggplotly(p, tooltip = "all") %>%
+    plotly::layout(
+      hovermode = "closest",
+      dragmode = "pan",
+      title = list(
+        text = paste("Interactive Dot Plot:", paste(features, collapse = ", ")), 
+        font = list(size = 16)
+      ),
+      height = height,
+      xaxis = list(
+        title = list(text = "Features", font = list(size = 14)),
+        tickangle = -45,
+        showgrid = TRUE,
+        gridcolor = "rgba(128,128,128,0.1)"
+      ),
+      yaxis = list(
+        title = list(text = "Clusters", font = list(size = 14)),
+        showgrid = TRUE,
+        gridcolor = "rgba(128,128,128,0.1)"
+      ),
+      coloraxis = list(
+        colorbar = list(
+          title = list(text = "Avg Expression", font = list(size = 12)),
+          tickfont = list(size = 10)
+        )
+      )
+    ) %>%
+    plotly::config(
+      displayModeBar = TRUE,
+      modeBarButtonsToRemove = c("select2d", "lasso2d", "autoScale2d"),
+      toImageButtonOptions = list(
+        format = "png",
+        filename = "dotplot_interactive",
+        height = 600,
+        width = 800,
+        scale = 2
+      ),
+      displaylogo = FALSE
+    )
+  
+  return(plotly_obj)
+}
+
+#' Create an interactive empty plot for error cases
+#'
+#' @param message The error message to display
+#' @return A plotly object
+interactive_empty_plot <- function(message = "Please input correct features!") {
+  requireNamespace("plotly")
+  
+  p <- ggplot2::ggplot() +
+    ggplot2::annotate('text', x = 0, y = 0, label = message, color = 'darkgrey', size = 6) +
+    ggplot2::theme_bw() +
+    ggplot2::geom_blank() +
+    ggplot2::theme(
+      axis.title = ggplot2::element_blank(),
+      axis.text = ggplot2::element_blank(),
+      axis.ticks = ggplot2::element_blank()
+    )
+  
+  plotly_obj <- plotly::ggplotly(p) %>%
+    plotly::layout(
+      title = list(text = "Error", font = list(size = 14))
+    ) %>%
+    plotly::config(displayModeBar = FALSE)
+  
+  return(plotly_obj)
+}
+
 
 
 
