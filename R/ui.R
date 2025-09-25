@@ -59,7 +59,25 @@ explorer_body_ui <- function(tab_list){
   tab_list[["dimplot"]] = tabItem(tabName = "dimplot",
                                   fluidRow(
                                     box(title = "Dimensional Reduction Plot",
-                                        withSpinner(plotOutput("dimplot",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                        div(style = "margin-bottom: 10px;",
+                                            shinyWidgets::radioGroupButtons(
+                                              inputId = "dimplot_mode",
+                                              label = "Plot Type:",
+                                              choices = c("Static" = "static", "Interactive" = "interactive"),
+                                              selected = "static",
+                                              status = "primary",
+                                              size = "sm",
+                                              justified = FALSE
+                                            )
+                                        ),
+                                        conditionalPanel(
+                                          condition = "input.dimplot_mode == 'static'",
+                                          withSpinner(plotOutput("dimplot",height = "auto"))
+                                        ),
+                                        conditionalPanel(
+                                          condition = "input.dimplot_mode == 'interactive'",
+                                          withSpinner(plotly::plotlyOutput("dimplot_interactive",height = "auto"))
+                                        ),
                                         # show the button on right end, refer to: https://stackoverflow.com/questions/28749693/shiny-r-aligning-buttons
                                         div(style = "display:inline-block; float:right",downloadBttn(outputId = "downloaddimplot",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
@@ -84,7 +102,25 @@ explorer_body_ui <- function(tab_list){
   tab_list[["featureplot"]] = tabItem(tabName = "featureplot",
                                       fluidRow(
                                         box(title = "Features on Dimensional Reduction Plot",
-                                            withSpinner(plotOutput("featureplot",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                            div(style = "margin-bottom: 10px;",
+                                                shinyWidgets::radioGroupButtons(
+                                                  inputId = "featureplot_mode",
+                                                  label = "Plot Type:",
+                                                  choices = c("Static" = "static", "Interactive" = "interactive"),
+                                                  selected = "static",
+                                                  status = "primary",
+                                                  size = "sm",
+                                                  justified = FALSE
+                                                )
+                                            ),
+                                            conditionalPanel(
+                                              condition = "input.featureplot_mode == 'static'",
+                                              withSpinner(plotOutput("featureplot",height = "auto"))
+                                            ),
+                                            conditionalPanel(
+                                              condition = "input.featureplot_mode == 'interactive'",
+                                              withSpinner(plotly::plotlyOutput("featureplot_interactive",height = "auto"))
+                                            ),
                                             div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadfeatureplot",style = "bordered",color = "primary")),
                                             width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                         box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
@@ -111,7 +147,25 @@ explorer_body_ui <- function(tab_list){
   tab_list[["vlnplot"]] = tabItem(tabName = "vlnplot",
                                   fluidRow(
                                     box(title = "Features Violin Plot",
-                                        withSpinner(plotOutput("vlnplot",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                        div(style = "margin-bottom: 10px;",
+                                            shinyWidgets::radioGroupButtons(
+                                              inputId = "vlnplot_mode",
+                                              label = "Plot Type:",
+                                              choices = c("Static" = "static", "Interactive" = "interactive"),
+                                              selected = "static",
+                                              status = "primary",
+                                              size = "sm",
+                                              justified = FALSE
+                                            )
+                                        ),
+                                        conditionalPanel(
+                                          condition = "input.vlnplot_mode == 'static'",
+                                          withSpinner(plotOutput("vlnplot",height = "auto"))
+                                        ),
+                                        conditionalPanel(
+                                          condition = "input.vlnplot_mode == 'interactive'",
+                                          withSpinner(plotly::plotlyOutput("vlnplot_interactive",height = "auto"))
+                                        ),
                                         div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadvlnplot",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
@@ -157,7 +211,25 @@ explorer_body_ui <- function(tab_list){
   tab_list[["dotplot"]] = tabItem(tabName = "dotplot",
                                   fluidRow(
                                     box(title = "Features Dot Plot",
-                                        withSpinner(plotOutput("dotplot",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                        div(style = "margin-bottom: 10px;",
+                                            shinyWidgets::radioGroupButtons(
+                                              inputId = "dotplot_mode",
+                                              label = "Plot Type:",
+                                              choices = c("Static" = "static", "Interactive" = "interactive"),
+                                              selected = "static",
+                                              status = "primary",
+                                              size = "sm",
+                                              justified = FALSE
+                                            )
+                                        ),
+                                        conditionalPanel(
+                                          condition = "input.dotplot_mode == 'static'",
+                                          withSpinner(plotOutput("dotplot",height = "auto"))
+                                        ),
+                                        conditionalPanel(
+                                          condition = "input.dotplot_mode == 'interactive'",
+                                          withSpinner(plotly::plotlyOutput("dotplot_interactive",height = "auto"))
+                                        ),
                                         div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloaddotplot",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,

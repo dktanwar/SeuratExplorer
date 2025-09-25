@@ -233,6 +233,52 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   }, height = function(){session$clientData$output_dimplot_width * input$DimPlotHWRatio})
   # box plot: height = width default
 
+  # Interactive DimPlot output
+  output$dimplot_interactive <- plotly::renderPlotly({
+    req(input$DimDimensionReduction)
+    if(verbose){message("SeuratExplorer: preparing dimplot_interactive...")}
+    
+    # Use the same logic as static plot to generate the base plot
+    cds <- data$obj
+    Seurat::Idents(cds) <- input$DimClusterResolution
+    
+    # get highlighted cells
+    if(is.null(input$DimHighlightedClusters)){
+      dim_cells_highlighted <- list()
+    }else{
+      dim_cells_highlighted <- colnames(cds)[cds@meta.data[,input$DimClusterResolution] %in% input$DimHighlightedClusters]
+    }
+    cds@meta.data[,input$DimClusterResolution] <- factor(cds@meta.data[,input$DimClusterResolution],
+                                                         levels = input$DimClusterOrder)
+    if (is.null(DimSplit.Revised())) { # not splited
+      p <- Seurat::DimPlot(cds,
+                           reduction = input$DimDimensionReduction,
+                           label = input$DimShowLabel,
+                           pt.size = input$DimPointSize,
+                           label.size = input$DimLabelSize,
+                           group.by = input$DimClusterResolution,
+                           cells.highlight = dim_cells_highlighted)
+      }else{ # splited
+      plot_numbers <- length(levels(cds@meta.data[,DimSplit.Revised()]))
+      p <- Seurat::DimPlot(cds, reduction = input$DimDimensionReduction,
+                           label = input$DimShowLabel, pt.size = input$DimPointSize,
+                           label.size = input$DimLabelSize,
+                           group.by = input$DimClusterResolution,
+                           split.by = DimSplit.Revised(),
+                           ncol = ceiling(sqrt(plot_numbers)),
+                           cells.highlight = dim_cells_highlighted)
+      }
+    if(!input$DimShowLegend){
+      p <- p & NoLegend()
+    }
+    
+    # Convert to interactive plot
+    interactive_dimplot(p = p, 
+                       obj = cds, 
+                       reduction = input$DimDimensionReduction, 
+                       group.by = input$DimClusterResolution)
+  })
+
   # refer to: https://stackoverflow.com/questions/14810409/how-to-save-plots-that-are-made-in-a-shiny-app
   output$downloaddimplot <- downloadHandler(
     filename = function(){'dimplot.pdf'},
@@ -373,6 +419,72 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   }, height = function(){session$clientData$output_featureplot_width * input$FeaturePlotHWRatio})
   # box plot: height = width default
 
+  # Interactive FeaturePlot output
+  output$featureplot_interactive <- plotly::renderPlotly({
+    req(input$FeatureSlot)
+    if(verbose){message("SeuratExplorer: preparing featureplot_interactive...")}
+    if(input$FeatureMinCutoff == 0){
+      expr_min_cutoff <- NA
+    }else{
+      expr_min_cutoff <- paste0('q', round(input$FeatureMinCutoff))
+    }
+    if(input$FeatureMaxCutoff == 100){
+      expr_max_cutoff <- NA
+    }else{
+        expr_max_cutoff <- paste0('q', round(input$FeatureMaxCutoff))
+    }
+    if (any(is.na(features_dimplot$features_current))) { # when NA value
+      interactive_empty_plot() # when all wrong input, show a blank pic.
+    }else{
+      cds <- data$obj
+      Seurat::Idents(cds) <- input$FeatureClusterResolution
+      Seurat::DefaultAssay(cds) <- input$FeatureAssay
+      # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
+      if(!any(features_dimplot$features_current %in% c(rownames(cds[[input$FeatureAssay]]),data$extra_qc_options))){
+        interactive_empty_plot()
+      }else{
+        if(is.null(FeatureSplit.Revised())) { # not split
+          p <- Seurat::FeaturePlot(cds,
+                                   features = features_dimplot$features_current,
+                                   pt.size = input$FeaturePointSize,
+                                   reduction = input$FeatureDimensionReduction,
+                                   slot = input$FeatureSlot,
+                                   cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor),
+                                   label = input$FeatureShowLabel,
+                                   label.size = input$FeatureLabelSize,
+                                   alpha = input$FeaturePointAlpha,
+                                   min.cutoff = expr_min_cutoff,
+                                   max.cutoff = expr_max_cutoff)
+
+        }else{ # split
+          p <- Seurat::FeaturePlot(cds,
+                                   features = features_dimplot$features_current,
+                                   pt.size = input$FeaturePointSize,
+                                   reduction = input$FeatureDimensionReduction,
+                                   slot = input$FeatureSlot,
+                                   cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor),
+                                   split.by = FeatureSplit.Revised(),
+                                   label = input$FeatureShowLabel,
+                                   label.size = input$FeatureLabelSize,
+                                   alpha = input$FeaturePointAlpha,
+                                   min.cutoff = expr_min_cutoff,
+                                   max.cutoff = expr_max_cutoff)
+          if (length( features_dimplot$features_current) == 1) { # only one gene
+            plot_numbers <- length(levels(cds@meta.data[,FeatureSplit.Revised()]))
+            p <- p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),
+                                            nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
+          }
+        }
+        
+        # Convert to interactive plot
+        interactive_featureplot(p = p, 
+                               obj = cds, 
+                               features = features_dimplot$features_current,
+                               reduction = input$FeatureDimensionReduction, 
+                               slot = input$FeatureSlot)
+      }
+    }
+  })
 
   output$downloadfeatureplot <- downloadHandler(
     filename = function(){'featureplot.pdf'},
@@ -599,6 +711,66 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   }, height = function(){session$clientData$output_vlnplot_width * input$VlnPlotHWRatio})
   # box plot: height = width default
 
+  # Interactive VlnPlot output
+  output$vlnplot_interactive <- plotly::renderPlotly({
+    if(verbose){message("SeuratExplorer: preparing vlnplot_interactive...")}
+    if (any(is.na(features_vlnplot$features_current))) { # when NA value
+      interactive_empty_plot() # when no symbol or wrong input, show a blank pic.
+    }else{
+      cds <- data$obj
+      cds@meta.data[,input$VlnClusterResolution] <- factor(cds@meta.data[,input$VlnClusterResolution],
+                                                           levels = input$VlnClusterOrder)
+      SeuratObject::Idents(cds) <- input$VlnClusterResolution
+      # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
+      if(!any(features_vlnplot$features_current %in% c(rownames(cds[[input$VlnAssay]]),data$extra_qc_options))){
+        interactive_empty_plot()
+      }else{
+        if(length(features_vlnplot$features_current) == 1) { # only One Gene
+          p <- Seurat::VlnPlot(cds,
+                               features = features_vlnplot$features_current,
+                               assay = input$VlnAssay,
+                               layer = input$VlnSlot,
+                               split.by = VlnSplit.Revised(),
+                               split.plot = input$VlnSplitPlot,
+                               pt.size = input$VlnPointSize,
+                               alpha = input$VlnPointAlpha,
+                               idents = input$VlnIdentsSelected) &
+            ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
+                           axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
+        }else{ # multiple genes
+          p <- Seurat::VlnPlot(cds,
+                               features = features_vlnplot$features_current,
+                               assay = input$VlnAssay,
+                               layer = input$VlnSlot,
+                               split.by = VlnSplit.Revised(),
+                               split.plot = input$VlnSplitPlot,
+                               stack = input$VlnStackPlot,
+                               flip = input$VlnFlipPlot,
+                               fill.by = input$VlnFillBy,
+                               idents = input$VlnIdentsSelected,
+                               pt.size = input$VlnPointSize,
+                               alpha = input$VlnPointAlpha) &
+            ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
+                           axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
+        }
+        if (input$Vlnfillcolorplatte != 'default' & input$VlnSplitBy == 'None'){
+          # color
+          fill.colors <- getColors(color.platte = color_list,
+                                   choice = input$Vlnfillcolorplatte,
+                                   n = length(levels(Idents(cds))))
+          names(fill.colors) <- levels(Idents(cds))
+          p <- p & scale_fill_manual(values = fill.colors)
+        }
+        
+        # Convert to interactive plot
+        interactive_vlnplot(p = p, 
+                           obj = cds, 
+                           features = features_vlnplot$features_current,
+                           group.by = input$VlnClusterResolution, 
+                           slot = input$VlnSlot)
+      }
+    }
+  })
 
   output$downloadvlnplot <- downloadHandler(
     filename = function(){'vlnplot.pdf'},
@@ -742,6 +914,54 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   }, height = function(){session$clientData$output_dotplot_width * input$DotPlotHWRatio})
   # box plot: height = width default
 
+  # Interactive DotPlot output
+  output$dotplot_interactive <- plotly::renderPlotly({
+    if(verbose){message("SeuratExplorer: preparing dotplot_interactive...")}
+    if (any(is.na(features_dotplot$features_current))) { # NA
+      interactive_empty_plot() # when no symbol or wrong input, show a blank pic.
+    }else{
+      cds <- data$obj
+      Seurat::DefaultAssay(cds) <- input$DotAssay
+      Idents(cds) <- input$DotClusterResolution
+      cds@meta.data[,input$DotClusterResolution] <- factor(cds@meta.data[,input$DotClusterResolution],
+                                                           levels = input$DotClusterOrder)
+      # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
+      if(!any(features_dotplot$features_current %in% rownames(cds[[input$DotAssay]]))){
+        interactive_empty_plot()
+      }else{
+        if (is.null(DotSplit.Revised())) {
+          p <- Seurat::DotPlot(cds,
+                               features = features_dotplot$features_current,
+                               group.by = input$DotClusterResolution,
+                               idents = input$DotIdentsSelected,
+                               split.by = DotSplit.Revised(),
+                               cluster.idents = input$DotClusterIdents,
+                               dot.scale = input$DotDotScale,
+                               cols = c(input$DotPlotLowestExprColor, input$DotPlotHighestExprColor))
+        }else{
+          split.levels.length <- length(levels(cds@meta.data[,DotSplit.Revised()]))
+          p <- Seurat::DotPlot(cds,
+                               features = features_dotplot$features_current,
+                               group.by = input$DotClusterResolution,
+                               idents = input$DotIdentsSelected,
+                               split.by = DotSplit.Revised(),
+                               cluster.idents = input$DotClusterIdents,
+                               dot.scale = input$DotDotScale,
+                               cols = scales::hue_pal()(split.levels.length))
+        }
+        p <- p & ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$DotXlabelSize),
+                                axis.text.y = ggplot2::element_text(size = input$DotYlabelSize))
+        if (input$DotRotateAxis) { p <- p + Seurat::RotatedAxis() }
+        if (input$DotFlipCoordinate) { p <- p + ggplot2::coord_flip() }
+        
+        # Convert to interactive plot
+        interactive_dotplot(p = p, 
+                           obj = cds, 
+                           features = features_dotplot$features_current,
+                           group.by = input$DotClusterResolution)
+      }
+    }
+  })
 
   output$downloaddotplot <- downloadHandler(
     filename = function(){'dotplot.pdf'},

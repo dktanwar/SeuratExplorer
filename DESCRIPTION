@@ -18,7 +18,7 @@ Imports:
     methods,
     Seurat (>= 5.0.0),
     SeuratObject (>= 5.0.0),
-    ggplot2 (< 4.0.0),
+    ggplot2 (>= 3.3.0),
     shinydashboard,
     shinydashboardPlus,
     DT,
@@ -35,7 +35,9 @@ Imports:
     circlize,
     reshape2,
     knitr,
-    markdown
+    markdown,
+    plotly (>= 4.10.0),
+    htmlwidgets
 Depends: 
     R (>= 4.1.0),
     shiny
