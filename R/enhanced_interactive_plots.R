@@ -357,3 +357,82 @@ create_linked_plots <- function(plot_outputs) {
 #
 # # Selection handlers
 # selected_cells <- create_selection_handlers(input, output, data$obj)
+
+
+#' Fixed interactive DimPlot with proper tooltips and height control
+#' @param p ggplot object from Seurat::DimPlot
+#' @param obj Seurat object
+#' @param reduction Reduction type
+#' @param group.by Grouping column
+#' @param hw_ratio Height/width ratio
+#' @param width_px Width in pixels
+#' @param tooltip_vars Variables to show in tooltip
+#' @param theme_choice Theme for the plot
+interactive_dimplot_fixed <- function(p, obj, reduction = "umap", group.by = "seurat_clusters",
+                                      hw_ratio = 0.9, width_px = 600,
+                                      tooltip_vars = c("nFeature_RNA", "nCount_RNA"),
+                                      theme_choice = "plotly_white") {
+  requireNamespace("plotly")
+
+  # Calculate height from width and ratio
+  height_px <- width_px * hw_ratio
+
+  # Get coordinates and metadata for custom tooltips
+  coords <- Embeddings(obj, reduction = reduction)
+  meta <- obj@meta.data
+
+  # Create meaningful tooltip text
+  if (!is.null(tooltip_vars) && all(tooltip_vars %in% colnames(meta))) {
+    hover_text <- apply(meta[, c(group.by, tooltip_vars), drop = FALSE], 1, function(x) {
+      paste(paste(names(x), x, sep = ": "), collapse = "<br>")
+    })
+  } else {
+    hover_text <- paste("Cluster:", meta[[group.by]])
+  }
+
+  # Extract plot data from ggplot
+  plot_data <- ggplot2::ggplot_build(p)$data[[1]]
+
+  # Create plotly from scratch with width and height in plot_ly
+  plotly_obj <- plotly::plot_ly(
+    x = coords[, 1],
+    y = coords[, 2],
+    color = meta[[group.by]],
+    colors = unique(plot_data$colour),
+    text = hover_text,
+    hovertemplate = "%{text}<extra></extra>",
+    type = "scatter",
+    mode = "markers",
+    marker = list(size = 4, opacity = 0.7),
+    width = width_px,  # Moved here
+    height = height_px # Moved here
+  ) %>%
+    plotly::layout(
+      title = list(text = paste("Interactive", toupper(reduction)), font = list(size = 16)),
+      xaxis = list(
+        title = paste0(toupper(reduction), "_1"),
+        showgrid = TRUE,
+        gridcolor = "rgba(128,128,128,0.2)"
+      ),
+      yaxis = list(
+        title = paste0(toupper(reduction), "_2"),
+        showgrid = TRUE,
+        gridcolor = "rgba(128,128,128,0.2)"
+      ),
+      template = theme_choice,
+      legend = list(title = list(text = group.by))
+    ) %>%
+    plotly::config(
+      displayModeBar = TRUE,
+      toImageButtonOptions = list(
+        format = "png",
+        filename = "interactive_dimplot",
+        height = height_px,
+        width = width_px,
+        scale = 2
+      )
+    )
+
+  return(plotly_obj)
+}
+

@@ -300,99 +300,72 @@ explorer_server <- function(input, output, session, data, verbose = FALSE) {
   # box plot: height = width default
 
   # Enhanced Interactive DimPlot output with proper colors and H/W ratio
+  # Fixed Interactive DimPlot rendering in server.R
+  # Replace the existing output$dimplot_interactive block with this
+
   output$dimplot_interactive <- plotly::renderPlotly({
-    req(input$DimDimensionReduction)
-    if (verbose) {
-      message("SeuratExplorer: preparing enhanced dimplot_interactive...")
+    # Ensure required packages
+    requireNamespace("Seurat")
+    requireNamespace("plotly")
+    requireNamespace("dplyr")
+
+    # Validate inputs
+    req(input$DimDimensionReduction, input$DimClusterResolution, data$obj)
+
+    if (getOption("SeuratExplorerVerbose", FALSE)) {
+      message("SeuratExplorer: Starting dimplot_interactive_enhanced rendering...")
+      message("SeuratExplorer: Inputs - DimDimensionReduction: ", input$DimDimensionReduction,
+              ", DimClusterResolution: ", input$DimClusterResolution,
+              ", DimClusterOrder: ", toString(input$DimClusterOrder),
+              ", DimHighlightedClusters: ", toString(input$DimHighlightedClusters))
     }
 
+    # Prepare Seurat object
     cds <- data$obj
+    if (!input$DimClusterResolution %in% colnames(cds@meta.data)) {
+      if (getOption("SeuratExplorerVerbose", FALSE)) {
+        message("SeuratExplorer: Invalid DimClusterResolution: ", input$DimClusterResolution)
+      }
+      return(plotly::plot_ly() %>% plotly::layout(title = "Invalid cluster resolution"))
+    }
+
     Seurat::Idents(cds) <- input$DimClusterResolution
 
-    # Get coordinates and metadata
-    coords <- Embeddings(cds, reduction = input$DimDimensionReduction)
-    meta <- cds@meta.data
-
-    # Factor the cluster resolution with proper ordering
-    meta[, input$DimClusterResolution] <- factor(meta[, input$DimClusterResolution],
-      levels = input$DimClusterOrder
-    )
-
-    # Create meaningful hover text with selected metadata
-    tooltip_vars <- input$DimPlotTooltipVars %||% c("cluster", "nFeature_RNA", "nCount_RNA")
-    available_tooltip_vars <- list(
-      "cluster" = input$DimClusterResolution,
-      "nFeature_RNA" = "nFeature_RNA",
-      "nCount_RNA" = "nCount_RNA",
-      "percent.mt" = "percent.mt"
-    )
-
-    selected_vars <- available_tooltip_vars[tooltip_vars]
-    selected_vars <- selected_vars[sapply(selected_vars, function(x) x %in% colnames(meta))]
-
-    hover_text <- apply(meta[, unlist(selected_vars), drop = FALSE], 1, function(x) {
-      var_names <- names(selected_vars)[match(names(x), unlist(selected_vars))]
-      formatted_names <- c("cluster" = "Cluster", "nFeature_RNA" = "Features", "nCount_RNA" = "UMI Count", "percent.mt" = "Mito %")
-      display_names <- formatted_names[var_names]
-      paste(paste(display_names, x, sep = ": "), collapse = "<br>")
-    })
-
-    # Get colors from the static plot
-    temp_p <- Seurat::DimPlot(cds,
-      reduction = input$DimDimensionReduction,
-      group.by = input$DimClusterResolution,
-      pt.size = 0.1
-    )
-
-    plot_data <- ggplot2::ggplot_build(temp_p)$data[[1]]
-    cluster_colors <- unique(plot_data$colour)
-    names(cluster_colors) <- levels(meta[[input$DimClusterResolution]])
-
-    # Calculate proper height from width and ratio
-    width_px <- session$clientData$output_dimplot_width %||% 600
-    height_px <- width_px * input$DimPlotHWRatio
-
-    # Create plotly from scratch to preserve colors
-    plotly_obj <- plotly::plot_ly(
-      x = coords[, 1],
-      y = coords[, 2],
-      color = meta[[input$DimClusterResolution]],
-      colors = cluster_colors,
-      text = hover_text,
-      hovertemplate = "%{text}<extra></extra>",
-      type = "scatter",
-      mode = "markers",
-      marker = list(size = input$DimPointSize * 2, opacity = 0.7)
-    ) %>%
-      plotly::layout(
-        title = list(text = paste("Interactive", toupper(input$DimDimensionReduction)), font = list(size = 16)),
-        xaxis = list(
-          title = paste0(toupper(input$DimDimensionReduction), "_1"),
-          showgrid = TRUE,
-          gridcolor = "rgba(128,128,128,0.2)"
-        ),
-        yaxis = list(
-          title = paste0(toupper(input$DimDimensionReduction), "_2"),
-          showgrid = TRUE,
-          gridcolor = "rgba(128,128,128,0.2)"
-        ),
-        width = width_px,
-        height = height_px,
-        legend = if (input$DimShowLegend) list(title = list(text = input$DimClusterResolution)) else list(showlegend = FALSE)
-      ) %>%
-      plotly::layout(template = input$DimPlotTheme %||% "plotly_white")
-    plotly::config(
-      displayModeBar = TRUE,
-      toImageButtonOptions = list(
-        format = "png",
-        filename = "interactive_dimplot",
-        height = height_px,
-        width = width_px,
-        scale = 2
+    # Reorder clusters
+    if (!is.null(input$DimClusterOrder)) {
+      if (getOption("SeuratExplorerVerbose", FALSE)) {
+        message("SeuratExplorer: Reordering clusters with levels: ", toString(input$DimClusterOrder))
+      }
+      cds@meta.data[, input$DimClusterResolution] <- factor(
+        cds@meta.data[, input$DimClusterResolution],
+        levels = input$DimClusterOrder
       )
-    )
+    }
 
-    return(plotly_obj)
+    # Call enhanced function
+    tryCatch({
+      if (getOption("SeuratExplorerVerbose", FALSE)) {
+        message("SeuratExplorer: Calling interactive_dimplot_enhanced...")
+      }
+      result <- interactive_dimplot_enhanced(
+        obj = cds,
+        reduction = input$DimDimensionReduction,
+        group.by = input$DimClusterResolution,
+        metadata_cols = input$DimPlotTooltipVars %||% c("nFeature_RNA", "nCount_RNA", "percent.mt"),
+        enable_selection = TRUE,
+        downsample = 10000,
+        height = (session$clientData$output_dimplot_interactive_width %||% 600) * (input$DimPlotHWRatio %||% 0.9)
+      )
+      if (getOption("SeuratExplorerVerbose", FALSE)) {
+        message("SeuratExplorer: interactive_dimplot_enhanced completed successfully")
+      }
+      result
+    }, error = function(e) {
+      if (getOption("SeuratExplorerVerbose", FALSE)) {
+        message("SeuratExplorer: Error in interactive_dimplot_enhanced: ", conditionMessage(e))
+      }
+      plotly::plot_ly() %>% plotly::layout(title = "Error rendering interactive plot")
+    })
   })
 
   # refer to: https://stackoverflow.com/questions/14810409/how-to-save-plots-that-are-made-in-a-shiny-app
