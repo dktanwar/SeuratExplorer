@@ -2,15 +2,19 @@ Package: SeuratExplorer
 Title: An 'Shiny' App for Exploring scRNA-seq Data Processed in 'Seurat'
 Version: 0.1.2
 Authors@R: 
-  person("Yongchao", "Zhang", , "zhangyongchao@nibs.ac.cn", role = c("aut", "cre"),
-           comment = c("https://github.com/fentouxungui"))
+    c(
+      person("Yongchao", "Zhang", , "zhangyongchao@nibs.ac.cn", role = c("aut", "cre"),
+             comment = c("https://github.com/fentouxungui")),
+      person("Deepak", "Tanwar", , "dktanwar@hotmail.com", role = "aut",
+             comment = c("https://github.com/dktanwar"))
+    )
 Description: A simple, one-command package which runs an interactive dashboard capable of common visualizations for single cell RNA-seq. 'SeuratExplorer' requires a processed 'Seurat' object, which is saved as 'rds' or 'qs2' file.
 License: GPL (>= 3)
 URL: https://CRAN.R-project.org/package=SeuratExplorer, https://github.com/fentouxungui/SeuratExplorer
 BugReports: https://github.com/fentouxungui/SeuratExplorer/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports:
     utils,
     tools,
@@ -49,9 +53,4 @@ Suggests:
     DESeq2,
     Signac
 Remotes:
-    bioc::release/ComplexHeatmap,
-    github::immunogenomics/presto,
-    bioc::release/MAST,
-    bioc::release/limma,
-    bioc::release/DESeq2
-LazyData: true
+    github::immunogenomics/presto

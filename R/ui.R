@@ -37,9 +37,9 @@ explorer_sidebar_ui <- function(){
                          menuSubItem(text = "Cells Metadata", tabName = "cellmetadata", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "Object Structure", tabName = "objectstructure", icon = shiny::icon("angle-double-right")),
                          menuSubItem(text = "About", tabName = "about", icon = shiny::icon("angle-double-right"))
-                         )
-                )
     )
+    )
+  )
 }
 
 #' generate the body UI for each menu item specified in `explorer_sidebar_ui`
@@ -78,24 +78,52 @@ explorer_body_ui <- function(tab_list){
                                           condition = "input.dimplot_mode == 'interactive'",
                                           withSpinner(plotly::plotlyOutput("dimplot_interactive",height = "auto"))
                                         ),
-                                        # show the button on right end, refer to: https://stackoverflow.com/questions/28749693/shiny-r-aligning-buttons
                                         div(style = "display:inline-block; float:right",downloadBttn(outputId = "downloaddimplot",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                         withSpinner(uiOutput("DimDimensionReduction.UI"), proxy.height = "10px"),
                                         withSpinner(uiOutput("DimClusterResolution.UI"), proxy.height = "10px"),
-                                        # refer to: https://ebailey78.github.io/shinyBS/docs/Collapses.html
                                         bsCollapse(id = "collapseDimplot", open = "Change Cluster Order",
                                                    bsCollapsePanel(title = "Change Cluster Order",
-                                                                            withSpinner(uiOutput("DimClusterOrder.UI"), proxy.height = "10px"),
-                                                                            style = "info")),
+                                                                   withSpinner(uiOutput("DimClusterOrder.UI"), proxy.height = "10px"),
+                                                                   style = "info")),
                                         withSpinner(uiOutput("DimSplit.UI"), proxy.height = "10px"),
                                         withSpinner(uiOutput("DimHighlightedClusters.UI"), proxy.height = "10px"),
                                         checkboxInput("DimShowLabel",label = "Show cluster label", TRUE),
                                         checkboxInput("DimShowLegend",label = "Show Legend", TRUE),
                                         sliderInput("DimLabelSize", label = "Label Size:", min = 0, max = 10, value = 7),
                                         sliderInput("DimPointSize", label = "Point Size", min = 0.001, max = 2, value = 0.8),
-                                        sliderInput("DimPlotHWRatio", label = "Adjust H/W Ratio of DimPlot", min = 0.1, max = 4, value = 0.9)
+                                        sliderInput("DimPlotHWRatio", label = "Adjust H/W Ratio of DimPlot", min = 0.1, max = 4, value = 0.9),
+                                        # Theme selection for interactive plots
+                                        conditionalPanel(
+                                          condition = "input.dimplot_mode == 'interactive'",
+                                          selectInput("DimPlotTheme", "Interactive Theme:",
+                                                      choices = c("White" = "plotly_white",
+                                                                  "Dark" = "plotly_dark",
+                                                                  "ggplot2" = "ggplot2",
+                                                                  "Seaborn" = "seaborn",
+                                                                  "Simple" = "simple_white"),
+                                                      selected = "plotly_white"),
+                                          h5("Hover Information"),
+                                          checkboxGroupInput("DimPlotTooltipVars",
+                                                             "Show in hover:",
+                                                             choices = c("Cluster" = "cluster",
+                                                                         "Feature Count" = "nFeature_RNA",
+                                                                         "UMI Count" = "nCount_RNA",
+                                                                         "Mitochondrial %" = "percent.mt"),
+                                                             selected = c("cluster", "nFeature_RNA", "nCount_RNA"))
+                                        ),
+                                        # Theme selection for static plots
+                                        conditionalPanel(
+                                          condition = "input.dimplot_mode == 'static'",
+                                          selectInput("DimPlotThemeStatic", "Static Theme:",
+                                                      choices = c("Classic" = "classic",
+                                                                  "Minimal" = "minimal",
+                                                                  "BW" = "bw",
+                                                                  "Void" = "void",
+                                                                  "Dark" = "dark"),
+                                                      selected = "classic")
+                                        )
                                     )
                                   )
   )
@@ -133,14 +161,31 @@ explorer_body_ui <- function(tab_list){
                                             checkboxInput("FeatureShowLabel",label = "Show Cluster Label", FALSE),
                                             withSpinner(uiOutput("FeatureSplit.UI"), proxy.height = "10px"),
                                             sliderInput("FeatureLabelSize", label = "Label Size:", min = 1, max = 12, value = 4),
-                                            # https://daattali.com/shiny/colourInput/
                                             colourpicker::colourInput("FeaturePlotLowestExprColor", "Pick Color for lowest expression:", "#E5E5E5", palette = "limited"),
                                             colourpicker::colourInput("FeaturePlotHighestExprColor", "Pick Color for highest expression:", "#FF0000",palette = "limited"),
                                             sliderInput("FeaturePointAlpha", label = "Point Alpha:", min = 0.1, max = 1, value = 1),
                                             sliderInput("FeatureMinCutoff", label = "Minimum expression cutoff by quantile:", min = 0, max = 100, value = 0),
-                                            sliderInput("FeatureMaxCutoff", label = "Maximum expression cutoff by quantile::", min = 0, max = 100, value = 100),
+                                            sliderInput("FeatureMaxCutoff", label = "Maximum expression cutoff by quantile:", min = 0, max = 100, value = 100),
                                             sliderInput("FeaturePointSize", label = "Point Size:", min = 0.001, max = 5, value = 0.8),
-                                            sliderInput("FeaturePlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 10, value = 0.9)
+                                            sliderInput("FeaturePlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 10, value = 0.9),
+                                            # Theme selection for interactive plots
+                                            conditionalPanel(
+                                              condition = "input.featureplot_mode == 'interactive'",
+                                              selectInput("FeaturePlotTheme", "Interactive Theme:",
+                                                          choices = c("White" = "plotly_white",
+                                                                      "Dark" = "plotly_dark",
+                                                                      "ggplot2" = "ggplot2"),
+                                                          selected = "plotly_white")
+                                            ),
+                                            # Theme selection for static plots
+                                            conditionalPanel(
+                                              condition = "input.featureplot_mode == 'static'",
+                                              selectInput("FeaturePlotThemeStatic", "Static Theme:",
+                                                          choices = c("Classic" = "classic",
+                                                                      "Minimal" = "minimal",
+                                                                      "BW" = "bw"),
+                                                          selected = "classic")
+                                            )
                                         )
                                       )
   )
@@ -173,9 +218,9 @@ explorer_body_ui <- function(tab_list){
                                         withSpinner(uiOutput("Vlnhints.UI"), proxy.height = "10px"),
                                         withSpinner(uiOutput("VlnClusterResolution.UI"), proxy.height = "10px"),
                                         bsCollapse(id = "collapseVlnplot", open = "0",
-                                                            bsCollapsePanel(title = "Change Cluster Order",
-                                                                                     withSpinner(uiOutput("VlnClusterOrder.UI"), proxy.height = "10px"),
-                                                                                     style = "info", value = "0")),
+                                                   bsCollapsePanel(title = "Change Cluster Order",
+                                                                   withSpinner(uiOutput("VlnClusterOrder.UI"), proxy.height = "10px"),
+                                                                   style = "info", value = "0")),
                                         withSpinner(uiOutput("VlnIdentsSelected.UI"), proxy.height = "10px"),
                                         withSpinner(uiOutput("VlnAssays.UI"), proxy.height = "10px"),
                                         withSpinner(uiOutput("VlnAssaySlots.UI"), proxy.height = "10px"),
@@ -193,18 +238,43 @@ explorer_body_ui <- function(tab_list){
                                           checkboxInput("VlnFlipPlot",label = "Flip Plot", FALSE)
                                         ),
                                         conditionalPanel(
-                                          condition = "output.Vlnplot_StackPlot && input.VlnSplitBy == 'None'", # only work when split is set to NULL
-                                          selectInput("VlnFillBy","Color By:", choices = c(Feature = "feature", Ident = "ident")),
+                                          condition = "output.Vlnplot_StackPlot && input.VlnSplitBy == 'None'",
+                                          selectInput("VlnFillBy","Color By:", choices = c(Feature = "feature", Ident = "ident"))
                                         ),
                                         conditionalPanel(
-                                          condition = "input.VlnSplitBy == 'None'", # only work when split is set to NULL
+                                          condition = "input.VlnSplitBy == 'None'",
                                           selectInput("Vlnfillcolorplatte","select color plate:", choices = color_choice_vector, selected = "Default")
                                         ),
                                         sliderInput("VlnPointSize", label = "Point Size:", min = 0, max = 4, value = 0),
                                         sliderInput("VlnPointAlpha", label = "Point Alpha:", min = 0, max = 1, value = 1),
                                         sliderInput("VlnXlabelSize", label = "x Axis Label Size:", min = 0, max = 20, value = 14),
                                         sliderInput("VlnYlabelSize", label = "Y Axis Label Size:", min = 0, max = 20, value = 10),
-                                        sliderInput("VlnPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 8, value = 0.9)
+                                        sliderInput("VlnPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 8, value = 0.9),
+                                        # Enhanced controls
+                                        conditionalPanel(
+                                          condition = "input.VlnSplitBy != 'None'",
+                                          checkboxInput("VlnSeparateConditions",
+                                                        "Create separate plots by condition",
+                                                        value = FALSE),
+                                          helpText("When checked, creates separate violin plots for each condition instead of side-by-side comparison",
+                                                   style = "font-size: 11px; color: #666;")
+                                        ),
+                                        conditionalPanel(
+                                          condition = "output.Vlnplot_multiple_genes",
+                                          sliderInput("VlnPlotNCols", "Number of Columns:",
+                                                      min = 1, max = 5, value = 3, step = 1),
+                                          helpText("Number of columns for multiple gene subplots",
+                                                   style = "font-size: 11px; color: #666;")
+                                        ),
+                                        conditionalPanel(
+                                          condition = "input.vlnplot_mode == 'interactive'",
+                                          selectInput("VlnPlotTheme", "Interactive Theme:",
+                                                      choices = c("White" = "plotly_white",
+                                                                  "Dark" = "plotly_dark",
+                                                                  "ggplot2" = "ggplot2",
+                                                                  "Simple" = "simple_white"),
+                                                      selected = "plotly_white")
+                                        )
                                     )
                                   )
   )
@@ -237,9 +307,9 @@ explorer_body_ui <- function(tab_list){
                                         withSpinner(uiOutput("Dothints.UI"), proxy.height = "10px"),
                                         withSpinner(uiOutput("DotClusterResolution.UI"), proxy.height = "10px"),
                                         bsCollapse(id = "collapseDotplot", open = "0",
-                                                            bsCollapsePanel(title = "Change Cluster Order",
-                                                                                     withSpinner(uiOutput("DotClusterOrder.UI"), proxy.height = "10px"),
-                                                                                     style = "info", value = "0")),
+                                                   bsCollapsePanel(title = "Change Cluster Order",
+                                                                   withSpinner(uiOutput("DotClusterOrder.UI"), proxy.height = "10px"),
+                                                                   style = "info", value = "0")),
                                         withSpinner(uiOutput("DotIdentsSelected.UI"), proxy.height = "10px"),
                                         withSpinner(uiOutput("DotSplitBy.UI"), proxy.height = "10px"),
                                         withSpinner(uiOutput("DotAssays.UI"), proxy.height = "10px"),
@@ -261,7 +331,25 @@ explorer_body_ui <- function(tab_list){
   tab_list[["heatmap"]] = tabItem(tabName = "heatmap",
                                   fluidRow(
                                     box(title = "Features Heatmap Plot",
-                                        withSpinner(plotOutput("heatmap",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                        div(style = "margin-bottom: 10px;",
+                                            shinyWidgets::radioGroupButtons(
+                                              inputId = "heatmap_mode",
+                                              label = "Heatmap Type:",
+                                              choices = c("Static" = "static", "Interactive" = "interactive"),
+                                              selected = "static",
+                                              status = "primary",
+                                              size = "sm",
+                                              justified = FALSE
+                                            )
+                                        ),
+                                        conditionalPanel(
+                                          condition = "input.heatmap_mode == 'static'",
+                                          withSpinner(plotOutput("heatmap",height = "auto"))
+                                        ),
+                                        conditionalPanel(
+                                          condition = "input.heatmap_mode == 'interactive'",
+                                          withSpinner(plotly::plotlyOutput("heatmap_interactive",height = "auto"))
+                                        ),
                                         div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadheatmap",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
@@ -269,9 +357,9 @@ explorer_body_ui <- function(tab_list){
                                         withSpinner(uiOutput("Heatmaphints.UI"), proxy.height = "10px"),
                                         withSpinner(uiOutput("HeatmapClusterResolution.UI"), proxy.height = "10px"),
                                         bsCollapse(id = "collapseHeatmap", open = "0",
-                                                            bsCollapsePanel(title = "Change Cluster Order",
-                                                                                     withSpinner(uiOutput("HeatmapClusterOrder.UI"), proxy.height = "10px"),
-                                                                                     style = "info", value = "0")),
+                                                   bsCollapsePanel(title = "Change Cluster Order",
+                                                                   withSpinner(uiOutput("HeatmapClusterOrder.UI"), proxy.height = "10px"),
+                                                                   style = "info", value = "0")),
                                         withSpinner(uiOutput("HeatmapAssays.UI"), proxy.height = "10px"),
                                         withSpinner(uiOutput("HeatmapAssaySlots.UI"), proxy.height = "10px"),
                                         sliderInput("HeatmapTextSize", label = "Cluster Text Size:", min = 1, max = 12, value = 6, step = 0.5),
@@ -281,39 +369,52 @@ explorer_body_ui <- function(tab_list){
                                         sliderInput("HeatmapGroupBarHeight", label = "Cluster Group Bar Height:", min = 0, max = 0.1, value = 0.04, step = 0.01),
                                         sliderInput("HeatmapLineWidth", label = "Line Width:", min = 1, max = 10, value = 1),
                                         sliderInput("HeatmapFeatureTextSize", label = "Feature Text Size:", min = 0, max = 20, value = 10),
-                                        sliderInput("HeatmapPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9, step = 0.1)
+                                        sliderInput("HeatmapPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9, step = 0.1),
+                                        selectInput("HeatmapColorPalette", "Color Palette:",
+                                                    choices = c("Viridis" = "viridis",
+                                                                "Plasma" = "plasma",
+                                                                "Inferno" = "inferno",
+                                                                "Magma" = "magma",
+                                                                "Cividis" = "cividis",
+                                                                "Default" = "default"),
+                                                    selected = "viridis"),
+                                        conditionalPanel(
+                                          condition = "input.heatmap_mode == 'interactive'",
+                                          checkboxInput("HeatmapClusterColumns", "Cluster Columns", TRUE),
+                                          checkboxInput("HeatmapClusterRows", "Cluster Rows", TRUE)
+                                        )
                                     )
                                   )
   )
   tab_list[["averagedheatmap"]] = tabItem(tabName = "averagedheatmap",
-                                  fluidRow(
-                                    box(title = "Features Heatmap by Averaged Expression",
-                                        withSpinner(plotOutput("averagedheatmap",height = "auto")), # Add a spinner that shows when an output is recalculating
-                                        div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadaveragedheatmap",style = "bordered",color = "primary")),
-                                        width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
-                                    box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
-                                        textAreaInput("AveragedHeatmapGeneSymbol", "Gene Symbols:", value = "", height = '80px', resize = "vertical"),
-                                        withSpinner(uiOutput("AveragedHeatmaphints.UI"), proxy.height = "10px"),
-                                        withSpinner(uiOutput("AveragedHeatmapClusterResolution.UI"), proxy.height = "10px"),
-                                        bsCollapse(id = "collapseHeatmap", open = "0",
-                                                            bsCollapsePanel(title = "Change Cluster Order",
-                                                                                     withSpinner(uiOutput("AveragedHeatmapClusterOrder.UI"), proxy.height = "10px"),
-                                                                                     style = "info", value = "0")),
-                                        withSpinner(uiOutput("AveragedHeatmapIdentsSelected.UI"), proxy.height = "10px"),
-                                        withSpinner(uiOutput("AveragedHeatmapAssays.UI"), proxy.height = "10px"),
-                                        sliderInput("AveragedHeatmapClusterTextSize", label = "Cluster Text Size:", min = 1, max = 30, value = 12),
-                                        sliderInput("AveragedHeatmapClusterTextRatateAngle", label = "Cluster Text Rotate Angle:", min = -90, max = 90, value = 45),
-                                        sliderInput("AveragedHeatmapFeatureTextSize", label = "Feature Text Size:", min = 1, max = 20, value = 10),
-                                        checkboxInput("AveragedHeatmapClusterClusters",label = "Cluster Clusters", FALSE),
-                                        checkboxInput("AveragedHeatmapClusterFeatures",label = "Cluster Features", FALSE),
-                                        sliderInput("AveragedHeatmapPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9)
-                                    )
-                                  )
+                                          fluidRow(
+                                            box(title = "Features Heatmap by Averaged Expression",
+                                                withSpinner(plotOutput("averagedheatmap",height = "auto")),
+                                                div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadaveragedheatmap",style = "bordered",color = "primary")),
+                                                width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
+                                            box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
+                                                textAreaInput("AveragedHeatmapGeneSymbol", "Gene Symbols:", value = "", height = '80px', resize = "vertical"),
+                                                withSpinner(uiOutput("AveragedHeatmaphints.UI"), proxy.height = "10px"),
+                                                withSpinner(uiOutput("AveragedHeatmapClusterResolution.UI"), proxy.height = "10px"),
+                                                bsCollapse(id = "collapseHeatmap", open = "0",
+                                                           bsCollapsePanel(title = "Change Cluster Order",
+                                                                           withSpinner(uiOutput("AveragedHeatmapClusterOrder.UI"), proxy.height = "10px"),
+                                                                           style = "info", value = "0")),
+                                                withSpinner(uiOutput("AveragedHeatmapIdentsSelected.UI"), proxy.height = "10px"),
+                                                withSpinner(uiOutput("AveragedHeatmapAssays.UI"), proxy.height = "10px"),
+                                                sliderInput("AveragedHeatmapClusterTextSize", label = "Cluster Text Size:", min = 1, max = 30, value = 12),
+                                                sliderInput("AveragedHeatmapClusterTextRatateAngle", label = "Cluster Text Rotate Angle:", min = -90, max = 90, value = 45),
+                                                sliderInput("AveragedHeatmapFeatureTextSize", label = "Feature Text Size:", min = 1, max = 20, value = 10),
+                                                checkboxInput("AveragedHeatmapClusterClusters",label = "Cluster Clusters", FALSE),
+                                                checkboxInput("AveragedHeatmapClusterFeatures",label = "Cluster Features", FALSE),
+                                                sliderInput("AveragedHeatmapPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9)
+                                            )
+                                          )
   )
   tab_list[["ridgeplot"]] = tabItem(tabName = "ridgeplot",
                                     fluidRow(
                                       box(title = "Features Ridge Plot",
-                                          withSpinner(plotOutput("ridgeplot",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                          withSpinner(plotOutput("ridgeplot",height = "auto")),
                                           div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadridgeplot",style = "bordered",color = "primary")),
                                           width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                       box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
@@ -321,9 +422,9 @@ explorer_body_ui <- function(tab_list){
                                           withSpinner(uiOutput("Ridgeplothints.UI"), proxy.height = "10px"),
                                           withSpinner(uiOutput("RidgeplotClusterResolution.UI"), proxy.height = "10px"),
                                           bsCollapse(id = "collapseRidgeplot", open = "0",
-                                                              bsCollapsePanel(title = "Change Cluster Order",
-                                                                                       withSpinner(uiOutput("RidgeplotClusterOrder.UI"), proxy.height = "10px"),
-                                                                                       style = "info", value = "0")),
+                                                     bsCollapsePanel(title = "Change Cluster Order",
+                                                                     withSpinner(uiOutput("RidgeplotClusterOrder.UI"), proxy.height = "10px"),
+                                                                     style = "info", value = "0")),
                                           withSpinner(uiOutput("RidgeplotIdentsSelected.UI"), proxy.height = "10px"),
                                           withSpinner(uiOutput("RidgeplotAssays.UI"), proxy.height = "10px"),
                                           withSpinner(uiOutput("RidgeplotAssaySlots.UI"), proxy.height = "10px"),
@@ -346,57 +447,51 @@ explorer_body_ui <- function(tab_list){
                                     )
   )
   tab_list[["cellratioplot"]] = tabItem(tabName = "cellratioplot",
-                                    fluidRow(
-                                      box(title = "Cell Percentage Plot",
-                                          withSpinner(plotOutput("cellratioplot",height = "auto")), # Add a spinner that shows when an output is recalculating
-                                          div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadcellratioplot",style = "bordered",color = "primary")),
-                                          width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
-                                      box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
-                                          # Fill in part
-                                          withSpinner(uiOutput("CellratioFillChoice.UI"), proxy.height = "10px"),
-                                          bsCollapse(id = "collapseCellratioFillplot", open = "0",
-                                                              bsCollapsePanel(title = "Change Order",
-                                                                                       withSpinner(uiOutput("CellratioplotFillOrder.UI"), proxy.height = "10px"),
-                                                                                       style = "info", value = "0")),
-                                          # X axis part
-                                          withSpinner(uiOutput("CellratioXChoice.UI"), proxy.height = "10px"),
-                                          bsCollapse(id = "collapseCellratioXplot", open = "0",
-                                                              bsCollapsePanel(title = "Change Order",
-                                                                                       withSpinner(uiOutput("CellratioplotXOrder.UI"), proxy.height = "10px"),
-                                                                                       style = "info", value = "0")),
-                                          # facet part
-                                          withSpinner(uiOutput("CellratioFacetChoice.UI"), proxy.height = "10px"),
-                                          bsCollapse(id = "collapseCellratioFacetplot", open = "0",
-                                                              bsCollapsePanel(title = "Change Order",
-                                                                                       withSpinner(uiOutput("CellratioplotFacetOrder.UI"), proxy.height = "10px"),
-                                                                                       style = "info", value = "0")),
-                                          selectInput("Cellratiofillcolorplatte","select color plate:", choices = color_choice_vector, selected = "Default"),
-                                          checkboxInput("CellratioRotateAxis",label = "Rotate X Axis", FALSE),
-                                          sliderInput("CellratioColumnWidth", label = "Column width:", min = 0, max = 1, value = 0.7),
-                                          sliderInput("CellratioFlowAlpha", label = "Flow alpha:", min = 0, max = 1, value = 0.3),
-                                          sliderInput("CellratioFlowCurve", label = "Flow curve:", min = 0, max = 1, value = 0.3),
-                                          sliderInput("CellratioplotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9)
-                                      )
-                                    )
+                                        fluidRow(
+                                          box(title = "Cell Percentage Plot",
+                                              withSpinner(plotOutput("cellratioplot",height = "auto")),
+                                              div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadcellratioplot",style = "bordered",color = "primary")),
+                                              width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
+                                          box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
+                                              withSpinner(uiOutput("CellratioFillChoice.UI"), proxy.height = "10px"),
+                                              bsCollapse(id = "collapseCellratioFillplot", open = "0",
+                                                         bsCollapsePanel(title = "Change Order",
+                                                                         withSpinner(uiOutput("CellratioplotFillOrder.UI"), proxy.height = "10px"),
+                                                                         style = "info", value = "0")),
+                                              withSpinner(uiOutput("CellratioXChoice.UI"), proxy.height = "10px"),
+                                              bsCollapse(id = "collapseCellratioXplot", open = "0",
+                                                         bsCollapsePanel(title = "Change Order",
+                                                                         withSpinner(uiOutput("CellratioplotXOrder.UI"), proxy.height = "10px"),
+                                                                         style = "info", value = "0")),
+                                              withSpinner(uiOutput("CellratioFacetChoice.UI"), proxy.height = "10px"),
+                                              bsCollapse(id = "collapseCellratioFacetplot", open = "0",
+                                                         bsCollapsePanel(title = "Change Order",
+                                                                         withSpinner(uiOutput("CellratioplotFacetOrder.UI"), proxy.height = "10px"),
+                                                                         style = "info", value = "0")),
+                                              selectInput("Cellratiofillcolorplatte","select color plate:", choices = color_choice_vector, selected = "Default"),
+                                              checkboxInput("CellratioRotateAxis",label = "Rotate X Axis", FALSE),
+                                              sliderInput("CellratioColumnWidth", label = "Column width:", min = 0, max = 1, value = 0.7),
+                                              sliderInput("CellratioFlowAlpha", label = "Flow alpha:", min = 0, max = 1, value = 0.3),
+                                              sliderInput("CellratioFlowCurve", label = "Flow curve:", min = 0, max = 1, value = 0.3),
+                                              sliderInput("CellratioplotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9)
+                                          )
+                                        )
   )
   tab_list[["degs"]] = tabItem(tabName = "degs",
                                fluidRow(
                                  shinydashboardPlus::box(title = 'Information', textOutput("degs_info"),
                                                          background = "green", width = 12, closable = TRUE),
                                  tags$style(type="text/css", "#degs_info {white-space: pre-wrap;}"),
-                                 # Outputting multiple lines of text with renderText() in R shiny
-                                 # https://stackoverflow.com/questions/23233497/outputting-multiple-lines-of-text-with-rendertext-in-r-shiny
                                  tags$style(".nav-tabs {background: #f4f4f4;}
                                  .nav-tabs-custom .nav-tabs li.active:hover a, .nav-tabs-custom .nav-tabs li.active a {background-color: #fff;
                                  border-color: #fff;
                                  }
                                  .nav-tabs-custom .nav-tabs li.active {border-top-color:
                                  #314a6d;
-                                 }"), # refer to: https://stackoverflow.com/questions/45247290/shiny-dashboard-tabbox-tabpanel-css
-                                 # attention: all tabBox will use style above!
+                                 }"),
                                  tabBox(
                                    title = "Find Markers or DEGs",
-                                   id = "tabset_degs", width = 12, # height = "250px",
+                                   id = "tabset_degs", width = 12,
                                    tabPanel("Find Markers for All Clusters",
                                             withSpinner(uiOutput("ClusterMarkersClusterResolution.UI"), proxy.height = "10px"),
                                             actionButton("DEGsClusterMarkersAnalysis", "Analyze", icon = shiny::icon("magnifying-glass-chart"), class = "btn-primary")),
@@ -422,7 +517,6 @@ explorer_body_ui <- function(tab_list){
                                             sliderInput("minpct", label = "Minimum Expression Percentage:", min = 0, max = 1, value = 0.01),
                                             sliderInput("mindiffpct", label = "Minimum Expression Percentage Difference:", min = 0, max = 1, value = 0),
                                             actionButton("SetDefault", "Set to Default", icon = shiny::icon("save"), class = "btn-primary"))
-
                                  ),
                                  conditionalPanel(
                                    condition = "output.DEGs_ready",
@@ -439,96 +533,111 @@ explorer_body_ui <- function(tab_list){
                                )
   )
   tab_list[["topgenes"]] = tabItem(tabName = "topgenes",
-                               fluidRow(
-                                 shinydashboardPlus::box(title = 'Information', textOutput("topgenes_info"), background = "green", width = 12, closable = TRUE),
-                                 tags$style(type="text/css", "#topgenes_info {white-space: pre-wrap;}"),
-                                 box(title = "Step1: Common Settings", solidHeader = TRUE, status = "primary", width = 3,
-                                 withSpinner(uiOutput("TopGenesClusterResolution.UI"), proxy.height = "10px"),
-                                 withSpinner(uiOutput("TopGenesSelectedClusters.UI"), proxy.height = "10px"),
-                                 withSpinner(uiOutput("TopGenesAssays.UI"), proxy.height = "10px"),
-                                 checkboxInput("TopGenesClusterLevel",label = "by each cluster", TRUE)),
-                                 shinydashboard::tabBox(
-                                   title = "Step2: Calcuate Top Genes",
-                                   id = "tabset_topgenes", width = 9, # height = "250px",
-                                   tabPanel("Find Top Genes by Cell", # strong(h3("Top Correlated Genes")),
-                                            sliderInput("TopGenesTopPercent","UMI percentage cutoff(%):",min = 1,  max = 10, value = 1, step = 1),
-                                            actionButton("TopGenesAnalysis", "Analyze", icon = shiny::icon("magnifying-glass-chart"), class = "btn-primary")),
-                                   tabPanel("Find Top Genes by Accumulated UMI Counts",
-                                            sliderInput("TopGenesTopN","Top n:",min = 100,  max = 1000, value = 100, step = 100),
-                                            actionButton("TopAccumulatedGenesAnalysis", "Analyze", icon = shiny::icon("magnifying-glass-chart"), class = "btn-primary"))),
-                                 conditionalPanel(
-                                   condition = "output.TopGenes_ready",
-                                   box(title = "Analysis Results:", collapsible = TRUE, width = 12,solidHeader = TRUE, status = "primary",align = "center",
-                                       withSpinner(DT::dataTableOutput('dataset_topgenes'))))
-                               )
-  )
-  tab_list[["featuresummary"]] = tabItem(tabName = "featuresummary",
                                    fluidRow(
-                                     shinydashboardPlus::box(title = 'Information',textOutput("featuresummary_info"), background = "green", width = 12, closable = TRUE),
-                                     tags$style(type="text/css", "#featuresummary_info {white-space: pre-wrap;}"),
-                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
-                                         textAreaInput("FeatureSummarySymbol", "Input Gene Symbols:", value = "", height = '100px', resize = "vertical"),
-                                         withSpinner(uiOutput("FeatureSummaryClusterResolution.UI"), proxy.height = "10px"),
-                                         withSpinner(uiOutput("FeatureSummarySelectedClusters.UI"), proxy.height = "10px"),
-                                         withSpinner(uiOutput("FeatureSummaryAssays.UI"), proxy.height = "10px"),
-                                         checkboxInput("FeatureSummaryClusterLevel",label = "by each cluster", TRUE),
-                                         actionButton("FeatureSummaryAnalysis", "Submit", icon = shiny::icon("magnifying-glass-chart"), class = "btn-primary")),
-                                     box(title = "Gene Short Summary:", collapsible = TRUE, width = 9,solidHeader = TRUE, status = "primary",align = "center",
-                                         conditionalPanel(
-                                           condition = "output.FeatureSummary_ready",
-                                           withSpinner(DT::dataTableOutput('dataset_featuresummary')))
+                                     shinydashboardPlus::box(title = 'Information', textOutput("topgenes_info"), background = "green", width = 12, closable = TRUE),
+                                     tags$style(type="text/css", "#topgenes_info {white-space: pre-wrap;}"),
+                                     box(title = "Step1: Common Settings", solidHeader = TRUE, status = "primary", width = 3,
+                                         withSpinner(uiOutput("TopGenesClusterResolution.UI"), proxy.height = "10px"),
+                                         withSpinner(uiOutput("TopGenesSelectedClusters.UI"), proxy.height = "10px"),
+                                         withSpinner(uiOutput("TopGenesAssays.UI"), proxy.height = "10px"),
+                                         checkboxInput("TopGenesClusterLevel",label = "by each cluster", TRUE)),
+                                     shinydashboard::tabBox(
+                                       title = "Step2: Calcuate Top Genes",
+                                       id = "tabset_topgenes", width = 9,
+                                       tabPanel("Find Top Genes by Cell",
+                                                sliderInput("TopGenesTopPercent","UMI percentage cutoff(%):",min = 1,  max = 10, value = 1, step = 1),
+                                                actionButton("TopGenesAnalysis", "Analyze", icon = shiny::icon("magnifying-glass-chart"), class = "btn-primary")),
+                                       tabPanel("Find Top Genes by Accumulated UMI Counts",
+                                                sliderInput("TopGenesTopN","Top n:",min = 100,  max = 1000, value = 100, step = 100),
+                                                actionButton("TopAccumulatedGenesAnalysis", "Analyze", icon = shiny::icon("magnifying-glass-chart"), class = "btn-primary"))),
+                                     conditionalPanel(
+                                       condition = "output.TopGenes_ready",
+                                       box(title = "Analysis Results:", collapsible = TRUE, width = 12,solidHeader = TRUE, status = "primary",align = "center",
+                                           withSpinner(DT::dataTableOutput('dataset_topgenes')))
                                      )
                                    )
   )
-  tab_list[["featurecorrelation"]] = tabItem(tabName = "featurecorrelation",
+  tab_list[["featuresummary"]] = tabItem(tabName = "featuresummary",
                                          fluidRow(
-                                           shinydashboardPlus::box(title = 'Information',textOutput("featurecorrelation_info"), background = "green", width = 12, closable = TRUE),
-                                           tags$style(type="text/css", "#featurecorrelation_info {white-space: pre-wrap;}"),
-                                           box(title = "Step1: Common Settings", solidHeader = TRUE, status = "primary", width = 3,
-                                               withSpinner(uiOutput("FeatureCorrelationClusterResolution.UI"), proxy.height = "10px"),
-                                               withSpinner(uiOutput("FeatureCorrelationIdentsSelected.UI"), proxy.height = "10px"),
-                                               withSpinner(uiOutput("FeatureCorrelationAssays.UI"), proxy.height = "10px"),
-                                               selectInput("correlationmethod","Correlation Method:", choices = c(pearson = "pearson", spearman = "spearman"))),
-                                           shinydashboard::tabBox(
-                                             title = "Step2: Calcuate Correlation",
-                                             id = "tabset_featurecorrelation", width = 9, # height = "250px",
-                                             tabPanel("Find Top Correlated Gene Pairs", # strong(h3("Top Correlated Genes")),
-                                                      actionButton("TopCorrelationAnalysis", "Analyze", icon = shiny::icon("magnifying-glass-chart"), class = "btn-primary")),
-                                             tabPanel("Find Top Correlated Genes for A Gene", # strong(h3("Find correlated genes for a gene")),
-                                                      textInput(inputId = "MostCorrelatedAGene", label = "Input a gene:", width = '30%'),
-                                                      actionButton("MostCorrelatedAnalysis", "Analyze", icon = shiny::icon("magnifying-glass-chart"), class = "btn-primary")),
-                                             tabPanel("Calcuate Correlation of All Pairs in A Gene List", # strong(h3("Calculate correlation for a gene group")),
-                                                      textAreaInput(inputId = "CorrelationGeneList", label = "Input a group of genes:", width = '30%', height = '100px', resize = "vertical"),
-                                                      actionButton("calculatecorrelation", "Analyze", icon = shiny::icon("save"), class = "btn-primary"))
-
-                                           ),
-                                           conditionalPanel(
-                                             condition = "output.FeatureCorrelation_ready",
-                                             box(title = "Analysis Results:", collapsible = TRUE, width = 12, solidHeader = TRUE, status = "primary",align = "center",
-                                                 withSpinner(DT::dataTableOutput('dataset_correlation')))
+                                           shinydashboardPlus::box(title = 'Information',textOutput("featuresummary_info"), background = "green", width = 12, closable = TRUE),
+                                           tags$style(type="text/css", "#featuresummary_info {white-space: pre-wrap;}"),
+                                           box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
+                                               textAreaInput("FeatureSummarySymbol", "Input Gene Symbols:", value = "", height = '100px', resize = "vertical"),
+                                               withSpinner(uiOutput("FeatureSummaryClusterResolution.UI"), proxy.height = "10px"),
+                                               withSpinner(uiOutput("FeatureSummarySelectedClusters.UI"), proxy.height = "10px"),
+                                               withSpinner(uiOutput("FeatureSummaryAssays.UI"), proxy.height = "10px"),
+                                               checkboxInput("FeatureSummaryClusterLevel",label = "by each cluster", TRUE),
+                                               actionButton("FeatureSummaryAnalysis", "Submit", icon = shiny::icon("magnifying-glass-chart"), class = "btn-primary")),
+                                           box(title = "Gene Short Summary:", collapsible = TRUE, width = 9,solidHeader = TRUE, status = "primary",align = "center",
+                                               conditionalPanel(
+                                                 condition = "output.FeatureSummary_ready",
+                                                 withSpinner(DT::dataTableOutput('dataset_featuresummary')))
                                            )
                                          )
   )
-  tab_list[["featuresdf"]] = tabItem(tabName = "featuresdf",
+  tab_list[["featurecorrelation"]] = tabItem(tabName = "featurecorrelation",
                                              fluidRow(
-                                               box(title = "Search Features", solidHeader = TRUE, status = "primary", width = 12,
-                                                   withSpinner(uiOutput("FeaturesDataframeAssays.UI"), proxy.height = "10px"),
-                                                   withSpinner(DT::dataTableOutput('dataset_features')))
+                                               shinydashboardPlus::box(title = 'Information',textOutput("featurecorrelation_info"), background = "green", width = 12, closable = TRUE),
+                                               tags$style(type="text/css", "#featurecorrelation_info {white-space: pre-wrap;}"),
+                                               box(title = "Step1: Common Settings", solidHeader = TRUE, status = "primary", width = 3,
+                                                   withSpinner(uiOutput("FeatureCorrelationClusterResolution.UI"), proxy.height = "10px"),
+                                                   withSpinner(uiOutput("FeatureCorrelationIdentsSelected.UI"), proxy.height = "10px"),
+                                                   withSpinner(uiOutput("FeatureCorrelationAssays.UI"), proxy.height = "10px"),
+                                                   selectInput("correlationmethod","Correlation Method:", choices = c(pearson = "pearson", spearman = "spearman"))),
+                                               shinydashboard::tabBox(
+                                                 title = "Step2: Calcuate Correlation",
+                                                 id = "tabset_featurecorrelation", width = 9,
+                                                 tabPanel("Find Top Correlated Gene Pairs",
+                                                          actionButton("TopCorrelationAnalysis", "Analyze", icon = shiny::icon("magnifying-glass-chart"), class = "btn-primary")),
+                                                 tabPanel("Find Top Correlated Genes for A Gene",
+                                                          textInput(inputId = "MostCorrelatedAGene", label = "Input a gene:", width = '30%'),
+                                                          actionButton("MostCorrelatedAnalysis", "Analyze", icon = shiny::icon("magnifying-glass-chart"), class = "btn-primary")),
+                                                 tabPanel("Calcuate Correlation of All Pairs in A Gene List",
+                                                          textAreaInput(inputId = "CorrelationGeneList", label = "Input a group of genes:", width = '30%', height = '100px', resize = "vertical"),
+                                                          actionButton("calculatecorrelation", "Analyze", icon = shiny::icon("save"), class = "btn-primary"))
+                                               ),
+                                               conditionalPanel(
+                                                 condition = "output.FeatureCorrelation_ready",
+                                                 box(title = "Analysis Results:", collapsible = TRUE, width = 12, solidHeader = TRUE, status = "primary",align = "center",
+                                                     withSpinner(DT::dataTableOutput('dataset_correlation')))
+                                               )
                                              )
   )
-  tab_list[["cellmetadata"]] = tabItem(tabName = "cellmetadata",
+  tab_list[["featuresdf"]] = tabItem(tabName = "featuresdf",
                                      fluidRow(
-                                       box(title = "Metadata of Cells", collapsible = TRUE, width = 12,solidHeader = TRUE, status = "primary", # align = "center",
-                                           withSpinner(tagList(downloadButton("download_meta_data","Download"),
-                                                               DT::dataTableOutput('dataset_meta'))))
+                                       box(title = "Search Features", solidHeader = TRUE, status = "primary", width = 12,
+                                           withSpinner(uiOutput("FeaturesDataframeAssays.UI"), proxy.height = "10px"),
+                                           withSpinner(DT::dataTableOutput('dataset_features')),
+                                           conditionalPanel(
+                                             condition = "typeof output.dataset_features !== 'undefined' && output.dataset_features !== null",
+                                             tags$hr(),
+                                             h5("Import Selected Features"),
+                                             fluidRow(
+                                               column(4, actionButton("ImportToViolinPlot", "To Violin Plot",
+                                                                      class = "btn-primary btn-sm", width = "100%")),
+                                               column(4, actionButton("ImportToDotPlot", "To Dot Plot",
+                                                                      class = "btn-primary btn-sm", width = "100%")),
+                                               column(4, actionButton("ImportToFeaturePlot", "To Feature Plot",
+                                                                      class = "btn-primary btn-sm", width = "100%"))
+                                             ),
+                                             textOutput("ImportMessage")
+                                           )
+                                       )
                                      )
   )
-  tab_list[["objectstructure"]] = tabItem(tabName = "objectstructure",
+  tab_list[["cellmetadata"]] = tabItem(tabName = "cellmetadata",
                                        fluidRow(
-                                         box(title = "Structure of Seurat Object", collapsible = TRUE, width = 12,solidHeader = TRUE, status = "primary",
-                                             sliderInput("ObjectStrutureLevel", label = "Structure Depth:", min = 1, max = 10, value = 3),
-                                             withSpinner(verbatimTextOutput("object_structure")))
+                                         box(title = "Metadata of Cells", collapsible = TRUE, width = 12,solidHeader = TRUE, status = "primary",
+                                             withSpinner(tagList(downloadButton("download_meta_data","Download"),
+                                                                 DT::dataTableOutput('dataset_meta'))))
                                        )
+  )
+  tab_list[["objectstructure"]] = tabItem(tabName = "objectstructure",
+                                          fluidRow(
+                                            box(title = "Structure of Seurat Object", collapsible = TRUE, width = 12,solidHeader = TRUE, status = "primary",
+                                                sliderInput("ObjectStrutureLevel", label = "Structure Depth:", min = 1, max = 10, value = 3),
+                                                withSpinner(verbatimTextOutput("object_structure")))
+                                          )
   )
   tab_list[["about"]] = tabItem(tabName = "about",
                                 fluidRow(
@@ -539,7 +648,6 @@ explorer_body_ui <- function(tab_list){
   return(tab_list)
 }
 
-
 #' UI
 #' @import shiny shinydashboard shinyWidgets
 #' @export
@@ -548,38 +656,31 @@ explorer_body_ui <- function(tab_list){
 #' ui()
 #'
 ui <-  function(){
-  # shinydashboard::notificationItem: the default function can not open link
-  # to make a new function: refer to: https://forum.posit.co/t/shinydashboard-notification-item-with-link-in-new-tab/37580/2
   notificationItemWithAttr <- function(text, icon = shiny::icon("warning"), status = "success", href = NULL, ...) {
     if (is.null(href)){href <- "#"}
     icon <- shiny::tagAppendAttributes(icon, class = paste0("text-",status))
     shiny::tags$li(a(href = href, icon, text, ...))
   }
 
-  # Header ----
   header = shinydashboard::dashboardHeader(title = p(strong(em("Seurat Explorer"))),
-                           shinydashboard::dropdownMenu(type = "notifications", icon = shiny::icon("github"), headerText = "R packages on Github:",
-                                        notificationItemWithAttr(icon = shiny::icon("github"), status = "info", text = "SeuratExplorer", href = "https://github.com/fentouxungui/SeuratExplorer", target = "_blank"),
-                                        notificationItemWithAttr(icon = shiny::icon("github"), status = "info", text = "SeuratExplorerServer", href = "https://github.com/fentouxungui/SeuratExplorerServer", target = "_blank")))
+                                           shinydashboard::dropdownMenu(type = "notifications", icon = shiny::icon("github"), headerText = "R packages on Github:",
+                                                                        notificationItemWithAttr(icon = shiny::icon("github"), status = "info", text = "SeuratExplorer", href = "https://github.com/fentouxungui/SeuratExplorer", target = "_blank"),
+                                                                        notificationItemWithAttr(icon = shiny::icon("github"), status = "info", text = "SeuratExplorerServer", href = "https://github.com/fentouxungui/SeuratExplorerServer", target = "_blank")))
 
-  # Sidebar ----
   sidebar = shinydashboard::dashboardSidebar(
     shinydashboard::sidebarMenu(
       shinydashboard::menuItem("Dataset", tabName = "dataset", icon = shiny::icon("database")),
       explorer_sidebar_ui()
-     )
+    )
   )
 
-  # BODY ----
   tab_list = list()
-
   tab_list[["dataset"]] = shinydashboard::tabItem(tabName = "dataset",
-                                  fluidRow(
-                                    # upload a file
-                                    box(status = "primary", title = "Upload Data", width = 12, collapsible = TRUE, solidHeader = TRUE,
-                                        fileInput("dataset_file", "Choose A rds or qs2 file of Seurat Object:", accept = c('.rds', ".qs2")))
-                                    )
-                                  )
+                                                  fluidRow(
+                                                    box(status = "primary", title = "Upload Data", width = 12, collapsible = TRUE, solidHeader = TRUE,
+                                                        fileInput("dataset_file", "Choose A rds or qs2 file of Seurat Object:", accept = c('.rds', ".qs2")))
+                                                  )
+  )
 
   tab_list <- explorer_body_ui(tab_list = tab_list)
 
@@ -587,13 +688,9 @@ ui <-  function(){
     div(class= "tab-content", tab_list),
     tags$script(HTML(
       "document.querySelector('body > div.wrapper > header > nav > div > ul > li > a > span').style.visibility = 'hidden';"
-    )) # to hide how many notifications in shinydashboard::dropdownMenu(), refer to:https://stackoverflow.com/questions/65915414/alter-dropdown-menu-in-shiny
+    ))
   )
 
-  # combine
   ui_out = shinydashboard::dashboardPage(title = "Seurat Explorer", header, sidebar, body)
   return(ui_out)
 }
-
-
-

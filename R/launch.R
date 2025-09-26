@@ -12,13 +12,15 @@
 #' @import shiny
 #' @return In-browser Shiny Application launch
 #' @examples
-#' if(interactive()){launchSeuratExplorer()}
+#' if (interactive()) {
+#'   launchSeuratExplorer()
+#' }
 #' @export
 launchSeuratExplorer <- function(verbose = FALSE,
-                                 ReductionKeyWords = c("umap","tsne"),
+                                 ReductionKeyWords = c("umap", "tsne"),
                                  SplitOptionMaxLevel = 12,
-                                 MaxInputFileSize = 20*1024^3 # default 20GB
-                                 ){
+                                 MaxInputFileSize = 20 * 1024^3 # default 20GB
+) {
   options(SeuratExplorerVerbose = verbose)
   options(SeuratExplorerReductionKeyWords = ReductionKeyWords)
   options(SeuratExplorerSplitOptionMaxLevel = SplitOptionMaxLevel)

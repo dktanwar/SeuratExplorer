@@ -1,82 +1,94 @@
-prepare_seurat_object <- function(obj, verbose = FALSE){
+prepare_seurat_object <- function(obj, verbose = FALSE) {
   requireNamespace("Seurat")
   # trans the none-factor columns in meta.data to factor
   # if the unique counts less than 1/20 of total cells, and not more than 50, in chr or num type columns，will be forced to factor type.
   # possible problem: unique_max_percent = 0.05 may not suitable for a data has 100 cells but more than 5 clusters.
   obj@meta.data <- modify_columns_types(df = obj@meta.data, types_to_check = c("numeric", "character"), unique_max_counts = 50, unique_max_percent = 0.05, verbose = verbose)
   # for splited object, join layers
-  if (sum(grepl("^counts",Layers(object = obj))) > 1 | sum(grepl("^data",Layers(object = obj))) > 1) {
+  if (sum(grepl("^counts", Layers(object = obj))) > 1 | sum(grepl("^data", Layers(object = obj))) > 1) {
     obj <- SeuratObject::JoinLayers(object = obj)
   }
-  if (verbose) {message("SeuratExplorer: prepare_seurat_object runs successfully!")}
+  if (verbose) {
+    message("SeuratExplorer: prepare_seurat_object runs successfully!")
+  }
   return(obj)
 }
 
 # Converts eligible non-factor columns to factor type, and converts strings that may be numbers to numbers.
-modify_columns_types <- function(df, types_to_check = c("numeric", "character"), unique_max_counts = 50, unique_max_percent = 0.05, verbose = FALSE){
+modify_columns_types <- function(df, types_to_check = c("numeric", "character"), unique_max_counts = 50, unique_max_percent = 0.05, verbose = FALSE) {
   # first, extract all columns in types_to_check types
   candidates.types.logic <- sapply(df, class) %in% types_to_check
   # then, for factor columns, check the levels, level counts should less than (total cells) * 0.1, if not trans to character
-  factor_columns_names <- colnames(df)[sapply(df, class) %in% 'factor']
-  factor_columns_names_not_ok <- factor_columns_names[sapply(df[,factor_columns_names], function(x)length(levels(x))) > nrow(df) * 0.1]
+  factor_columns_names <- colnames(df)[sapply(df, class) %in% "factor"]
+  factor_columns_names_not_ok <- factor_columns_names[sapply(df[, factor_columns_names], function(x) length(levels(x))) > nrow(df) * 0.1]
   if (length(factor_columns_names_not_ok) != 0) {
-    df[,factor_columns_names_not_ok] <- lapply(df[,factor_columns_names_not_ok], as.character)
+    df[, factor_columns_names_not_ok] <- lapply(df[, factor_columns_names_not_ok], as.character)
   }
   # then for types_to_check types
   # unique values counts should less than (total cells)*0.05, for 100 cells has 5 clusters at most. and for 10000 cells has 50 clusters at most.
   cutoff <- min(unique_max_counts, round(nrow(df) * unique_max_percent))
-  candidates.unique.logic <- sapply(df, FUN = function(x)length(unique(x))) <= cutoff
+  candidates.unique.logic <- sapply(df, FUN = function(x) length(unique(x))) <= cutoff
   candidates.logic <- candidates.types.logic & candidates.unique.logic & !sapply(df, is.factor)
   # before trans to factor, trans numeric character vector to numeric vector: c('1','2','1') to c(1,2,1)
-  char2numeric_columns.logic <- suppressWarnings(unlist(lapply(df[candidates.logic], function(x)any(!is.na(as.numeric(unique(x)))))))
+  char2numeric_columns.logic <- suppressWarnings(unlist(lapply(df[candidates.logic], function(x) any(!is.na(as.numeric(unique(x)))))))
   char2numeric_columns <- names(char2numeric_columns.logic)[char2numeric_columns.logic]
   df[char2numeric_columns] <- lapply(df[char2numeric_columns], as.numeric)
   # finally trans all char and numeric to factor
   df[candidates.logic] <- lapply(df[candidates.logic], as.factor)
-  if(verbose){message("SeuratExplorer: modify_columns_types runs successfully!")}
+  if (verbose) {
+    message("SeuratExplorer: modify_columns_types runs successfully!")
+  }
   return(df)
 }
 
 # get reduction options by keywords: umap and tsne
-prepare_reduction_options <- function(obj, keywords = c("umap","tsne"), verbose = FALSE){
+prepare_reduction_options <- function(obj, keywords = c("umap", "tsne"), verbose = FALSE) {
   requireNamespace("Seurat")
-  reduction.choice <- grep(paste0(paste0("(", keywords,")"),collapse = "|"), Seurat::Reductions(obj), value = TRUE, ignore.case = TRUE)
+  reduction.choice <- grep(paste0(paste0("(", keywords, ")"), collapse = "|"), Seurat::Reductions(obj), value = TRUE, ignore.case = TRUE)
   names(reduction.choice) <- toupper(reduction.choice)
-  if(verbose){message("SeuratExplorer: prepare_reduction_options runs successfully!")}
+  if (verbose) {
+    message("SeuratExplorer: prepare_reduction_options runs successfully!")
+  }
   return(reduction.choice)
 }
 
 # get assay and slots info
-prepare_assays_slots <- function(obj, verbose = FALSE, data_slot =  c('counts', 'data', 'scale.data')){
+prepare_assays_slots <- function(obj, verbose = FALSE, data_slot = c("counts", "data", "scale.data")) {
   requireNamespace("Seurat")
   # assay at least has one slot of counts, data, scale.data
   assay_slot_list <- list()
-  for (i in  Seurat::Assays(obj)) {
+  for (i in Seurat::Assays(obj)) {
     slot_names <- slotNames(obj[[i]])
-    if ('layers' %in% slot_names) {
+    if ("layers" %in% slot_names) {
       slot_names <- Layers(obj[[i]])
     }
     slot_names <- data_slot[data_slot %in% slot_names]
-    if (length(slot_names!=0)) {
+    if (length(slot_names != 0)) {
       assay_slot_list[[i]] <- slot_names
     }
   }
-  if(verbose){message("SeuratExplorer: prepare_assays_slots runs successfully!")}
+  if (verbose) {
+    message("SeuratExplorer: prepare_assays_slots runs successfully!")
+  }
   return(assay_slot_list)
 }
 
-prepare_assays_options <-function(Alist, verbose = FALSE){
+prepare_assays_options <- function(Alist, verbose = FALSE) {
   assays.choice <- names(Alist)
   names(assays.choice) <- toupper(assays.choice)
-  if(verbose){message("SeuratExplorer: prepare_assays_options runs successfully!")}
+  if (verbose) {
+    message("SeuratExplorer: prepare_assays_options runs successfully!")
+  }
   return(assays.choice)
 }
 
 # get cluster resolution options from all factor type columns in meta.data
-prepare_cluster_options <- function(df, verbose = FALSE){
+prepare_cluster_options <- function(df, verbose = FALSE) {
   cluster.options <- colnames(df)[sapply(df, is.factor)]
   names(cluster.options) <- cluster.options
-  if(verbose){message("SeuratExplorer: prepare_cluster_options runs successfully!")}
+  if (verbose) {
+    message("SeuratExplorer: prepare_cluster_options runs successfully!")
+  }
   return(cluster.options)
 }
 
@@ -90,166 +102,202 @@ prepare_cluster_options <- function(df, verbose = FALSE){
 #' @return a list with data.frames
 #'
 #' @examples
-#' #NULL
-prepare_gene_annotations <- function(obj, verbose = FALSE){
+#' # NULL
+prepare_gene_annotations <- function(obj, verbose = FALSE) {
   anno_list <- list()
   for (aassay in Assays(obj)) {
     # the annotation in ATAC assay is not the real features of the assay! just annotations from genome.
     # use ClosestFeature to annotate peaks/features from ATAC assay
-    if ('annotation' %in% slotNames(obj[[aassay]])) { # if exist annotation slot in assay
+    if ("annotation" %in% slotNames(obj[[aassay]])) { # if exist annotation slot in assay
       anno_df <- Signac::ClosestFeature(obj[[aassay]], regions = rownames(obj[[aassay]]))
       anno_list[[aassay]] <- anno_df
-    }else{ # if not exist annotation slot, use all rownames
+    } else { # if not exist annotation slot, use all rownames
       anno_df <- data.frame(FeatureName = rownames(obj[[aassay]]))
       anno_list[[aassay]] <- anno_df
     }
   }
-  if(verbose){message("SeuratExplorer: prepare_gene_annotations runs successfully!")}
+  if (verbose) {
+    message("SeuratExplorer: prepare_gene_annotations runs successfully!")
+  }
   return(anno_list)
 }
 
 
 # get split options from eligible factor columns in meta.data which has less levels than max_level
-prepare_split_options <- function(df, max.level = 4, verbose = FALSE){
+prepare_split_options <- function(df, max.level = 4, verbose = FALSE) {
   cluster.options <- colnames(df)[sapply(df, is.factor)]
-  leve.counts <- unname(sapply(df[cluster.options],FUN = function(x)length(levels(x))))
+  leve.counts <- unname(sapply(df[cluster.options], FUN = function(x) length(levels(x))))
   split.options <- cluster.options[leve.counts <= max.level]
   names(split.options) <- split.options
-  if(verbose){message("SeuratExplorer: prepare_split_options runs successfully!")}
+  if (verbose) {
+    message("SeuratExplorer: prepare_split_options runs successfully!")
+  }
   return(split.options)
 }
 
 # add extra columns from meta.data to qc options
-prepare_qc_options <- function(df, types = c("double","integer","numeric"), verbose = FALSE){
+prepare_qc_options <- function(df, types = c("double", "integer", "numeric"), verbose = FALSE) {
   qc_options <- colnames(df)[sapply(df, class) %in% types]
-  if(verbose){message("SeuratExplorer: prepare_qc_options runs successfully!")}
+  if (verbose) {
+    message("SeuratExplorer: prepare_qc_options runs successfully!")
+  }
   return(qc_options)
 }
 
 
 # Check the input gene, return the revised gene, which can be used for FeaturePlot, Vlnplot ect.
-CheckGene <- function(InputGene, GeneLibrary, verbose = FALSE){
-  InputGenes <- trimws(unlist(strsplit(InputGene,split = "\n")))
+CheckGene <- function(InputGene, GeneLibrary, verbose = FALSE) {
+  InputGenes <- trimws(unlist(strsplit(InputGene, split = "\n")))
   InputGenes <- InputGenes[InputGenes != ""]
-  revised.genes <- sapply(InputGenes, FUN = function(x)ReviseGene(x, GeneLibrary = GeneLibrary))
+  revised.genes <- sapply(InputGenes, FUN = function(x) ReviseGene(x, GeneLibrary = GeneLibrary))
   revised.genes <- unique(unname(revised.genes[!is.na(revised.genes)]))
-  if(verbose){message("SeuratExplorer: CheckGene runs successfully!")}
+  if (verbose) {
+    message("SeuratExplorer: CheckGene runs successfully!")
+  }
   ifelse(length(revised.genes) == 0, yes = return(NA), no = return(revised.genes))
 }
 
-ReviseGene <- function(Agene, GeneLibrary){
+ReviseGene <- function(Agene, GeneLibrary) {
   if (Agene %in% GeneLibrary) { # when input gene is absolutely right
     return(Agene)
-  }else if(tolower(Agene) %in% tolower(GeneLibrary)){ # when not case sensitive
+  } else if (tolower(Agene) %in% tolower(GeneLibrary)) { # when not case sensitive
     return(GeneLibrary[tolower(GeneLibrary) %in% tolower(Agene)][1]) # gene list length can > 1
-  }else{ # when not match
+  } else { # when not match
     return(NA)
   }
 }
 
 
-color_list <- list(stallion = c("#D51F26","#272E6A","#208A42","#89288F","#F47D2B",
-                                "#FEE500","#8A9FD1","#C06CAB","#E6C2DC","#90D5E4",
-                                "#89C75F","#F37B7D","#9983BD","#D24B27","#3BBCA8",
-                                "#6E4B9E","#0C727C", "#7E1416","#D8A767","#3D3D3D"),
+color_list <- list(
+  stallion = c(
+    "#D51F26", "#272E6A", "#208A42", "#89288F", "#F47D2B",
+    "#FEE500", "#8A9FD1", "#C06CAB", "#E6C2DC", "#90D5E4",
+    "#89C75F", "#F37B7D", "#9983BD", "#D24B27", "#3BBCA8",
+    "#6E4B9E", "#0C727C", "#7E1416", "#D8A767", "#3D3D3D"
+  ),
+  stallion2 = c(
+    "#D51F26", "#272E6A", "#208A42", "#89288F", "#F47D2B",
+    "#FEE500", "#8A9FD1", "#C06CAB", "#E6C2DC", "#90D5E4",
+    "#89C75F", "#F37B7D", "#9983BD", "#D24B27", "#3BBCA8",
+    "#6E4B9E", "#0C727C", "#7E1416", "#D8A767"
+  ),
+  calm = c(
+    "#7DD06F", "#844081", "#688EC1", "#C17E73", "#484125",
+    "#6CD3A7", "#597873", "#7B6FD0", "#CF4A31", "#D0CD47",
+    "#722A2D", "#CBC594", "#D19EC4", "#5A7E36", "#D4477D",
+    "#403552", "#76D73C", "#96CED5", "#CE54D1", "#C48736"
+  ),
+  kelly = c(
+    "#FFB300", "#803E75", "#FF6800", "#A6BDD7", "#C10020",
+    "#CEA262", "#817066", "#007D34", "#F6768E", "#00538A",
+    "#FF7A5C", "#53377A", "#FF8E00", "#B32851", "#F4C800",
+    "#7F180D", "#93AA00", "#593315", "#F13A13", "#232C16"
+  ),
+  bear = c(
+    "#faa818", "#41a30d", "#fbdf72", "#367d7d", "#d33502",
+    "#6ebcbc", "#37526d", "#916848", "#f5b390", "#342739",
+    "#bed678", "#a6d9ee", "#0d74b6",
+    "#60824f", "#725ca5", "#e0598b"
+  ),
 
-                   stallion2 = c("#D51F26","#272E6A","#208A42","#89288F","#F47D2B",
-                                 "#FEE500","#8A9FD1","#C06CAB","#E6C2DC","#90D5E4",
-                                 "#89C75F","#F37B7D","#9983BD","#D24B27","#3BBCA8",
-                                 "#6E4B9E","#0C727C", "#7E1416","#D8A767"),
+  # 15-colors
+  ironMan = c(
+    "#371377", "#7700FF", "#9E0142", "#FF0080", "#DC494C",
+    "#F88D51", "#FAD510", "#FFFF5F", "#88CFA4", "#238B45",
+    "#02401B", "#0AD7D3", "#046C9A", "#A2A475", "grey35"
+  ),
+  circus = c(
+    "#D52126", "#88CCEE", "#FEE52C", "#117733", "#CC61B0",
+    "#99C945", "#2F8AC4", "#332288", "#E68316", "#661101",
+    "#F97B72", "#DDCC77", "#11A579", "#89288F", "#E73F74"
+  ),
 
-                   calm = c("#7DD06F", "#844081","#688EC1", "#C17E73", "#484125",
-                            "#6CD3A7", "#597873","#7B6FD0", "#CF4A31", "#D0CD47",
-                            "#722A2D", "#CBC594", "#D19EC4", "#5A7E36", "#D4477D",
-                            "#403552", "#76D73C", "#96CED5", "#CE54D1", "#C48736"),
+  # 12-colors
+  paired = c(
+    "#A6CDE2", "#1E78B4", "#74C476", "#34A047", "#F59899", "#E11E26",
+    "#FCBF6E", "#F47E1F", "#CAB2D6", "#6A3E98", "#FAF39B", "#B15928"
+  ),
 
-                   kelly = c("#FFB300", "#803E75", "#FF6800", "#A6BDD7", "#C10020",
-                             "#CEA262", "#817066", "#007D34", "#F6768E", "#00538A",
-                             "#FF7A5C", "#53377A", "#FF8E00", "#B32851", "#F4C800",
-                             "#7F180D", "#93AA00", "#593315", "#F13A13", "#232C16"),
+  # 11-colors
+  grove = c(
+    "#1a1334", "#01545a", "#017351", "#03c383", "#aad962",
+    "#fbbf45", "#ef6a32", "#ed0345", "#a12a5e", "#710162", "#3B9AB2"
+  ),
 
-                   bear = c("#faa818", "#41a30d","#fbdf72", "#367d7d", "#d33502",
-                            "#6ebcbc", "#37526d","#916848", "#f5b390", "#342739",
-                            "#bed678","#a6d9ee", "#0d74b6",
-                            "#60824f","#725ca5", "#e0598b"),
+  # 7-colors
+  summerNight = c(
+    "#2a7185", "#a64027", "#fbdf72", "#60824f", "#9cdff0",
+    "#022336", "#725ca5"
+  ),
 
-                   #15-colors
-                   ironMan = c('#371377','#7700FF','#9E0142','#FF0080', '#DC494C',
-                               "#F88D51","#FAD510","#FFFF5F",'#88CFA4','#238B45',
-                               "#02401B", "#0AD7D3","#046C9A", "#A2A475", 'grey35'),
+  # 5-colors
+  zissou = c("#3B9AB2", "#78B7C5", "#EBCC2A", "#E1AF00", "#F21A00"),
+  darjeeling = c("#FF0000", "#00A08A", "#F2AD00", "#F98400", "#5BBCD6"),
+  rushmore = c("#E1BD6D", "#EABE94", "#0B775E", "#35274A", "#F2300F"),
+  captain = c("grey", "#A1CDE1", "#12477C", "#EC9274", "#67001E"),
 
-                   circus = c("#D52126","#88CCEE", "#FEE52C", "#117733", "#CC61B0",
-                              "#99C945", "#2F8AC4", "#332288","#E68316", "#661101",
-                              "#F97B72", "#DDCC77", "#11A579", "#89288F", "#E73F74"),
+  #---------------------------------------------------------------
+  # Primarily Continuous Palettes
+  #---------------------------------------------------------------
+  # 10-colors
+  horizon = c(
+    "#000075", "#2E00FF", "#9408F7", "#C729D6", "#FA4AB5",
+    "#FF6A95", "#FF8B74", "#FFAC53", "#FFCD32", "#FFFF60"
+  ),
 
-                   #12-colors
-                   paired = c("#A6CDE2","#1E78B4","#74C476","#34A047","#F59899","#E11E26",
-                              "#FCBF6E","#F47E1F","#CAB2D6","#6A3E98","#FAF39B","#B15928"),
+  # 9-colors
+  horizonExtra = c(
+    "#000436", "#021EA9", "#1632FB", "#6E34FC", "#C732D5",
+    "#FD619D", "#FF9965", "#FFD32B", "#FFFC5A"
+  ),
+  blueYellow = c(
+    "#352A86", "#343DAE", "#0262E0", "#1389D2", "#2DB7A3",
+    "#A5BE6A", "#F8BA43", "#F6DA23", "#F8FA0D"
+  ),
+  sambaNight = c(
+    "#1873CC", "#1798E5", "#00BFFF", "#4AC596", "#00CC00",
+    "#A2E700", "#FFFF00", "#FFD200", "#FFA500"
+  ),
+  solarExtra = c(
+    "#3361A5", "#248AF3", "#14B3FF", "#88CEEF", "#C1D5DC",
+    "#EAD397", "#FDB31A", "#E42A2A", "#A31D1D"
+  ),
+  whitePurple = c(
+    "#f7fcfd", "#e0ecf4", "#bfd3e6", "#9ebcda", "#8c96c6",
+    "#8c6bb1", "#88419d", "#810f7c", "#4d004b"
+  ),
+  whiteBlue = c(
+    "#fff7fb", "#ece7f2", "#d0d1e6", "#a6bddb", "#74a9cf",
+    "#3690c0", "#0570b0", "#045a8d", "#023858"
+  ),
+  comet = c("#E6E7E8", "#3A97FF", "#8816A7", "black"),
 
-                   #11-colors
-                   grove = c("#1a1334","#01545a","#017351","#03c383","#aad962",
-                             "#fbbf45","#ef6a32","#ed0345","#a12a5e","#710162","#3B9AB2"),
+  # 7-colors
+  greenBlue = c(
+    "#e0f3db", "#ccebc5", "#a8ddb5", "#4eb3d3", "#2b8cbe",
+    "#0868ac", "#084081"
+  ),
 
-                   #7-colors
-                   summerNight = c("#2a7185","#a64027","#fbdf72","#60824f","#9cdff0",
-                                   "#022336","#725ca5"),
+  # 6-colors
+  beach = c(
+    "#87D2DB", "#5BB1CB", "#4F66AF", "#F15F30",
+    "#F7962E", "#FCEE2B"
+  ),
 
-                   #5-colors
-                   zissou = c("#3B9AB2", "#78B7C5", "#EBCC2A", "#E1AF00", "#F21A00"),
-                   darjeeling = c("#FF0000", "#00A08A", "#F2AD00", "#F98400", "#5BBCD6"),
-                   rushmore = c("#E1BD6D", "#EABE94", "#0B775E", "#35274A" , "#F2300F"),
-                   captain = c("grey","#A1CDE1","#12477C","#EC9274","#67001E"),
-
-                   #---------------------------------------------------------------
-                   # Primarily Continuous Palettes
-                   #---------------------------------------------------------------
-                   #10-colors
-                   horizon = c('#000075','#2E00FF', '#9408F7', '#C729D6', '#FA4AB5',
-                               '#FF6A95', '#FF8B74', '#FFAC53', '#FFCD32', '#FFFF60'),
-
-                   #9-colors
-                   horizonExtra =c("#000436","#021EA9","#1632FB","#6E34FC","#C732D5",
-                                   "#FD619D","#FF9965","#FFD32B","#FFFC5A"),
-
-                   blueYellow = c("#352A86","#343DAE","#0262E0","#1389D2","#2DB7A3",
-                                  "#A5BE6A","#F8BA43","#F6DA23","#F8FA0D"),
-
-                   sambaNight = c('#1873CC','#1798E5','#00BFFF','#4AC596','#00CC00',
-                                  '#A2E700','#FFFF00','#FFD200','#FFA500'),
-
-                   solarExtra = c('#3361A5', '#248AF3', '#14B3FF', '#88CEEF', '#C1D5DC',
-                                  '#EAD397', '#FDB31A', '#E42A2A', '#A31D1D'),
-
-                   whitePurple = c('#f7fcfd','#e0ecf4','#bfd3e6','#9ebcda','#8c96c6',
-                                   '#8c6bb1','#88419d','#810f7c','#4d004b'),
-
-                   whiteBlue = c('#fff7fb','#ece7f2','#d0d1e6','#a6bddb','#74a9cf',
-                                 '#3690c0','#0570b0','#045a8d','#023858'),
-
-
-                   comet = c("#E6E7E8","#3A97FF","#8816A7","black"),
-
-                   #7-colors
-                   greenBlue = c('#e0f3db','#ccebc5','#a8ddb5','#4eb3d3','#2b8cbe',
-                                 '#0868ac','#084081'),
-
-                   #6-colors
-                   beach = c("#87D2DB","#5BB1CB","#4F66AF","#F15F30",
-                             "#F7962E","#FCEE2B"),
-
-                   #5-colors
-                   coolwarm = c("#4858A7", "#788FC8", "#D6DAE1", "#F49B7C", "#B51F29"),
-                   fireworks = c("white","#2488F0","#7F3F98","#E22929","#FCB31A"),
-                   greyMagma = c("grey", "#FB8861FF", "#B63679FF", "#51127CFF", "#000004FF"),
-                   fireworks2 = c("black", "#2488F0","#7F3F98","#E22929","#FCB31A"),
-                   purpleOrange = c("#581845", "#900C3F", "#C70039", "#FF5744", "#FFC30F"))
+  # 5-colors
+  coolwarm = c("#4858A7", "#788FC8", "#D6DAE1", "#F49B7C", "#B51F29"),
+  fireworks = c("white", "#2488F0", "#7F3F98", "#E22929", "#FCB31A"),
+  greyMagma = c("grey", "#FB8861FF", "#B63679FF", "#51127CFF", "#000004FF"),
+  fireworks2 = c("black", "#2488F0", "#7F3F98", "#E22929", "#FCB31A"),
+  purpleOrange = c("#581845", "#900C3F", "#C70039", "#FF5744", "#FFC30F")
+)
 
 
 
 color_choice_vector <- names(color_list)
-names(color_choice_vector) <- paste(names(color_list), unlist(lapply(color_list,length)),sep = "-")
-color_choice_vector <- color_choice_vector[names(color_choice_vector)[order(unlist(lapply(color_list,length)),decreasing = TRUE)]]
-color_choice_vector <- c(c("Default" = 'default'), color_choice_vector)
+names(color_choice_vector) <- paste(names(color_list), unlist(lapply(color_list, length)), sep = "-")
+color_choice_vector <- color_choice_vector[names(color_choice_vector)[order(unlist(lapply(color_list, length)), decreasing = TRUE)]]
+color_choice_vector <- c(c("Default" = "default"), color_choice_vector)
 
 #' @title getColors
 #'
@@ -263,11 +311,11 @@ color_choice_vector <- c(c("Default" = 'default'), color_choice_vector)
 #' @examples
 #' # null
 getColors <- function(color.platte = NULL,
-                      choice = 'default',
-                      n = NULL){
-  if (choice == 'default') { # use default colors
+                      choice = "default",
+                      n = NULL) {
+  if (choice == "default") { # use default colors
     return(scales::hue_pal()(n))
-  }else{
+  } else {
     return(color.platte[[choice]][1:n])
   }
 }
@@ -295,7 +343,7 @@ globalVariables(c("num"))
 #' @export
 #'
 #' @examples
-#' #NULL
+#' # NULL
 cellRatioPlot <- function(object = NULL,
                           sample.name = NULL,
                           sample.order = NULL,
@@ -312,15 +360,15 @@ cellRatioPlot <- function(object = NULL,
   meta <- object@meta.data
 
   # order
-  if(!is.null(sample.order)){
-    meta[,sample.name] <- factor(meta[,sample.name], levels = sample.order)
+  if (!is.null(sample.order)) {
+    meta[, sample.name] <- factor(meta[, sample.name], levels = sample.order)
   }
 
-  if(!is.null(celltype.order)){
-    meta[,celltype.name] <- factor(meta[,celltype.name], levels = celltype.order)
+  if (!is.null(celltype.order)) {
+    meta[, celltype.name] <- factor(meta[, celltype.name], levels = celltype.order)
   }
-  if(!is.null(facet.order)){
-    meta[,facet.name] <- factor(meta[,facet.name], levels = facet.order)
+  if (!is.null(facet.order)) {
+    meta[, facet.name] <- factor(meta[, facet.name], levels = facet.order)
   }
   # calculate percent ratio
   if (is.null(facet.name)) {
@@ -328,9 +376,9 @@ cellRatioPlot <- function(object = NULL,
       dplyr::group_by(.data[[sample.name]], .data[[celltype.name]]) %>%
       dplyr::summarise(num = dplyr::n()) %>%
       dplyr::mutate(rel_num = num / sum(num))
-  }else{
+  } else {
     ratio.info <- meta %>%
-      dplyr::group_by(.data[[sample.name]], .data[[facet.name]],.data[[celltype.name]]) %>%
+      dplyr::group_by(.data[[sample.name]], .data[[facet.name]], .data[[celltype.name]]) %>%
       dplyr::summarise(num = dplyr::n()) %>%
       dplyr::mutate(rel_num = num / sum(num))
   }
@@ -402,7 +450,7 @@ cellRatioPlot <- function(object = NULL,
 #' @return a data frame
 #' @export
 #'
-top_genes <- function(SeuratObj, percent.cut = 0.01, group.by, assay = 'RNA') {
+top_genes <- function(SeuratObj, percent.cut = 0.01, group.by, assay = "RNA") {
   #> https://stackoverflow.com/questions/76242926/using-data-table-in-package-development-undefined-global-functions-or-variables
   # to block R RMD check note: Undefined global functions or variables:
   Gene <- NULL
@@ -421,45 +469,45 @@ top_genes <- function(SeuratObj, percent.cut = 0.01, group.by, assay = 'RNA') {
   rownames(counts.expr) <- rownames(SeuratObj)
   if (!is.null(group.by)) {
     # calculate by cell type
-    all.cell.types <- unique(SeuratObj@meta.data[,group.by])
+    all.cell.types <- unique(SeuratObj@meta.data[, group.by])
     results.statics <- list()
     for (celltype in all.cell.types) {
-      cells.sub <- colnames(SeuratObj)[as.character(SeuratObj@meta.data[,group.by]) == celltype]
+      cells.sub <- colnames(SeuratObj)[as.character(SeuratObj@meta.data[, group.by]) == celltype]
       if (length(cells.sub) < 3) {
         next
       }
-      results.statics[[celltype]] <- top_genes_core(expr_mat = counts.expr[,cells.sub], cutoff = percent.cut, celltype = celltype)
+      results.statics[[celltype]] <- top_genes_core(expr_mat = counts.expr[, cells.sub], cutoff = percent.cut, celltype = celltype)
     }
     results.statics <- Reduce(rbind, results.statics)
-  }else{
-    results.statics <- top_genes_core(expr_mat = counts.expr, cutoff = percent.cut, celltype = 'AllSelectedCells')
+  } else {
+    results.statics <- top_genes_core(expr_mat = counts.expr, cutoff = percent.cut, celltype = "AllSelectedCells")
   }
   rownames(results.statics) <- NULL
   return(results.statics)
 }
 
-top_genes_core <- function(expr_mat, cutoff = 0.01, celltype){
+top_genes_core <- function(expr_mat, cutoff = 0.01, celltype) {
   res_cell_level <- list()
   for (i in 1:ncol(expr_mat)) {
     values <- sort(expr_mat[, i], decreasing = TRUE)
-    rates <- values/sum(values)
+    rates <- values / sum(values)
     top <- rates[rates > cutoff]
     res_cell_level[[i]] <- data.frame(Gene = names(top), Expr = unname(top))
   }
   res_cell_level <- Reduce(rbind, res_cell_level)
   genes.statics <- dplyr::group_by(res_cell_level, Gene) %>%
-    dplyr::summarise(cut.pct.mean = round(mean(Expr),digits = 4), cut.pct.median = round(stats::median(Expr),digits = 4), cut.Cells = length(Expr))
-  genes.statics$total.pos.cells <- apply(expr_mat[genes.statics$Gene,,drop = FALSE] > 0, 1, sum)
-  genes.statics$total.UMI.pct <- round(apply(expr_mat[genes.statics$Gene,,drop = FALSE], 1, sum)/sum(expr_mat),digits = 4)
+    dplyr::summarise(cut.pct.mean = round(mean(Expr), digits = 4), cut.pct.median = round(stats::median(Expr), digits = 4), cut.Cells = length(Expr))
+  genes.statics$total.pos.cells <- apply(expr_mat[genes.statics$Gene, , drop = FALSE] > 0, 1, sum)
+  genes.statics$total.UMI.pct <- round(apply(expr_mat[genes.statics$Gene, , drop = FALSE], 1, sum) / sum(expr_mat), digits = 4)
   genes.statics$total.cells <- ncol(expr_mat)
   genes.statics$celltype <- celltype
-  genes.statics <- genes.statics[,c("celltype", "total.cells", "Gene", "total.pos.cells", "total.UMI.pct", "cut.Cells", "cut.pct.mean", "cut.pct.median")]
-  genes.statics <- genes.statics[order(genes.statics$total.UMI.pct, decreasing = TRUE),]
+  genes.statics <- genes.statics[, c("celltype", "total.cells", "Gene", "total.pos.cells", "total.UMI.pct", "cut.Cells", "cut.pct.mean", "cut.pct.median")]
+  genes.statics <- genes.statics[order(genes.statics$total.UMI.pct, decreasing = TRUE), ]
   return(genes.statics)
 }
 
 
-top_accumulated_genes <- function(SeuratObj, top_n = 100, group.by, assay = 'RNA'){
+top_accumulated_genes <- function(SeuratObj, top_n = 100, group.by, assay = "RNA") {
   requireNamespace("dplyr")
   requireNamespace("Seurat")
   if (class(SeuratObj[[assay]])[1] == "Assay5") {
@@ -473,7 +521,7 @@ top_accumulated_genes <- function(SeuratObj, top_n = 100, group.by, assay = 'RNA
   colnames(counts.expr) <- colnames(SeuratObj)
   rownames(counts.expr) <- rownames(SeuratObj)
   if (!is.null(group.by)) {
-    all.cell.types <- unique(SeuratObj@meta.data[,group.by])
+    all.cell.types <- unique(SeuratObj@meta.data[, group.by])
     all.cell.types <- all.cell.types[!is.na(all.cell.types)] # in case of some celltype has NA value
     results.statics <- list()
     for (celltype in all.cell.types) {
@@ -481,31 +529,31 @@ top_accumulated_genes <- function(SeuratObj, top_n = 100, group.by, assay = 'RNA
       if (length(cells.sub) < 3) {
         next
       }
-      results.statics[[celltype]] <- top_accumulated_genes_core(expr_mat = counts.expr[,cells.sub,drop = FALSE], top_n = top_n, celltype = celltype)
+      results.statics[[celltype]] <- top_accumulated_genes_core(expr_mat = counts.expr[, cells.sub, drop = FALSE], top_n = top_n, celltype = celltype)
     }
     results.statics <- Reduce(rbind, results.statics)
-  }else{
-    results.statics <- top_accumulated_genes_core(expr_mat = counts.expr, top_n = top_n, celltype = 'AllSetectedCells')
+  } else {
+    results.statics <- top_accumulated_genes_core(expr_mat = counts.expr, top_n = top_n, celltype = "AllSetectedCells")
   }
   rownames(results.statics) <- NULL
   return(results.statics)
 }
 
-top_accumulated_genes_core <- function(expr_mat, top_n, celltype){
-  expr_sum <- sort(apply(expr_mat, 1, sum),decreasing = TRUE)
+top_accumulated_genes_core <- function(expr_mat, top_n, celltype) {
+  expr_sum <- sort(apply(expr_mat, 1, sum), decreasing = TRUE)
   if (length(expr_sum) > top_n) {
     expr_sum <- expr_sum[1:top_n]
   }
-  res <- data.frame(Gene = names(expr_sum), MeanUMICounts = round(unname(expr_sum)/ncol(expr_mat),digits = 4), PCT = round(unname(expr_sum)/sum(expr_mat),digits = 4))
-  res$total.pos.cells <- unname(apply(expr_mat[res$Gene,,drop = FALSE] > 0, 1, sum))
+  res <- data.frame(Gene = names(expr_sum), MeanUMICounts = round(unname(expr_sum) / ncol(expr_mat), digits = 4), PCT = round(unname(expr_sum) / sum(expr_mat), digits = 4))
+  res$total.pos.cells <- unname(apply(expr_mat[res$Gene, , drop = FALSE] > 0, 1, sum))
   res$total.cells <- ncol(expr_mat)
   res$celltype <- celltype
-  res <- res[,c("celltype", "total.cells", "Gene", "total.pos.cells", "MeanUMICounts", "PCT")]
-  res <- res[order(res$MeanUMICounts, decreasing = TRUE),]
+  res <- res[, c("celltype", "total.cells", "Gene", "total.pos.cells", "MeanUMICounts", "PCT")]
+  res <- res[order(res$MeanUMICounts, decreasing = TRUE), ]
   return(res)
 }
 
-summary_features <- function(SeuratObj, features, group.by, assay = 'RNA'){
+summary_features <- function(SeuratObj, features, group.by, assay = "RNA") {
   requireNamespace("dplyr")
   requireNamespace("Seurat")
   if (class(SeuratObj[[assay]])[1] == "Assay5") { # only found RNA assay can has Assay5 class!
@@ -517,39 +565,39 @@ summary_features <- function(SeuratObj, features, group.by, assay = 'RNA'){
     normalized.expr <- as.matrix(SeuratObj[[assay]]$data)
   }
   if (!is.null(group.by)) {
-    all.cell.types <- unique(SeuratObj@meta.data[,group.by])
+    all.cell.types <- unique(SeuratObj@meta.data[, group.by])
     res <- list()
     for (celltype in all.cell.types) {
-      cells.sub <- colnames(SeuratObj)[as.character(SeuratObj@meta.data[,group.by]) == celltype]
+      cells.sub <- colnames(SeuratObj)[as.character(SeuratObj@meta.data[, group.by]) == celltype]
       if (length(cells.sub) < 3) {
         next
       }
-      res[[celltype]] <- summary_features_core(expr_mat=normalized.expr[,cells.sub], features=features, group = celltype)
+      res[[celltype]] <- summary_features_core(expr_mat = normalized.expr[, cells.sub], features = features, group = celltype)
     }
     res <- Reduce(rbind, res)
     rownames(res) <- NULL
-  }else{
-    res <- summary_features_core(expr_mat=normalized.expr, features=features, group = 'AllSelectedCells')
+  } else {
+    res <- summary_features_core(expr_mat = normalized.expr, features = features, group = "AllSelectedCells")
   }
   return(res)
 }
 
 
-summary_features_core <- function(expr_mat, features, group = 'merged'){
-  mean.expr <- apply(expr_mat[features,,drop = FALSE], 1, mean)
-  median.expr <- apply(expr_mat[features,,drop = FALSE], 1, stats::median)
-  pct <- apply(expr_mat[features,,drop = FALSE] > 0, 1, mean)
-  single.res <- data.frame(Gene = features, Expr.mean = round(mean.expr,digits = 4), Expr.median = round(median.expr, digits = 4), PCT = round(pct,digits = 4))
+summary_features_core <- function(expr_mat, features, group = "merged") {
+  mean.expr <- apply(expr_mat[features, , drop = FALSE], 1, mean)
+  median.expr <- apply(expr_mat[features, , drop = FALSE], 1, stats::median)
+  pct <- apply(expr_mat[features, , drop = FALSE] > 0, 1, mean)
+  single.res <- data.frame(Gene = features, Expr.mean = round(mean.expr, digits = 4), Expr.median = round(median.expr, digits = 4), PCT = round(pct, digits = 4))
   single.res$CellType <- group
   single.res$TotalCells <- ncol(expr_mat)
-  single.res <- single.res[,c("CellType", "TotalCells","Gene", "PCT", "Expr.mean", "Expr.median")]
+  single.res <- single.res[, c("CellType", "TotalCells", "Gene", "PCT", "Expr.mean", "Expr.median")]
   rownames(single.res) <- NULL
   return(single.res)
 }
 
 
 
-calculate_top_correlations <- function(SeuratObj, method, top = 1000, assay = 'RNA'){
+calculate_top_correlations <- function(SeuratObj, method, top = 1000, assay = "RNA") {
   if (class(SeuratObj[[assay]])[1] == "Assay5") {
     SeuratObj <- JoinLayers(SeuratObj)
     normalized.expr <- as.matrix(SeuratObj[[assay]]@layers$data)
@@ -559,13 +607,13 @@ calculate_top_correlations <- function(SeuratObj, method, top = 1000, assay = 'R
     normalized.expr <- as.matrix(SeuratObj[[assay]]$data)
   }
   # filter cells: remove genes with low expression, accumulated expression should more than 1/10 cell numbers,or say mean expression value in call cells > 0.1
-  normalized.expr <- normalized.expr[apply(normalized.expr, 1, sum) > 0.1 * ncol(SeuratObj),,drop = FALSE]
-  cor.res = stats::cor(t(as.matrix(normalized.expr)), method = method)
+  normalized.expr <- normalized.expr[apply(normalized.expr, 1, sum) > 0.1 * ncol(SeuratObj), , drop = FALSE]
+  cor.res <- stats::cor(t(as.matrix(normalized.expr)), method = method)
   cor.res[lower.tri(cor.res, diag = TRUE)] <- 0
   cor.res <- reshape2::melt(cor.res)
-  colnames(cor.res) <- c("GeneA","GeneB","correlation")
-  cor.res <- cor.res[order(abs(cor.res$correlation),decreasing = TRUE),]
-  cor.res <- cor.res[cor.res$correlation != 0,,drop = FALSE]
+  colnames(cor.res) <- c("GeneA", "GeneB", "correlation")
+  cor.res <- cor.res[order(abs(cor.res$correlation), decreasing = TRUE), ]
+  cor.res <- cor.res[cor.res$correlation != 0, , drop = FALSE]
   cor.res$correlation <- round(cor.res$correlation, digits = 4)
   if (nrow(cor.res) > top) {
     cor.res <- cor.res[1:top, ]
@@ -574,7 +622,7 @@ calculate_top_correlations <- function(SeuratObj, method, top = 1000, assay = 'R
   return(cor.res)
 }
 
-calculate_most_correlated <- function(SeuratObj, feature, method, assay = 'RNA'){
+calculate_most_correlated <- function(SeuratObj, feature, method, assay = "RNA") {
   if (class(SeuratObj[[assay]])[1] == "Assay5") {
     SeuratObj <- JoinLayers(SeuratObj)
     normalized.expr <- as.matrix(SeuratObj[[assay]]@layers$data)
@@ -583,20 +631,20 @@ calculate_most_correlated <- function(SeuratObj, feature, method, assay = 'RNA')
   } else {
     normalized.expr <- as.matrix(SeuratObj[[assay]]$data)
   }
-  x <- normalized.expr[feature, ,drop = FALSE]
-  y <- normalized.expr[rownames(normalized.expr)[rownames(normalized.expr) != feature],,drop = FALSE]
+  x <- normalized.expr[feature, , drop = FALSE]
+  y <- normalized.expr[rownames(normalized.expr)[rownames(normalized.expr) != feature], , drop = FALSE]
   # filter cells: remove genes with low expression, accumulated expression should more than 1/10 cell numbers.
-  y <- y[apply(y, 1, sum) > 0.1 * ncol(SeuratObj),,drop = FALSE]
-  cor.res = stats::cor(x = t(as.matrix(x)), y =  t(as.matrix(y)), method = method)
+  y <- y[apply(y, 1, sum) > 0.1 * ncol(SeuratObj), , drop = FALSE]
+  cor.res <- stats::cor(x = t(as.matrix(x)), y = t(as.matrix(y)), method = method)
   cor.res <- reshape2::melt(cor.res)
-  colnames(cor.res) <- c("GeneA","GeneB","correlation")
-  cor.res <- cor.res[order(abs(cor.res$correlation),decreasing = TRUE),]
+  colnames(cor.res) <- c("GeneA", "GeneB", "correlation")
+  cor.res <- cor.res[order(abs(cor.res$correlation), decreasing = TRUE), ]
   cor.res$correlation <- round(cor.res$correlation, digits = 4)
   rownames(cor.res) <- NULL
   return(cor.res)
 }
 
-calculate_correlation <- function(SeuratObj, features, method, assay = 'RNA'){
+calculate_correlation <- function(SeuratObj, features, method, assay = "RNA") {
   if (class(SeuratObj[[assay]])[1] == "Assay5") {
     SeuratObj <- JoinLayers(SeuratObj)
     normalized.expr <- as.matrix(SeuratObj[[assay]]@layers$data)
@@ -605,15 +653,15 @@ calculate_correlation <- function(SeuratObj, features, method, assay = 'RNA'){
   } else {
     normalized.expr <- as.matrix(SeuratObj[[assay]]$data)
   }
-  normalized.expr <- normalized.expr[rownames(normalized.expr) %in% features,,drop = FALSE]
+  normalized.expr <- normalized.expr[rownames(normalized.expr) %in% features, , drop = FALSE]
   # filter cells: remove genes with low expression, accumulated expression should more than 1/10 cell numbers.
-  normalized.expr <- normalized.expr[apply(normalized.expr, 1, sum) > 0.1 * ncol(SeuratObj),,drop = FALSE]
-  cor.res = stats::cor(t(as.matrix(normalized.expr)), method = method)
+  normalized.expr <- normalized.expr[apply(normalized.expr, 1, sum) > 0.1 * ncol(SeuratObj), , drop = FALSE]
+  cor.res <- stats::cor(t(as.matrix(normalized.expr)), method = method)
   cor.res[lower.tri(cor.res, diag = TRUE)] <- 0
   cor.res <- reshape2::melt(cor.res)
-  colnames(cor.res) <- c("GeneA","GeneB","correlation")
-  cor.res <- cor.res[order(abs(cor.res$correlation),decreasing = TRUE),]
-  cor.res <- cor.res[cor.res$correlation != 0, ,drop = FALSE]
+  colnames(cor.res) <- c("GeneA", "GeneB", "correlation")
+  cor.res <- cor.res[order(abs(cor.res$correlation), decreasing = TRUE), ]
+  cor.res <- cor.res[cor.res$correlation != 0, , drop = FALSE]
   cor.res$correlation <- round(cor.res$correlation, digits = 4)
   rownames(cor.res) <- NULL
   return(cor.res)
@@ -653,26 +701,26 @@ AverageHeatmap <- function(
 
   # get cells mean gene expression
   # check Seurat version first
-  vr <- utils::compareVersion(as.character(utils::packageVersion("Seurat")),"5")
-  if(vr == 1){
+  vr <- utils::compareVersion(as.character(utils::packageVersion("Seurat")), "5")
+  if (vr == 1) {
     mean_gene_exp <- as.matrix(
       data.frame(
         Seurat::AverageExpression(object,
-                                  features = markerGene,
-                                  group.by = group.by,
-                                  assays = assays,
-                                  layer = slot
+          features = markerGene,
+          group.by = group.by,
+          assays = assays,
+          layer = slot
         )
       )
     )
-  }else{
+  } else {
     mean_gene_exp <- as.matrix(
       data.frame(
         Seurat::AverageExpression(object,
-                                  features = markerGene,
-                                  group.by = group.by,
-                                  assays = assays,
-                                  layer = slot
+          features = markerGene,
+          group.by = group.by,
+          assays = assays,
+          layer = slot
         )
       )
     )
@@ -806,21 +854,27 @@ AverageHeatmap <- function(
   }
 }
 
-readSeurat <- function(path, verbose = FALSE){
-  if(verbose){message("Reading in data...")}
+readSeurat <- function(path, verbose = FALSE) {
+  if (verbose) {
+    message("Reading in data...")
+  }
   # read data
-  if (tools::file_ext(path) == 'qs2') {
+  if (tools::file_ext(path) == "qs2") {
     seu_obj <- qs2::qs_read(path)
-  }else(
-    seu_obj <- readRDS(path)
-  )
+  } else {
+    (
+      seu_obj <- readRDS(path)
+    )
+  }
   # update Seurat object
-  if (class(seu_obj)[[1]] == 'seurat') { # for very old version: seurat object
+  if (class(seu_obj)[[1]] == "seurat") { # for very old version: seurat object
     seu_obj <- SeuratObject::UpdateSeuratObject(seu_obj)
-  }else if(SeuratObject::Version(seu_obj) < utils::packageVersion('SeuratObject')) {
+  } else if (SeuratObject::Version(seu_obj) < utils::packageVersion("SeuratObject")) {
     seu_obj <- SeuratObject::UpdateSeuratObject(seu_obj)
-  }else{
-    if(verbose){message('Update Seurat Object escaped for it has been the latest version!')}
+  } else {
+    if (verbose) {
+      message("Update Seurat Object escaped for it has been the latest version!")
+    }
   }
   return(seu_obj)
 }
@@ -830,12 +884,12 @@ readSeurat <- function(path, verbose = FALSE){
 # https://github.com/satijalab/seurat/issues/8235; 2025.03.26, may be Seurat Package will solve this bug in future.
 # and: https://github.com/satijalab/seurat/pull/8203
 # this bug can affect 'FindAllMarkers' function.
-check_SCT_assay <- function(seu_obj){
+check_SCT_assay <- function(seu_obj) {
   if (DefaultAssay(seu_obj) == "SCT") {
     if (length(seu_obj@assays$SCT@SCTModel.list) > 1) {
       SCT_first_umiassay <- seu_obj@assays$SCT@SCTModel.list[[1]]@umi.assay
       for (i in 2:length(seu_obj@assays$SCT@SCTModel.list)) {
-        methods::slot(object = seu_obj@assays$SCT@SCTModel.list[[i]], name="umi.assay") <- SCT_first_umiassay
+        methods::slot(object = seu_obj@assays$SCT@SCTModel.list[[i]], name = "umi.assay") <- SCT_first_umiassay
       }
       seu_obj <- Seurat::PrepSCTFindMarkers(object = seu_obj)
     }
@@ -847,12 +901,14 @@ check_genes_error <- "None of the input genes can be found!"
 
 # for plot features related functions when none of the input features can be recognized
 empty_plot <- ggplot2::ggplot() +
-  ggplot2::annotate('text', x = 0, y = 0, label = 'Please input correct features!\n Unrecognized features will be removed automatically.\n You can check the features in "Search Features" page.', color = 'darkgrey', size = 6)  +
+  ggplot2::annotate("text", x = 0, y = 0, label = 'Please input correct features!\n Unrecognized features will be removed automatically.\n You can check the features in "Search Features" page.', color = "darkgrey", size = 6) +
   ggplot2::theme_bw() +
   ggplot2::geom_blank() +
-  ggplot2::theme(axis.title = ggplot2::element_blank(),
-                 axis.text = ggplot2::element_blank(),
-                 axis.ticks = ggplot2::element_blank())
+  ggplot2::theme(
+    axis.title = ggplot2::element_blank(),
+    axis.text = ggplot2::element_blank(),
+    axis.ticks = ggplot2::element_blank()
+  )
 
 # Interactive plotting functions
 #' Convert a Seurat DimPlot to an interactive plotly object
@@ -865,7 +921,7 @@ empty_plot <- ggplot2::ggplot() +
 #' @return A plotly object
 interactive_dimplot <- function(p, obj, reduction = "umap", group.by = "seurat_clusters", height = NULL) {
   requireNamespace("plotly")
-  
+
   # Convert to plotly with enhanced interactivity
   plotly_obj <- plotly::ggplotly(p, tooltip = "all") %>%
     plotly::layout(
@@ -905,7 +961,7 @@ interactive_dimplot <- function(p, obj, reduction = "umap", group.by = "seurat_c
       ),
       displaylogo = FALSE
     )
-  
+
   return(plotly_obj)
 }
 
@@ -919,14 +975,14 @@ interactive_dimplot <- function(p, obj, reduction = "umap", group.by = "seurat_c
 #' @return A plotly object
 interactive_featureplot <- function(p, obj, features, reduction = "umap", slot = "data", height = NULL) {
   requireNamespace("plotly")
-  
+
   # Convert to plotly with enhanced interactivity
   plotly_obj <- plotly::ggplotly(p, tooltip = "all") %>%
     plotly::layout(
       hovermode = "closest",
       dragmode = "pan",
       title = list(
-        text = paste("Interactive Feature Plot:", paste(features, collapse = ", ")), 
+        text = paste("Interactive Feature Plot:", paste(features, collapse = ", ")),
         font = list(size = 16)
       ),
       height = height,
@@ -961,7 +1017,7 @@ interactive_featureplot <- function(p, obj, features, reduction = "umap", slot =
       ),
       displaylogo = FALSE
     )
-  
+
   return(plotly_obj)
 }
 
@@ -975,14 +1031,14 @@ interactive_featureplot <- function(p, obj, features, reduction = "umap", slot =
 #' @return A plotly object
 interactive_vlnplot <- function(p, obj, features, group.by = "seurat_clusters", slot = "data", height = NULL) {
   requireNamespace("plotly")
-  
+
   # Convert to plotly with enhanced interactivity
   plotly_obj <- plotly::ggplotly(p, tooltip = "all") %>%
     plotly::layout(
       hovermode = "closest",
       dragmode = "pan",
       title = list(
-        text = paste("Interactive Violin Plot:", paste(features, collapse = ", ")), 
+        text = paste("Interactive Violin Plot:", paste(features, collapse = ", ")),
         font = list(size = 16)
       ),
       height = height,
@@ -1018,7 +1074,7 @@ interactive_vlnplot <- function(p, obj, features, group.by = "seurat_clusters", 
       ),
       displaylogo = FALSE
     )
-  
+
   return(plotly_obj)
 }
 
@@ -1031,14 +1087,14 @@ interactive_vlnplot <- function(p, obj, features, group.by = "seurat_clusters", 
 #' @return A plotly object
 interactive_dotplot <- function(p, obj, features, group.by = "seurat_clusters", height = NULL) {
   requireNamespace("plotly")
-  
+
   # Convert to plotly with enhanced interactivity
   plotly_obj <- plotly::ggplotly(p, tooltip = "all") %>%
     plotly::layout(
       hovermode = "closest",
       dragmode = "pan",
       title = list(
-        text = paste("Interactive Dot Plot:", paste(features, collapse = ", ")), 
+        text = paste("Interactive Dot Plot:", paste(features, collapse = ", ")),
         font = list(size = 16)
       ),
       height = height,
@@ -1072,7 +1128,7 @@ interactive_dotplot <- function(p, obj, features, group.by = "seurat_clusters", 
       ),
       displaylogo = FALSE
     )
-  
+
   return(plotly_obj)
 }
 
@@ -1082,9 +1138,9 @@ interactive_dotplot <- function(p, obj, features, group.by = "seurat_clusters", 
 #' @return A plotly object
 interactive_empty_plot <- function(message = "Please input correct features!") {
   requireNamespace("plotly")
-  
+
   p <- ggplot2::ggplot() +
-    ggplot2::annotate('text', x = 0, y = 0, label = message, color = 'darkgrey', size = 6) +
+    ggplot2::annotate("text", x = 0, y = 0, label = message, color = "darkgrey", size = 6) +
     ggplot2::theme_bw() +
     ggplot2::geom_blank() +
     ggplot2::theme(
@@ -1092,17 +1148,171 @@ interactive_empty_plot <- function(message = "Please input correct features!") {
       axis.text = ggplot2::element_blank(),
       axis.ticks = ggplot2::element_blank()
     )
-  
+
   plotly_obj <- plotly::ggplotly(p) %>%
     plotly::layout(
       title = list(text = "Error", font = list(size = 14))
     ) %>%
     plotly::config(displayModeBar = FALSE)
-  
+
   return(plotly_obj)
 }
 
+#' Enhanced interactive violin plot that properly handles multiple genes
+#' @param p ggplot object from Seurat::VlnPlot
+#' @param obj Seurat object
+#' @param features Features being plotted
+#' @param group.by Grouping column
+#' @param slot Data slot
+#' @param split_by Split by variable
+#' @param separate_conditions Create separate plots by condition
+#' @param hw_ratio Height/width ratio
+#' @param width_px Width in pixels
+interactive_vlnplot_enhanced <- function(p, obj, features, group.by = "seurat_clusters",
+                                         slot = "data", split_by = NULL,
+                                         separate_conditions = FALSE,
+                                         hw_ratio = 0.9, width_px = 600,
+                                         theme_choice = "plotly_white") {
+  requireNamespace("plotly")
 
+  height_px <- width_px * hw_ratio
 
+  # Handle multiple genes case
+  if (length(features) > 1 && !separate_conditions) {
+    # Create separate subplot for each gene (like static version)
+    plot_list <- list()
 
+    for (i in seq_along(features)) {
+      feature <- features[i]
 
+      # Create individual violin plot for this feature
+      p_single <- Seurat::VlnPlot(obj,
+        features = feature,
+        group.by = group.by,
+        split.by = split_by,
+        pt.size = 0
+      ) # Set pt.size to 0 for cleaner look
+
+      # Convert to plotly
+      p_plotly <- plotly::ggplotly(p_single) %>%
+        plotly::layout(
+          title = feature,
+          showlegend = (i == 1), # Only show legend for first plot
+          template = theme_choice
+        )
+
+      plot_list[[i]] <- p_plotly
+    }
+
+    # Create subplot layout
+    n_features <- length(features)
+    ncol_subplot <- ceiling(sqrt(n_features))
+    nrow_subplot <- ceiling(n_features / ncol_subplot)
+
+    combined_plot <- plotly::subplot(
+      plot_list,
+      nrows = nrow_subplot,
+      ncols = ncol_subplot,
+      subplot_titles = features,
+      shareY = FALSE,
+      titleX = TRUE,
+      titleY = TRUE,
+      margin = 0.08
+    ) %>%
+      plotly::layout(
+        title = list(text = paste("Interactive Violin Plot:", paste(features, collapse = ", "))),
+        width = width_px,
+        height = height_px * max(1, nrow_subplot * 0.8),
+        template = theme_choice
+      )
+
+    return(combined_plot)
+  } else if (separate_conditions && !is.null(split_by)) {
+    # Create separate plots for each condition
+    conditions <- unique(obj@meta.data[[split_by]])
+    plot_list <- list()
+
+    for (i in seq_along(conditions)) {
+      condition <- conditions[i]
+
+      # Subset object for this condition
+      obj_subset <- subset(obj, subset = obj@meta.data[[split_by]] == condition)
+
+      # Create violin plot for this condition
+      if (length(features) == 1) {
+        p_condition <- Seurat::VlnPlot(obj_subset,
+          features = features,
+          group.by = group.by,
+          pt.size = 0
+        )
+      } else {
+        # Multiple features, single condition - create combined plot
+        p_condition <- Seurat::VlnPlot(obj_subset,
+          features = features,
+          group.by = group.by,
+          pt.size = 0,
+          ncol = ceiling(sqrt(length(features)))
+        )
+      }
+
+      # Convert to plotly
+      p_plotly <- plotly::ggplotly(p_condition) %>%
+        plotly::layout(
+          title = paste("Condition:", condition),
+          template = theme_choice
+        )
+
+      plot_list[[i]] <- p_plotly
+    }
+
+    # Arrange condition plots
+    n_conditions <- length(conditions)
+    if (n_conditions == 2) {
+      # Side by side for 2 conditions
+      combined_plot <- plotly::subplot(
+        plot_list,
+        nrows = 1,
+        ncols = 2,
+        subplot_titles = paste("Condition:", conditions),
+        shareY = TRUE,
+        titleX = TRUE,
+        margin = 0.08
+      )
+    } else {
+      # Grid layout for more conditions
+      ncol_subplot <- ceiling(sqrt(n_conditions))
+      nrow_subplot <- ceiling(n_conditions / ncol_subplot)
+
+      combined_plot <- plotly::subplot(
+        plot_list,
+        nrows = nrow_subplot,
+        ncols = ncol_subplot,
+        subplot_titles = paste("Condition:", conditions),
+        shareY = FALSE,
+        titleX = TRUE,
+        margin = 0.08
+      )
+    }
+
+    combined_plot <- combined_plot %>%
+      plotly::layout(
+        title = list(text = "Interactive Violin Plot - Separate Conditions"),
+        width = width_px,
+        height = height_px * max(1, length(conditions) * 0.6),
+        template = theme_choice
+      )
+
+    return(combined_plot)
+  } else {
+    # Single gene or standard split plot - use original approach
+    plotly_obj <- plotly::ggplotly(p, tooltip = "all") %>%
+      plotly::layout(
+        title = list(text = paste("Interactive Violin Plot:", paste(features, collapse = ", "))),
+        width = width_px,
+        height = height_px,
+        template = theme_choice
+      )
+
+    return(plotly_obj)
+  }
+}
