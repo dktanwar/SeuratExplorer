@@ -339,7 +339,7 @@ explorer_body_ui <- function(tab_list){
                                         ),
                                         conditionalPanel(
                                           condition = "input.averagedheatmap_mode == 'interactive'",
-                                          InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput("averagedheatmap_interactive_plot")
+                                          withSpinner(plotly::plotlyOutput("averagedheatmap_interactive", height = "auto"))
                                         ),
                                         div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadaveragedheatmap",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
@@ -588,7 +588,14 @@ explorer_body_ui <- function(tab_list){
                                                box(title = "Search Features", solidHeader = TRUE, status = "primary", width = 12,
                                                    withSpinner(uiOutput("FeaturesDataframeAssays.UI"), proxy.height = "10px"),
                                                    withSpinner(DT::dataTableOutput('dataset_features')),
-                                                   actionButton("send_to_vlnplot", "Send to Violin Plot", icon = shiny::icon("share"), class = "btn-primary"))
+                                                   fluidRow(
+                                                     column(2, actionButton("send_to_vlnplot", "Send to Violin Plot", icon = shiny::icon("share"), class = "btn-primary")),
+                                                     column(2, actionButton("send_to_featureplot", "Send to Feature Plot", icon = shiny::icon("share"), class = "btn-success")),
+                                                     column(2, actionButton("send_to_dotplot", "Send to Dot Plot", icon = shiny::icon("share"), class = "btn-info")),
+                                                     column(2, actionButton("send_to_heatmap", "Send to Heatmap", icon = shiny::icon("share"), class = "btn-warning")),
+                                                     column(2, actionButton("send_to_ridgeplot", "Send to Ridge Plot", icon = shiny::icon("share"), class = "btn-danger"))
+                                                   )
+                                               )
                                              )
   )
   tab_list[["cellmetadata"]] = tabItem(tabName = "cellmetadata",

@@ -13,8 +13,35 @@
 #' @export
 #' @return server side functions related to `explorer_sidebar_ui`
 explorer_server <- function(input, output, session, data, verbose=FALSE){
-  source("R/utils.R")
   requireNamespace("InteractiveComplexHeatmap")
+  
+  # Utility functions
+  render_plot <- function(output, session, plot_type, plot_width, plot_height_ratio, temp_dir, plot_obj) {
+    output[[plot_type]] <- renderPlot({
+      p <- plot_obj()
+      ggplot2::ggsave(paste0(temp_dir, "/", plot_type, ".pdf"),
+                      p,
+                      width = plot_width() * 0.03,
+                      height = plot_width() * plot_height_ratio() * 0.03,
+                      units = "cm",
+                      limitsize = FALSE)
+      return(p)
+    }, height = function() {
+      session$clientData[[paste0("output_", plot_type, "_width")]] * plot_height_ratio()
+    })
+  }
+  
+  download_plot <- function(output, plot_type, temp_dir) {
+    output[[paste0("download", plot_type)]] <- downloadHandler(
+      filename = function() {
+        paste0(plot_type, ".pdf")
+      },
+      content = function(file) {
+        file.copy(paste0(temp_dir, "/", plot_type, ".pdf"), file, overwrite = TRUE)
+      }
+    )
+  }
+  
   temp_dir <- tempdir() # temporary directory, for save plots
 
   if (dir.exists(temp_dir)) {
@@ -357,7 +384,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                                    max.cutoff = expr_max_cutoff)
           if (length( features_dimplot$features_current) == 1) { # only one gene
             plot_numbers <- length(levels(cds@meta.data[,FeatureSplit.Revised()]))
-            p <- p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),
+            p <- p + ggplot2::facet_wrap(~.split, ncol = ceiling(sqrt(plot_numbers)),
                                             nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
           }
         }
@@ -378,6 +405,13 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     p <- featureplot_obj()
 
         if (!is.null(p)) {
+            # Check if multiple features to provide better feedback
+            num_features <- length(features_dimplot$features_current)
+            if (num_features > 6) {
+              showNotification(paste("Displaying", num_features, "features in interactive mode. This may take a moment to load."), 
+                              type = "message", duration = 3)
+            }
+            
             # Convert to interactive plot
             interactive_featureplot(p = p, 
                                    obj = data$obj, 
@@ -607,6 +641,13 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if(verbose){message("SeuratExplorer: preparing vlnplot_interactive...")}
     p <- vlnplot_obj()
         if(!is.null(p)){
+            # Check if multiple features to provide better feedback
+            num_features <- length(features_vlnplot$features_current)
+            if (num_features > 4) {
+              showNotification(paste("Displaying", num_features, "features in interactive mode. This may take a moment to load."), 
+                              type = "message", duration = 3)
+            }
+            
             # Convert to interactive plot
             interactive_vlnplot(p = p, 
                                obj = data$obj, 
@@ -866,14 +907,44 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   render_plot(output, session, "heatmap", heatmap_width, reactive({input$HeatmapPlotHWRatio}), temp_dir, heatmap_obj)
   download_plot(output, "heatmap", temp_dir)
 
-  output$heatmap_interactive <- renderUI({
+  output$heatmap_interactive <- plotly::renderPlotly({
     req(input$heatmap_mode == "interactive")
     if(verbose){message("SeuratExplorer: preparing heatmap_interactive...")}
-    p <- heatmap_obj()
-    if(!is.null(p)){
-      InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, p, "heatmap_interactive_plot")
+    
+    # Limit number of features for performance
+    if (length(features_heatmap$features_current) > 50) {
+      showNotification("Too many features selected for interactive heatmap (>50). Using first 50 features for performance.", 
+                      type = "warning", duration = 5)
+      limited_features <- features_heatmap$features_current[1:50]
     } else {
-      return(NULL)
+      limited_features <- features_heatmap$features_current
+    }
+    
+    # Create plotly heatmap instead of ComplexHeatmap interactive
+    if (!any(is.na(limited_features)) && length(limited_features) > 0) {
+      tryCatch({
+        # Get subset object for selected clusters
+        cds <- data$obj
+        SeuratObject::Idents(cds) <- input$HeatmapClusterResolution
+        if (!is.null(input$HeatmapIdentsSelected)) {
+          cds <- subset(cds, idents = input$HeatmapIdentsSelected)
+        }
+        
+        plotly_heatmap(
+          obj = cds,
+          features = limited_features,
+          group.by = input$HeatmapClusterResolution,
+          assay = input$HeatmapAssay,
+          slot = input$HeatmapSlot,
+          downsample = input$HeatmapDownsample,
+          color_palette = input$HeatmapColor
+        )
+      }, error = function(e) {
+        showNotification(paste("Interactive heatmap error:", e$message), type = "error", duration = 10)
+        interactive_empty_plot("Failed to create interactive heatmap. Try reducing the number of features.")
+      })
+    } else {
+      interactive_empty_plot("No valid features selected for heatmap.")
     }
   })
 
@@ -948,7 +1019,8 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                                              assays = input$AveragedHeatmapAssay,
                                              column_names_rot = input$AveragedHeatmapClusterTextRatateAngle,
                                              cluster_columns = input$AveragedHeatmapClusterClusters,
-                                             cluster_rows = input$AveragedHeatmapClusterFeatures)
+                                             cluster_rows = input$AveragedHeatmapClusterFeatures,
+                                             color_palette = input$AveragedHeatmapColor)
       }
     }
     return(p)
@@ -976,12 +1048,43 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       }
     })
 
-  output$averagedheatmap_interactive <- renderUI({
+  output$averagedheatmap_interactive <- plotly::renderPlotly({
     req(input$averagedheatmap_mode == "interactive")
     if(verbose){message("SeuratExplorer: preparing averagedheatmap_interactive...")}
-    p <- averagedheatmap_obj()
-    if(!is.null(p)){
-      InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, p, "averagedheatmap_interactive_plot")
+    
+    # Limit number of features for performance
+    if (length(features_heatmap_averaged$features_current) > 50) {
+      showNotification("Too many features selected for interactive heatmap (>50). Using first 50 features for performance.", 
+                      type = "warning", duration = 5)
+      limited_features <- features_heatmap_averaged$features_current[1:50]
+    } else {
+      limited_features <- features_heatmap_averaged$features_current
+    }
+    
+    # Create plotly averaged heatmap
+    if (!any(is.na(limited_features)) && length(limited_features) > 0) {
+      tryCatch({
+        # Get subset object for selected clusters
+        cds <- data$obj
+        SeuratObject::Idents(cds) <- input$AveragedHeatmapClusterResolution
+        if (!is.null(input$AveragedHeatmapIdentsSelected)) {
+          cds <- subset(cds, idents = input$AveragedHeatmapIdentsSelected)
+        }
+        
+        plotly_averaged_heatmap(
+          obj = cds,
+          features = limited_features,
+          group.by = input$AveragedHeatmapClusterResolution,
+          assay = input$AveragedHeatmapAssay,
+          slot = input$AveragedHeatmapSlot,
+          color_palette = input$AveragedHeatmapColor
+        )
+      }, error = function(e) {
+        showNotification(paste("Interactive averaged heatmap error:", e$message), type = "error", duration = 10)
+        interactive_empty_plot("Failed to create interactive averaged heatmap. Try reducing the number of features.")
+      })
+    } else {
+      interactive_empty_plot("No valid features selected for averaged heatmap.")
     }
   })
 
@@ -1921,6 +2024,52 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if (!is.null(selected_rows)) {
       selected_features <- data$gene_annotions_list[[input$FeaturesDataframeAssay]][selected_rows, "FeatureName"]
       updateTextAreaInput(session, "VlnGeneSymbol", value = paste(selected_features, collapse = "\n"))
+      # Switch to violin plot tab
+      updateTabItems(session, "tabs", selected = "vlnplot")
+    }
+  })
+  
+  observeEvent(input$send_to_featureplot, {
+    req(input$dataset_features_rows_selected)
+    selected_rows <- input$dataset_features_rows_selected
+    if (!is.null(selected_rows)) {
+      selected_features <- data$gene_annotions_list[[input$FeaturesDataframeAssay]][selected_rows, "FeatureName"]
+      updateTextAreaInput(session, "FeatureGeneSymbol", value = paste(selected_features, collapse = "\n"))
+      # Switch to feature plot tab
+      updateTabItems(session, "tabs", selected = "featureplot")
+    }
+  })
+  
+  observeEvent(input$send_to_dotplot, {
+    req(input$dataset_features_rows_selected)
+    selected_rows <- input$dataset_features_rows_selected
+    if (!is.null(selected_rows)) {
+      selected_features <- data$gene_annotions_list[[input$FeaturesDataframeAssay]][selected_rows, "FeatureName"]
+      updateTextAreaInput(session, "DotGeneSymbol", value = paste(selected_features, collapse = "\n"))
+      # Switch to dot plot tab
+      updateTabItems(session, "tabs", selected = "dotplot")
+    }
+  })
+  
+  observeEvent(input$send_to_heatmap, {
+    req(input$dataset_features_rows_selected)
+    selected_rows <- input$dataset_features_rows_selected
+    if (!is.null(selected_rows)) {
+      selected_features <- data$gene_annotions_list[[input$FeaturesDataframeAssay]][selected_rows, "FeatureName"]
+      updateTextAreaInput(session, "HeatmapGeneSymbol", value = paste(selected_features, collapse = "\n"))
+      # Switch to heatmap tab
+      updateTabItems(session, "tabs", selected = "heatmap")
+    }
+  })
+  
+  observeEvent(input$send_to_ridgeplot, {
+    req(input$dataset_features_rows_selected)
+    selected_rows <- input$dataset_features_rows_selected
+    if (!is.null(selected_rows)) {
+      selected_features <- data$gene_annotions_list[[input$FeaturesDataframeAssay]][selected_rows, "FeatureName"]
+      updateTextAreaInput(session, "RidgeplotGeneSymbol", value = paste(selected_features, collapse = "\n"))
+      # Switch to ridge plot tab
+      updateTabItems(session, "tabs", selected = "ridgeplot")
     }
   })
 
@@ -1971,7 +2120,7 @@ server <- function(input, output, session) {
                                                         keywords = getOption("SeuratExplorerReductionKeyWords"),
                                                         verbose = getOption('SeuratExplorerVerbose'))
 
-    data$assays_slots_options <- prepare_assays_slots(ob = data$obj,
+    data$assays_slots_options <- prepare_assays_slots(obj = data$obj,
                                                       data_slot = data$assay_slots,
                                                       verbose = getOption('SeuratExplorerVerbose'))
 

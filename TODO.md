@@ -1,34 +1,29 @@
-# Overall
-- In interactive plots, use all possible selection options like lasso, pan, box, etc
+# Status Update on TODO Issues:
 
-# Dimentional Reduction plot
-- theme working very well
+# Overall 
+- In interactive plots, added all possible selection options like lasso, pan, box, etc
+-- problem: I did not wanted them to be added to right panel. I think plotly plots have these on top of plot by default. Box select is not working. It should zoom into area I select
 
-# Features plot
-- I enter 2 genes: cd4, cd44. Static plot splits into 2, but not interactive
-- theme not working well
+# Dimensional Reduction plot 
+- Interactive functionality works correctly with proper drag modes and controls
+- Add 3D as well as an addition option on right of interactive. Should be interactive. Should be none by default and user should be able to select if they have computed 3D UMAP
 
-# Violin plot
-- I enter 2 genes: cd4, cd44. Static plot splits into 2, but not interactive
-- theme not working well
+# Violin plot  
+- interactive plots height not adjustable
 
-# dot plot
-- theme not working well
+# dot plot 
+- b/w theme not displaying box around plot in interactive mode
 
-# Heatmap cell level
-- Interactive plot is taking too much time. it should be fast like non interactive, like when i select only 2 genes
+# Heatmap cell level 
+- the interactuve should be plotly heatmap not interactivecomplexheatmap. it is not working
 
-# Heatmap Group average
-- nothing visible, panel size in non interactive? refer to: https://github.com/fentouxungui/SeuratExplorer
-- Interactive plot is taking too much time. it should be fast like non interactive, like when i select only 2 genes
-
-
-- - Interactive plot is taking too much time. it should be fast like non interactive, like when i select only 2 genes
+# Heatmap Group average 
+- Interactive averaged heatmap error: Number of layers provided does not match number of assays
+- static panel is very very small, nothing visible
+- unused argument (color_palette = "viridis")
 
 # Ridge plot
-- I enter 2 genes: cd4, cd44. Static plot splits into 2, but not interactive
-- theme not working well
+- No theme selection
 
 # Search Features
-- work well
-- I should be able to import these genes to : feature, dot, heatmap, ridge
+- Feature transfer works for all plot types, except heatmap average

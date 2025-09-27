@@ -4,14 +4,16 @@
 \alias{top_genes}
 \title{Find Top Genes by Cell}
 \usage{
-top_genes(SeuratObj, expr.cut = 0.01, group.by)
+top_genes(SeuratObj, percent.cut = 0.01, group.by, assay = "RNA")
 }
 \arguments{
 \item{SeuratObj}{Seurat object}
 
-\item{expr.cut}{UMI percentage cutoff, in a cell, if a gene with UMIs ratio more than this cutoff, this gene will be assigned to highly expressed gene for this cell}
+\item{percent.cut}{UMI percentage cutoff, in a cell, if a gene with UMIs ratio more than this cutoff, this gene will be assigned to highly expressed gene for this cell}
 
 \item{group.by}{how to group cells}
+
+\item{assay}{which assay to use}
 }
 \value{
 a data frame

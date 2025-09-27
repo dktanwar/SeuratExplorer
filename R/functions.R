@@ -1,3 +1,12 @@
+# SeuratExplorer functions
+
+# Global variable declarations to avoid R CMD check notes
+utils::globalVariables(c("Gene", "Expr", "GeneA", "GeneB", "correlation"))
+
+#' @importFrom magrittr %>%
+#' @export plotly_heatmap
+#' @export plotly_averaged_heatmap
+
 prepare_seurat_object <- function(obj, verbose = FALSE){
   requireNamespace("Seurat")
   # trans the none-factor columns in meta.data to factor
@@ -386,18 +395,15 @@ cellRatioPlot <- function(object = NULL,
 #'
 #'
 #' @param SeuratObj Seurat object
-#' @param expr.cut UMI percentage cutoff, in a cell, if a gene with UMIs ratio more than this cutoff, this gene will be assigned to highly expressed gene for this cell
+#' @param percent.cut UMI percentage cutoff, in a cell, if a gene with UMIs ratio more than this cutoff, this gene will be assigned to highly expressed gene for this cell
 #' @param group.by how to group cells
+#' @param assay which assay to use
 #' @import dplyr Seurat SeuratObject
 #'
 #' @return a data frame
 #' @export
 #'
 top_genes <- function(SeuratObj, percent.cut = 0.01, group.by, assay = 'RNA') {
-  #> https://stackoverflow.com/questions/76242926/using-data-table-in-package-development-undefined-global-functions-or-variables
-  # to block R RMD check note: Undefined global functions or variables:
-  Gene <- NULL
-  Expr <- NULL
   DefaultAssay(SeuratObj) <- assay
   # if type is assay5
   if (class(SeuratObj[[assay]])[1] == "Assay5") {
@@ -809,7 +815,7 @@ readSeurat <- function(path, verbose = FALSE){
   # update Seurat object
   if (class(seu_obj)[[1]] == 'seurat') { # for very old version: seurat object
     seu_obj <- SeuratObject::UpdateSeuratObject(seu_obj)
-  }else if(packageVersion("SeuratObject") < "5.0.0") { # Check if SeuratObject version is less than 5.0.0
+  }else if(SeuratObject::Version(seu_obj) < utils::packageVersion('SeuratObject')) {
     seu_obj <- SeuratObject::UpdateSeuratObject(seu_obj)
   }else{
     if(verbose){message('Update Seurat Object escaped for it has been the latest version!')}
@@ -850,6 +856,8 @@ empty_plot <- ggplot2::ggplot() +
 #' @param reduction The reduction to use
 #' @param group.by The metadata column to group by
 #' @param height Height in pixels for the plot
+#' @param hover_info Information to show on hover
+#' @param drag_mode Plotly drag mode
 #' @return A plotly object
 interactive_dimplot <- function(p, obj, reduction = "umap", group.by = "seurat_clusters", height = NULL, hover_info = "all", drag_mode = "pan") {
   requireNamespace("plotly")
@@ -857,7 +865,18 @@ interactive_dimplot <- function(p, obj, reduction = "umap", group.by = "seurat_c
   requireNamespace("scales")
 
   # Convert to plotly with enhanced interactivity
-  plotly::ggplotly(p, tooltip = hover_info)
+  plotly_obj <- plotly::ggplotly(p, tooltip = hover_info) %>%
+    plotly::config(
+      displayModeBar = TRUE,
+      modeBarButtonsToAdd = list("lasso2d", "select2d", "pan2d", "zoom2d", "resetScale2d"),
+      dragmode = drag_mode
+    ) %>%
+    plotly::layout(
+      dragmode = drag_mode,
+      selectdirection = "any"
+    )
+  
+  return(plotly_obj)
 }
 
 #' Convert a Seurat FeaturePlot to an interactive plotly object
@@ -867,19 +886,62 @@ interactive_dimplot <- function(p, obj, reduction = "umap", group.by = "seurat_c
 #' @param features The features being plotted
 #' @param reduction The reduction to use
 #' @param slot The data slot used
+#' @param height Height in pixels for the plot
+#' @param hover_info Information to show on hover
+#' @param drag_mode Plotly drag mode
 #' @return A plotly object
 interactive_featureplot <- function(p, obj, features, reduction = "umap", slot = "data", height = NULL, hover_info = "all", drag_mode = "pan") {
   requireNamespace("plotly")
 
-  if (inherits(p, "patchwork")) {
-    plotly_plots <- lapply(p$patches$plots, function(plot) {
-      plotly::ggplotly(plot, tooltip = "text")
-    })
-    plotly::subplot(plotly_plots, nrows = length(plotly_plots), shareX = TRUE, shareY = TRUE)
-  } else {
-    # Convert to plotly with enhanced interactivity
-    plotly::ggplotly(p, tooltip = hover_info)
+  # Check if it's a patchwork object (which Seurat now always returns)
+  if (inherits(p, "patchwork") && length(p) > 1) {
+    # Handle multiple features - use patchwork indexing
+    plotly_plots <- list()
+    
+    for (i in seq_len(length(p))) {
+      individual_plot <- p[[i]]
+      plotly_plot <- plotly::ggplotly(individual_plot, tooltip = hover_info) %>%
+        plotly::config(
+          displayModeBar = TRUE,
+          modeBarButtonsToAdd = list("lasso2d", "select2d", "pan2d", "zoom2d", "resetScale2d"),
+          dragmode = drag_mode
+        ) %>%
+        plotly::layout(
+          dragmode = drag_mode,
+          title = list(text = features[i], font = list(size = 14))
+        )
+      plotly_plots[[i]] <- plotly_plot
+    }
+    
+    # Create subplot with proper layout
+    ncol <- ceiling(sqrt(length(plotly_plots)))
+    nrow <- ceiling(length(plotly_plots) / ncol)
+    
+    return(
+      plotly::subplot(plotly_plots, 
+                     nrows = nrow, 
+                     shareX = FALSE, 
+                     shareY = FALSE,
+                     titleX = TRUE,
+                     titleY = TRUE) %>%
+      plotly::layout(
+        title = list(text = paste("Feature Plot:", paste(features, collapse = ", ")), 
+                    font = list(size = 16))
+      )
+    )
   }
+  
+  # Single feature or fallback
+  plotly::ggplotly(p, tooltip = hover_info) %>%
+    plotly::config(
+      displayModeBar = TRUE,
+      modeBarButtonsToAdd = list("lasso2d", "select2d", "pan2d", "zoom2d", "resetScale2d"),
+      dragmode = drag_mode
+    ) %>%
+    plotly::layout(
+      dragmode = drag_mode,
+      selectdirection = "any"
+    )
 }
 #' Convert a Seurat VlnPlot to an interactive plotly object
 #'
@@ -888,19 +950,59 @@ interactive_featureplot <- function(p, obj, features, reduction = "umap", slot =
 #' @param features The features being plotted
 #' @param group.by The metadata column to group by
 #' @param slot The data slot used
+#' @param height Height in pixels for the plot
+#' @param hover_info Information to show on hover
+#' @param drag_mode Plotly drag mode
 #' @return A plotly object
 interactive_vlnplot <- function(p, obj, features, group.by = "seurat_clusters", slot = "data", height = NULL, hover_info = "all", drag_mode = "pan") {
   requireNamespace("plotly")
 
-  if (is.list(p)) {
-    plotly_plots <- lapply(1:length(p), function(i) {
-      plotly::ggplotly(p[[i]], tooltip = hover_info)
-    })
-    plotly::subplot(plotly_plots, nrows = length(plotly_plots), shareX = TRUE, shareY = FALSE)
-  } else {
-    # Convert to plotly with enhanced interactivity
-    plotly::ggplotly(p, tooltip = hover_info)
+  # Check if it's a patchwork object (which Seurat now always returns)
+  if (inherits(p, "patchwork") && length(p) > 1 && length(features) > 1) {
+    # Handle multiple features - create separate subplots using patchwork indexing
+    plotly_plots <- list()
+    
+    for (i in seq_len(length(p))) {
+      individual_plot <- p[[i]]
+      plotly_plot <- plotly::ggplotly(individual_plot, tooltip = hover_info) %>%
+        plotly::config(
+          displayModeBar = TRUE,
+          modeBarButtonsToAdd = list("lasso2d", "select2d", "pan2d", "zoom2d", "resetScale2d"),
+          dragmode = drag_mode
+        ) %>%
+        plotly::layout(
+          dragmode = drag_mode,
+          title = list(text = features[i], font = list(size = 14))
+        )
+      plotly_plots[[i]] <- plotly_plot
+    }
+    
+    # Create subplot layout
+    return(
+      plotly::subplot(plotly_plots, 
+                     nrows = length(plotly_plots), 
+                     shareX = FALSE, 
+                     shareY = FALSE,
+                     titleX = TRUE,
+                     titleY = TRUE) %>%
+      plotly::layout(
+        title = list(text = paste("Violin Plot:", paste(features, collapse = ", ")), 
+                    font = list(size = 16))
+      )
+    )
   }
+  
+  # Single feature or combined plot
+  plotly::ggplotly(p, tooltip = hover_info) %>%
+    plotly::config(
+      displayModeBar = TRUE,
+      modeBarButtonsToAdd = list("lasso2d", "select2d", "pan2d", "zoom2d", "resetScale2d"),
+      dragmode = drag_mode
+    ) %>%
+    plotly::layout(
+      dragmode = drag_mode,
+      selectdirection = "any"
+    )
 }
 
 #' Convert a Seurat DotPlot to an interactive plotly object
@@ -909,12 +1011,24 @@ interactive_vlnplot <- function(p, obj, features, group.by = "seurat_clusters", 
 #' @param obj The Seurat object
 #' @param features The features being plotted
 #' @param group.by The metadata column to group by
+#' @param height Height in pixels for the plot
+#' @param hover_info Information to show on hover
+#' @param drag_mode Plotly drag mode
 #' @return A plotly object
 interactive_dotplot <- function(p, obj, features, group.by = "seurat_clusters", height = NULL, hover_info = "all", drag_mode = "pan") {
   requireNamespace("plotly")
 
   # Convert to plotly with enhanced interactivity
-  plotly::ggplotly(p, tooltip = hover_info)
+  plotly::ggplotly(p, tooltip = hover_info) %>%
+    plotly::config(
+      displayModeBar = TRUE,
+      modeBarButtonsToAdd = list("lasso2d", "select2d", "pan2d", "zoom2d", "resetScale2d"),
+      dragmode = drag_mode
+    ) %>%
+    plotly::layout(
+      dragmode = drag_mode,
+      selectdirection = "any"
+    )
 }
 #' Convert a Seurat RidgePlot to an interactive plotly object
 #'
@@ -923,12 +1037,59 @@ interactive_dotplot <- function(p, obj, features, group.by = "seurat_clusters", 
 #' @param features The features being plotted
 #' @param group.by The metadata column to group by
 #' @param slot The data slot used
+#' @param height Height in pixels for the plot
+#' @param hover_info Information to show on hover
+#' @param drag_mode Plotly drag mode
 #' @return A plotly object
 interactive_ridgeplot <- function(p, obj, features, group.by = "seurat_clusters", slot = "data", height = NULL, hover_info = "all", drag_mode = "pan") {
   requireNamespace("plotly")
 
-  # Convert to plotly with enhanced interactivity
-  plotly::ggplotly(p, tooltip = hover_info)
+  # Check if it's a patchwork object (which Seurat now always returns)
+  if (inherits(p, "patchwork") && length(p) > 1 && length(features) > 1) {
+    # Handle multiple features - create separate subplots using patchwork indexing
+    plotly_plots <- list()
+    
+    for (i in seq_len(length(p))) {
+      individual_plot <- p[[i]]
+      plotly_plot <- plotly::ggplotly(individual_plot, tooltip = hover_info) %>%
+        plotly::config(
+          displayModeBar = TRUE,
+          modeBarButtonsToAdd = list("lasso2d", "select2d", "pan2d", "zoom2d", "resetScale2d"),
+          dragmode = drag_mode
+        ) %>%
+        plotly::layout(
+          dragmode = drag_mode,
+          title = list(text = features[i], font = list(size = 14))
+        )
+      plotly_plots[[i]] <- plotly_plot
+    }
+    
+    # Create subplot layout
+    return(
+      plotly::subplot(plotly_plots, 
+                     nrows = length(plotly_plots), 
+                     shareX = FALSE, 
+                     shareY = FALSE,
+                     titleX = TRUE,
+                     titleY = TRUE) %>%
+      plotly::layout(
+        title = list(text = paste("Ridge Plot:", paste(features, collapse = ", ")), 
+                    font = list(size = 16))
+      )
+    )
+  }
+  
+  # Single feature or combined plot
+  plotly::ggplotly(p, tooltip = hover_info) %>%
+    plotly::config(
+      displayModeBar = TRUE,
+      modeBarButtonsToAdd = list("lasso2d", "select2d", "pan2d", "zoom2d", "resetScale2d"),
+      dragmode = drag_mode
+    ) %>%
+    plotly::layout(
+      dragmode = drag_mode,
+      selectdirection = "any"
+    )
 }
 #' Create an interactive empty plot for error cases
 #'

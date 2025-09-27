@@ -10,7 +10,7 @@ URL: https://CRAN.R-project.org/package=SeuratExplorer, https://github.com/fento
 BugReports: https://github.com/fentouxungui/SeuratExplorer/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports:
     utils,
     tools,
@@ -37,14 +37,14 @@ Imports:
     knitr,
     markdown,
     plotly (>= 4.10.0),
-    htmlwidgets,
-    Signac
+    Signac,
+    InteractiveComplexHeatmap,
+    magrittr
 Depends: 
     R (>= 4.1.0),
     shiny
 Suggests:
     ComplexHeatmap,
-    InteractiveComplexHeatmap,
     MAST,
     limma,
     DESeq2,
