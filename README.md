@@ -41,8 +41,8 @@ Install the latest version from github - ***Recommended***:
 
 
 ``` r
-if(!require(renv)){install.packages("renv")}
-renv::install("dktanwar/SeuratExplorer", dependencies = TRUE)
+if(!require(devtools)){install.packages("devtools")}
+install_github("fentouxungui/SeuratExplorer", dependencies = TRUE)
 ```
 
 Or install from CRAN:
@@ -127,7 +127,7 @@ etc.
 - support data processed by ``Seurat`` V5 and older versions. it may takes a while to update ``Seurat`` object when loading data.
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/upload-data.png" alt="plot of chunk unnamed-chunk-8" width="100%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/upload-data.png" alt="plot of chunk unnamed-chunk-8" width="100%" />
 <p class="caption">plot of chunk unnamed-chunk-8</p>
 </div>
 
@@ -136,7 +136,7 @@ etc.
 - support download cell metadata in ``csv`` format, which can be used for further analysis.
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/cell-metadata.jpg" alt="plot of chunk unnamed-chunk-9" width="100%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/cell-metadata.jpg" alt="plot of chunk unnamed-chunk-9" width="100%" />
 <p class="caption">plot of chunk unnamed-chunk-9</p>
 </div>
 
@@ -163,7 +163,7 @@ etc.
 **Example plots:**
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/Dimplot-splited.png" alt="plot of chunk unnamed-chunk-10" width="80%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/Dimplot-splited.png" alt="plot of chunk unnamed-chunk-10" width="80%" />
 <p class="caption">plot of chunk unnamed-chunk-10</p>
 </div>
 
@@ -188,7 +188,7 @@ etc.
 **Example plots:**
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/Featureplot-splited.png" alt="plot of chunk unnamed-chunk-11" width="50%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/Featureplot-splited.png" alt="plot of chunk unnamed-chunk-11" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-11</p>
 </div>
 
@@ -215,7 +215,7 @@ etc.
 **Example plots:**
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/ViolinPlot-splited-Stack.png" alt="plot of chunk unnamed-chunk-12" width="50%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/ViolinPlot-splited-Stack.png" alt="plot of chunk unnamed-chunk-12" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-12</p>
 </div>
 
@@ -244,7 +244,7 @@ etc.
 **Example plots:**
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/DotPlot-Splited.png" alt="plot of chunk unnamed-chunk-13" width="50%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/DotPlot-Splited.png" alt="plot of chunk unnamed-chunk-13" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-13</p>
 </div>
 
@@ -271,7 +271,7 @@ etc.
 **Example plots:**
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/Heatmap-CellLevel.png" alt="plot of chunk unnamed-chunk-14" width="100%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/Heatmap-CellLevel.png" alt="plot of chunk unnamed-chunk-14" width="100%" />
 <p class="caption">plot of chunk unnamed-chunk-14</p>
 </div>
 
@@ -294,7 +294,7 @@ etc.
 **Example plots:**
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/Heatmap-GroupLevel-2.png" alt="plot of chunk unnamed-chunk-15" width="50%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/Heatmap-GroupLevel-2.png" alt="plot of chunk unnamed-chunk-15" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-15</p>
 </div>
 
@@ -319,7 +319,7 @@ etc.
 **Example plots:**
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/RidgePlot.png" alt="plot of chunk unnamed-chunk-16" width="50%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/RidgePlot.png" alt="plot of chunk unnamed-chunk-16" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-16</p>
 </div>
 
@@ -334,7 +334,7 @@ etc.
 **Example plots:**
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/CellRatio-Splited.png" alt="plot of chunk unnamed-chunk-17" width="50%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/CellRatio-Splited.png" alt="plot of chunk unnamed-chunk-17" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-17</p>
 </div>
 
@@ -355,14 +355,14 @@ You can modify part calculation parameters before a analysis.
 **Screen shots:**
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/DEGs-2.png" alt="plot of chunk unnamed-chunk-18" width="50%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/DEGs-2.png" alt="plot of chunk unnamed-chunk-18" width="50%" />
 <p class="caption">plot of chunk unnamed-chunk-18</p>
 </div>
 
 #### Output description
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/DEGs-4.jpg" alt="plot of chunk unnamed-chunk-19" width="100%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/DEGs-4.jpg" alt="plot of chunk unnamed-chunk-19" width="100%" />
 <p class="caption">plot of chunk unnamed-chunk-19</p>
 </div>
 
@@ -394,7 +394,7 @@ Step2: summary those genes for each cluster, firstly get all highly expressed ge
 
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/Find-Top-Genes-by-Cell.jpg" alt="plot of chunk unnamed-chunk-20" width="80%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/Find-Top-Genes-by-Cell.jpg" alt="plot of chunk unnamed-chunk-20" width="80%" />
 <p class="caption">plot of chunk unnamed-chunk-20</p>
 </div>
 
@@ -424,7 +424,7 @@ for each cluster, calculate the ``top n`` highly expressed genes by Mean UMI cou
 - support switch Assays which contain slot: counts
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg" alt="plot of chunk unnamed-chunk-21" width="80%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/Find-Top-Genes-by-Mean-UMI-counts.jpg" alt="plot of chunk unnamed-chunk-21" width="80%" />
 <p class="caption">plot of chunk unnamed-chunk-21</p>
 </div>
 
@@ -449,7 +449,7 @@ Summary interested features by cluster, such as the positive cell percentage and
 - support switch Assays which contain slot: data
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/gene-short-summary.jpg" alt="plot of chunk unnamed-chunk-22" width="80%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/gene-short-summary.jpg" alt="plot of chunk unnamed-chunk-22" width="80%" />
 <p class="caption">plot of chunk unnamed-chunk-22</p>
 </div>
 
@@ -482,14 +482,14 @@ Can calculate the correlation value of gene pairs within cells from a cluster, s
 - ``Calculate Correlation for A Gene List``: to calculate the correlation value for each pair of the input genes
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/featurecorrelation.jpg" alt="plot of chunk unnamed-chunk-23" width="100%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/featurecorrelation.jpg" alt="plot of chunk unnamed-chunk-23" width="100%" />
 <p class="caption">plot of chunk unnamed-chunk-23</p>
 </div>
 
 #### Output description
 
 <div class="figure">
-<img src="/Users/detanw/Library/Caches/org.R-project.R/R/renv/library/SeuratExplorer-741bae0b/macos/R-4.5/aarch64-apple-darwin20/SeuratExplorer/extdata/www/feature-correlation-output.jpg" alt="plot of chunk unnamed-chunk-24" width="40%" />
+<img src="/Users/detanw/Desktop/SeuratExplorer/inst/extdata/www/feature-correlation-output.jpg" alt="plot of chunk unnamed-chunk-24" width="40%" />
 <p class="caption">plot of chunk unnamed-chunk-24</p>
 </div>
 
@@ -576,35 +576,102 @@ images:
 #> [1] stats     graphics  grDevices datasets  utils     methods   base     
 #> 
 #> other attached packages:
-#> [1] shiny_1.11.1
+#> [1] SeuratExplorer_0.1.2 shiny_1.11.1        
 #> 
 #> loaded via a namespace (and not attached):
-#>   [1] RColorBrewer_1.1-3       rstudioapi_0.17.1        jsonlite_2.0.0           magrittr_2.0.4           spatstat.utils_3.2-0    
-#>   [6] farver_2.1.2             vctrs_0.6.5              ROCR_1.0-11              memoise_2.0.1            spatstat.explore_3.5-3  
-#>  [11] shinydashboardPlus_2.0.6 htmltools_0.5.8.1        sass_0.4.10              sctransform_0.4.2        parallelly_1.45.1       
-#>  [16] KernSmooth_2.23-26       bslib_0.9.0              htmlwidgets_1.6.4        ica_1.0-3                fontawesome_0.5.3       
-#>  [21] plyr_1.8.9               plotly_4.11.0            zoo_1.8-14               cachem_1.1.0             igraph_2.1.4            
-#>  [26] mime_0.13                lifecycle_1.0.4          pkgconfig_2.0.3          colourpicker_1.3.0       Matrix_1.7-3            
-#>  [31] R6_2.6.1                 fastmap_1.2.0            fitdistrplus_1.2-4       future_1.67.0            digest_0.6.37           
-#>  [36] patchwork_1.3.2          shinycssloaders_1.1.0    Seurat_5.3.0             tensor_1.5.1             RSpectra_0.16-2         
-#>  [41] irlba_2.3.5.1            crosstalk_1.2.2          progressr_0.16.0         spatstat.sparse_3.1-0    httr_1.4.7              
-#>  [46] polyclip_1.10-7          abind_1.4-8              compiler_4.5.1           S7_0.2.0                 fastDummies_1.7.5       
-#>  [51] MASS_7.3-65              tools_4.5.1              lmtest_0.9-40            httpuv_1.6.16            future.apply_1.20.0     
-#>  [56] goftest_1.2-3            glue_1.8.0               nlme_3.1-168             promises_1.3.3           grid_4.5.1              
-#>  [61] Rtsne_0.17               cluster_2.1.8.1          reshape2_1.4.4           generics_0.1.4           gtable_0.3.6            
-#>  [66] spatstat.data_3.1-8      shinyBS_0.61.1           tidyr_1.3.1              data.table_1.17.8        sp_2.2-0                
-#>  [71] spatstat.geom_3.6-0      RcppAnnoy_0.0.22         ggrepel_0.9.6            RANN_2.6.2               pillar_1.11.1           
-#>  [76] markdown_2.0             stringr_1.5.2            spam_2.11-1              RcppHNSW_0.6.0           later_1.4.4             
-#>  [81] splines_4.5.1            dplyr_1.1.4              lattice_0.22-7           renv_1.1.5               survival_3.8-3          
-#>  [86] deldir_2.0-4             tidyselect_1.2.1         miniUI_0.1.2             pbapply_1.7-4            knitr_1.50              
-#>  [91] gitcreds_0.1.2           gridExtra_2.3            litedown_0.7             scattermore_1.2          xfun_0.53               
-#>  [96] shinydashboard_0.7.3     matrixStats_1.5.0        DT_0.34.0                stringi_1.8.7            lazyeval_0.2.2          
-#> [101] yaml_2.3.10              shinyWidgets_0.9.0       evaluate_1.0.5           codetools_0.2-20         tibble_3.3.0            
-#> [106] BiocManager_1.30.26      cli_3.6.5                uwot_0.2.3               xtable_1.8-4             reticulate_1.43.0       
-#> [111] jquerylib_0.1.4          Rcpp_1.1.0               SeuratExplorer_0.1.2     globals_0.18.0           spatstat.random_3.4-2   
-#> [116] png_0.1-8                spatstat.univar_3.1-4    parallel_4.5.1           ggplot2_4.0.0            dotCall64_1.2           
-#> [121] listenv_0.9.1            viridisLite_0.4.2        scales_1.4.0             ggridges_0.5.7           SeuratObject_5.2.0      
-#> [126] purrr_1.1.0              rlang_1.1.6              cowplot_1.2.0
+#>   [1] RcppAnnoy_0.0.22                 splines_4.5.1                   
+#>   [3] later_1.4.4                      bitops_1.0-9                    
+#>   [5] tibble_3.3.0                     InteractiveComplexHeatmap_1.16.0
+#>   [7] polyclip_1.10-7                  fastDummies_1.7.5               
+#>   [9] lifecycle_1.0.4                  shinyjqui_0.4.1                 
+#>  [11] doParallel_1.0.17                rprojroot_2.1.1                 
+#>  [13] globals_0.18.0                   lattice_0.22-7                  
+#>  [15] MASS_7.3-65                      crosstalk_1.2.2                 
+#>  [17] magrittr_2.0.4                   rmarkdown_2.29                  
+#>  [19] plotly_4.11.0                    sass_0.4.10                     
+#>  [21] jquerylib_0.1.4                  yaml_2.3.10                     
+#>  [23] remotes_2.5.0                    shinyBS_0.61.1                  
+#>  [25] httpuv_1.6.16                    Seurat_5.3.0                    
+#>  [27] sctransform_0.4.2                spam_2.11-1                     
+#>  [29] sp_2.2-0                         sessioninfo_1.2.3               
+#>  [31] pkgbuild_1.4.8                   spatstat.sparse_3.1-0           
+#>  [33] reticulate_1.43.0                cowplot_1.2.0                   
+#>  [35] pbapply_1.7-4                    RColorBrewer_1.1-3              
+#>  [37] abind_1.4-8                      pkgload_1.4.1                   
+#>  [39] GenomicRanges_1.60.0             Rtsne_0.17                      
+#>  [41] purrr_1.1.0                      BiocGenerics_0.54.0             
+#>  [43] circlize_0.4.16                  GenomeInfoDbData_1.2.14         
+#>  [45] IRanges_2.42.0                   S4Vectors_0.46.0                
+#>  [47] ggrepel_0.9.6                    irlba_2.3.5.1                   
+#>  [49] listenv_0.9.1                    spatstat.utils_3.2-0            
+#>  [51] testthat_3.2.3                   goftest_1.2-3                   
+#>  [53] RSpectra_0.16-2                  spatstat.random_3.4-2           
+#>  [55] fitdistrplus_1.2-4               parallelly_1.45.1               
+#>  [57] commonmark_2.0.0                 svglite_2.2.1                   
+#>  [59] RcppRoll_0.3.1                   codetools_0.2-20                
+#>  [61] xml2_1.4.0                       DT_0.34.0                       
+#>  [63] tidyselect_1.2.1                 shape_1.4.6.1                   
+#>  [65] UCSC.utils_1.4.0                 farver_2.1.2                    
+#>  [67] viridis_0.6.5                    shinyWidgets_0.9.0              
+#>  [69] matrixStats_1.5.0                stats4_4.5.1                    
+#>  [71] spatstat.explore_3.5-3           jsonlite_2.0.0                  
+#>  [73] GetoptLong_1.0.5                 ellipsis_0.3.2                  
+#>  [75] progressr_0.16.0                 iterators_1.0.14                
+#>  [77] ggridges_0.5.7                   ggalluvial_0.12.5               
+#>  [79] survival_3.8-3                   systemfonts_1.2.3               
+#>  [81] foreach_1.5.2                    tools_4.5.1                     
+#>  [83] ragg_1.5.0                       ica_1.0-3                       
+#>  [85] Rcpp_1.1.0                       glue_1.8.0                      
+#>  [87] gridExtra_2.3                    qs2_0.1.5                       
+#>  [89] xfun_0.53                        usethis_3.2.1                   
+#>  [91] GenomeInfoDb_1.44.3              dplyr_1.1.4                     
+#>  [93] withr_3.0.2                      shinydashboard_0.7.3            
+#>  [95] BiocManager_1.30.26              fastmap_1.2.0                   
+#>  [97] clisymbols_1.2.0                 litedown_0.7                    
+#>  [99] digest_0.6.37                    R6_2.6.1                        
+#> [101] mime_0.13                        textshaping_1.0.3               
+#> [103] colorspace_2.1-2                 scattermore_1.2                 
+#> [105] tensor_1.5.1                     markdown_2.0                    
+#> [107] spatstat.data_3.1-8              tidyr_1.3.1                     
+#> [109] generics_0.1.4                   renv_1.1.5                      
+#> [111] data.table_1.17.8                httr_1.4.7                      
+#> [113] htmlwidgets_1.6.4                uwot_0.2.3                      
+#> [115] pkgconfig_2.0.3                  gtable_0.3.6                    
+#> [117] ComplexHeatmap_2.24.1            lmtest_0.9-40                   
+#> [119] S7_0.2.0                         XVector_0.48.0                  
+#> [121] brio_1.1.5                       htmltools_0.5.8.1               
+#> [123] profvis_0.4.0                    dotCall64_1.2                   
+#> [125] clue_0.3-66                      kableExtra_1.4.0                
+#> [127] SeuratObject_5.2.0               scales_1.4.0                    
+#> [129] png_0.1-8                        spatstat.univar_3.1-4           
+#> [131] knitr_1.50                       rstudioapi_0.17.1               
+#> [133] rjson_0.2.23                     Signac_1.15.0                   
+#> [135] reshape2_1.4.4                   nlme_3.1-168                    
+#> [137] shinydashboardPlus_2.0.6         cachem_1.1.0                    
+#> [139] zoo_1.8-14                       GlobalOptions_0.1.2             
+#> [141] stringr_1.5.2                    KernSmooth_2.23-26              
+#> [143] parallel_4.5.1                   miniUI_0.1.2                    
+#> [145] shinycssloaders_1.1.0            desc_1.4.3                      
+#> [147] pillar_1.11.1                    grid_4.5.1                      
+#> [149] vctrs_0.6.5                      RANN_2.6.2                      
+#> [151] urlchecker_1.0.1                 promises_1.3.3                  
+#> [153] stringfish_0.17.0                xtable_1.8-4                    
+#> [155] cluster_2.1.8.1                  evaluate_1.0.5                  
+#> [157] Rsamtools_2.24.1                 cli_3.6.5                       
+#> [159] compiler_4.5.1                   crayon_1.5.3                    
+#> [161] rlang_1.1.6                      future.apply_1.20.0             
+#> [163] labeling_0.4.3                   plyr_1.8.9                      
+#> [165] fs_1.6.6                         stringi_1.8.7                   
+#> [167] BiocParallel_1.42.2              viridisLite_0.4.2               
+#> [169] deldir_2.0-4                     Biostrings_2.76.0               
+#> [171] lazyeval_0.2.2                   devtools_2.4.5                  
+#> [173] spatstat.geom_3.6-0              colourpicker_1.3.0              
+#> [175] Matrix_1.7-3                     RcppHNSW_0.6.0                  
+#> [177] patchwork_1.3.2                  future_1.67.0                   
+#> [179] ggplot2_4.0.0                    ROCR_1.0-11                     
+#> [181] fontawesome_0.5.3                igraph_2.1.4                    
+#> [183] memoise_2.0.1                    RcppParallel_5.1.11-1           
+#> [185] bslib_0.9.0                      fastmatch_1.1-6
 ```
 
 ## 中文介绍

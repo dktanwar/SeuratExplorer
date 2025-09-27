@@ -95,7 +95,10 @@ explorer_body_ui <- function(tab_list){
                                         checkboxInput("DimShowLegend",label = "Show Legend", TRUE),
                                         sliderInput("DimLabelSize", label = "Label Size:", min = 0, max = 10, value = 7),
                                         sliderInput("DimPointSize", label = "Point Size", min = 0.001, max = 2, value = 0.8),
-                                        sliderInput("DimPlotHWRatio", label = "Adjust H/W Ratio of DimPlot", min = 0.1, max = 4, value = 0.9)
+                                        sliderInput("DimPlotHWRatio", label = "Adjust H/W Ratio of DimPlot", min = 0.1, max = 4, value = 0.9),
+                                        selectInput("DimHoverInfo", "Hover Info:", choices = c("All" = "all", "Cluster" = "group"), selected = "all"),
+                                        selectInput("DimTheme", "Theme:", choices = c("Gray" = "theme_gray", "Black/White" = "theme_bw", "Linedraw" = "theme_linedraw", "Light" = "theme_light", "Dark" = "theme_dark", "Minimal" = "theme_minimal", "Classic" = "theme_classic", "Void" = "theme_void"), selected = "theme_bw"),
+                                        selectInput("DimDragMode", "Drag Mode:", choices = c("Lasso" = "lasso", "Pan" = "pan", "Box Select" = "select"), selected = "lasso")
                                     )
                                   )
   )
@@ -140,7 +143,11 @@ explorer_body_ui <- function(tab_list){
                                             sliderInput("FeatureMinCutoff", label = "Minimum expression cutoff by quantile:", min = 0, max = 100, value = 0),
                                             sliderInput("FeatureMaxCutoff", label = "Maximum expression cutoff by quantile::", min = 0, max = 100, value = 100),
                                             sliderInput("FeaturePointSize", label = "Point Size:", min = 0.001, max = 5, value = 0.8),
-                                            sliderInput("FeaturePlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 10, value = 0.9)
+                                            sliderInput("FeaturePlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 10, value = 0.9),
+                                            selectInput("FeatureHoverInfo", "Hover Info:", choices = c("All" = "all", "Expression" = "z"), selected = "all"),
+                                            selectInput("FeatureTheme", "Theme:", choices = c("Gray" = "theme_gray", "Black/White" = "theme_bw", "Linedraw" = "theme_linedraw", "Light" = "theme_light", "Dark" = "theme_dark", "Minimal" = "theme_minimal", "Classic" = "theme_classic", "Void" = "theme_void"), selected = "theme_bw"),
+
+                                            selectInput("FeatureDragMode", "Drag Mode:", choices = c("Lasso" = "lasso", "Pan" = "pan", "Box Select" = "select"), selected = "lasso")
                                         )
                                       )
   )
@@ -204,7 +211,11 @@ explorer_body_ui <- function(tab_list){
                                         sliderInput("VlnPointAlpha", label = "Point Alpha:", min = 0, max = 1, value = 1),
                                         sliderInput("VlnXlabelSize", label = "x Axis Label Size:", min = 0, max = 20, value = 14),
                                         sliderInput("VlnYlabelSize", label = "Y Axis Label Size:", min = 0, max = 20, value = 10),
-                                        sliderInput("VlnPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 8, value = 0.9)
+                                        sliderInput("VlnPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 8, value = 0.9),
+                                        selectInput("VlnHoverInfo", "Hover Info:", choices = c("All" = "all", "Expression" = "y"), selected = "all"),
+                                        sliderInput("VlnNcol", label = "Number of columns:", min = 1, max = 10, value = 1),
+                                        selectInput("VlnTheme", "Theme:", choices = c("Gray" = "theme_gray", "Black/White" = "theme_bw", "Linedraw" = "theme_linedraw", "Light" = "theme_light", "Dark" = "theme_dark", "Minimal" = "theme_minimal", "Classic" = "theme_classic", "Void" = "theme_void"), selected = "theme_bw"),
+                                        selectInput("VlnDragMode", "Drag Mode:", choices = c("Lasso" = "lasso", "Pan" = "pan", "Box Select" = "select"), selected = "lasso")
                                     )
                                   )
   )
@@ -254,15 +265,35 @@ explorer_body_ui <- function(tab_list){
                                         sliderInput("DotDotScale", label = "Dot Scale:", min = 1, max = 12, value = 6),
                                         sliderInput("DotXlabelSize", label = "x Axis Label Size:", min = 0, max = 20, value = 14),
                                         sliderInput("DotYlabelSize", label = "Y Axis Label Size:", min = 0, max = 20, value = 10),
-                                        sliderInput("DotPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 8, value = 0.9)
+                                        sliderInput("DotPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 8, value = 0.9),
+                                        selectInput("DotHoverInfo", "Hover Info:", choices = c("All" = "all", "Avg. Exp" = "colour", "Pct. Exp" = "size"), selected = "all"),
+                                        selectInput("DotTheme", "Theme:", choices = c("Gray" = "theme_gray", "Black/White" = "theme_bw", "Linedraw" = "theme_linedraw", "Light" = "theme_light", "Dark" = "theme_dark", "Minimal" = "theme_minimal", "Classic" = "theme_classic", "Void" = "theme_void"), selected = "theme_bw"),
+                                        selectInput("DotDragMode", "Drag Mode:", choices = c("Lasso" = "lasso", "Pan" = "pan", "Box Select" = "select"), selected = "lasso")
                                     )
                                   )
   )
   tab_list[["heatmap"]] = tabItem(tabName = "heatmap",
                                   fluidRow(
                                     box(title = "Features Heatmap Plot",
-                                        withSpinner(plotOutput("heatmap",height = "auto")), # Add a spinner that shows when an output is recalculating
-                                        div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadheatmap",style = "bordered",color = "primary")),
+                                        div(style = "margin-bottom: 10px;",
+                                            shinyWidgets::radioGroupButtons(
+                                              inputId = "heatmap_mode",
+                                              label = "Plot Type:",
+                                              choices = c("Static" = "static", "Interactive" = "interactive"),
+                                              selected = "static",
+                                              status = "primary",
+                                              size = "sm",
+                                              justified = FALSE
+                                            )
+                                        ),
+                                        conditionalPanel(
+                                          condition = "input.heatmap_mode == 'static'",
+                                          withSpinner(plotOutput("heatmap",height = "auto"))
+                                        ),
+                                                                                  conditionalPanel(
+                                                                                  condition = "input.heatmap_mode == 'interactive'",
+                                                                                  InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput("heatmap_interactive_plot")
+                                                                                ),                                        div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadheatmap",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                         textAreaInput("HeatmapGeneSymbol", "Gene Symbols:", value = "", height = '80px', resize = "vertical"),
@@ -281,14 +312,35 @@ explorer_body_ui <- function(tab_list){
                                         sliderInput("HeatmapGroupBarHeight", label = "Cluster Group Bar Height:", min = 0, max = 0.1, value = 0.04, step = 0.01),
                                         sliderInput("HeatmapLineWidth", label = "Line Width:", min = 1, max = 10, value = 1),
                                         sliderInput("HeatmapFeatureTextSize", label = "Feature Text Size:", min = 0, max = 20, value = 10),
-                                        sliderInput("HeatmapPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9, step = 0.1)
+                                        sliderInput("HeatmapPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9, step = 0.1),
+                                        selectInput("HeatmapColor", "Color Palette:", choices = c("Default" = "default", "Viridis" = "viridis", "Magma" = "magma", "Plasma" = "plasma", "Inferno" = "inferno", "Cividis" = "cividis"), selected = "default"),
+                                        sliderInput("HeatmapDownsample", "Downsample Cells:", min = 100, max = 10000, value = 1000, step = 100),
+                                        helpText("Downsampling is recommended for large datasets to improve performance.")
                                     )
                                   )
   )
   tab_list[["averagedheatmap"]] = tabItem(tabName = "averagedheatmap",
                                   fluidRow(
                                     box(title = "Features Heatmap by Averaged Expression",
-                                        withSpinner(plotOutput("averagedheatmap",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                        div(style = "margin-bottom: 10px;",
+                                            shinyWidgets::radioGroupButtons(
+                                              inputId = "averagedheatmap_mode",
+                                              label = "Plot Type:",
+                                              choices = c("Static" = "static", "Interactive" = "interactive"),
+                                              selected = "static",
+                                              status = "primary",
+                                              size = "sm",
+                                              justified = FALSE
+                                            )
+                                        ),
+                                        conditionalPanel(
+                                          condition = "input.averagedheatmap_mode == 'static'",
+                                          withSpinner(plotOutput("averagedheatmap",height = "auto"))
+                                        ),
+                                        conditionalPanel(
+                                          condition = "input.averagedheatmap_mode == 'interactive'",
+                                          InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput("averagedheatmap_interactive_plot")
+                                        ),
                                         div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadaveragedheatmap",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
@@ -306,14 +358,33 @@ explorer_body_ui <- function(tab_list){
                                         sliderInput("AveragedHeatmapFeatureTextSize", label = "Feature Text Size:", min = 1, max = 20, value = 10),
                                         checkboxInput("AveragedHeatmapClusterClusters",label = "Cluster Clusters", FALSE),
                                         checkboxInput("AveragedHeatmapClusterFeatures",label = "Cluster Features", FALSE),
-                                        sliderInput("AveragedHeatmapPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9)
+                                        sliderInput("AveragedHeatmapPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9),
+                                        selectInput("AveragedHeatmapColor", "Color Palette:", choices = c("Default" = "default", "Viridis" = "viridis", "Magma" = "magma", "Plasma" = "plasma", "Inferno" = "inferno", "Cividis" = "cividis"), selected = "default")
                                     )
                                   )
   )
   tab_list[["ridgeplot"]] = tabItem(tabName = "ridgeplot",
                                     fluidRow(
                                       box(title = "Features Ridge Plot",
-                                          withSpinner(plotOutput("ridgeplot",height = "auto")), # Add a spinner that shows when an output is recalculating
+                                          div(style = "margin-bottom: 10px;",
+                                              shinyWidgets::radioGroupButtons(
+                                                inputId = "ridgeplot_mode",
+                                                label = "Plot Type:",
+                                                choices = c("Static" = "static", "Interactive" = "interactive"),
+                                                selected = "static",
+                                                status = "primary",
+                                                size = "sm",
+                                                justified = FALSE
+                                              )
+                                          ),
+                                          conditionalPanel(
+                                            condition = "input.ridgeplot_mode == 'static'",
+                                            withSpinner(plotOutput("ridgeplot",height = "auto"))
+                                          ),
+                                          conditionalPanel(
+                                            condition = "input.ridgeplot_mode == 'interactive'",
+                                            withSpinner(plotly::plotlyOutput("ridgeplot_interactive",height = "auto"))
+                                          ),
                                           div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadridgeplot",style = "bordered",color = "primary")),
                                           width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                       box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
@@ -341,7 +412,9 @@ explorer_body_ui <- function(tab_list){
                                           ),
                                           sliderInput("RidgeplotXlabelSize", label = "x Axis Label Size:", min = 0, max = 20, value = 14),
                                           sliderInput("RidgeplotYlabelSize", label = "Y Axis Label Size:", min = 0, max = 20, value = 10),
-                                          sliderInput("RidgeplotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9)
+                                          sliderInput("RidgeplotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9),
+                                          selectInput("RidgeplotDragMode", "Drag Mode:", choices = c("Lasso" = "lasso", "Pan" = "pan", "Box Select" = "select"), selected = "lasso")
+
                                       )
                                     )
   )
@@ -375,7 +448,8 @@ explorer_body_ui <- function(tab_list){
                                           sliderInput("CellratioColumnWidth", label = "Column width:", min = 0, max = 1, value = 0.7),
                                           sliderInput("CellratioFlowAlpha", label = "Flow alpha:", min = 0, max = 1, value = 0.3),
                                           sliderInput("CellratioFlowCurve", label = "Flow curve:", min = 0, max = 1, value = 0.3),
-                                          sliderInput("CellratioplotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9)
+                                          sliderInput("CellratioplotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9),
+                                          selectInput("CellratioTheme", "Theme:", choices = c("Gray" = "theme_gray", "Black/White" = "theme_bw", "Linedraw" = "theme_linedraw", "Light" = "theme_light", "Dark" = "theme_dark", "Minimal" = "theme_minimal", "Classic" = "theme_classic", "Void" = "theme_void"), selected = "theme_bw")
                                       )
                                     )
   )
@@ -513,7 +587,8 @@ explorer_body_ui <- function(tab_list){
                                              fluidRow(
                                                box(title = "Search Features", solidHeader = TRUE, status = "primary", width = 12,
                                                    withSpinner(uiOutput("FeaturesDataframeAssays.UI"), proxy.height = "10px"),
-                                                   withSpinner(DT::dataTableOutput('dataset_features')))
+                                                   withSpinner(DT::dataTableOutput('dataset_features')),
+                                                   actionButton("send_to_vlnplot", "Send to Violin Plot", icon = shiny::icon("share"), class = "btn-primary"))
                                              )
   )
   tab_list[["cellmetadata"]] = tabItem(tabName = "cellmetadata",
@@ -594,6 +669,3 @@ ui <-  function(){
   ui_out = shinydashboard::dashboardPage(title = "Seurat Explorer", header, sidebar, body)
   return(ui_out)
 }
-
-
-

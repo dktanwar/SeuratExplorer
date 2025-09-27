@@ -359,26 +359,17 @@ cellRatioPlot <- function(object = NULL,
       alpha = flow.alpha,
       knot.pos = flow.curve
     ) +
-    ggplot2::theme_bw() +
     ggplot2::coord_cartesian(expand = 0) +
     ggplot2::scale_y_continuous(labels = scales::label_percent()) +
     ggplot2::scale_fill_manual(
       values = fill.col,
       name = "Cell Type"
     ) +
-    ggplot2::theme(
-      panel.grid = ggplot2::element_blank(),
-      axis.text = ggplot2::element_text(size = ggplot2::rel(1.2), color = "black"),
-      axis.title = ggplot2::element_text(size = ggplot2::rel(1.5), color = "black"),
-      legend.text = ggplot2::element_text(size = ggplot2::rel(1.2), color = "black"),
-      legend.title = ggplot2::element_text(size = ggplot2::rel(1.5), color = "black")
-    ) +
     ggplot2::xlab("") +
     ggplot2::ylab("Cell percent ratio")
   if (!is.null(facet.name)) {
     p <- p +
-      ggplot2::facet_grid(stats::as.formula(paste0(facet.name, "~ ."))) +
-      ggplot2::theme(panel.spacing = grid::unit(0.8, "cm", data = NULL))
+      ggplot2::facet_grid(stats::as.formula(paste0(facet.name, "~ .")))
   }
   return(p)
 }
@@ -621,6 +612,7 @@ calculate_correlation <- function(SeuratObj, features, method, assay = 'RNA'){
 
 
 # refer to: https://github.com/junjunlab/scRNAtoolVis/blob/master/R/averageHeatmap.R
+# refer to: https://github.com/junjunlab/scRNAtoolVis/blob/master/R/averageHeatmap.R
 AverageHeatmap <- function(
     object = NULL,
     markerGene = NULL,
@@ -817,7 +809,7 @@ readSeurat <- function(path, verbose = FALSE){
   # update Seurat object
   if (class(seu_obj)[[1]] == 'seurat') { # for very old version: seurat object
     seu_obj <- SeuratObject::UpdateSeuratObject(seu_obj)
-  }else if(SeuratObject::Version(seu_obj) < utils::packageVersion('SeuratObject')) {
+  }else if(packageVersion("SeuratObject") < "5.0.0") { # Check if SeuratObject version is less than 5.0.0
     seu_obj <- SeuratObject::UpdateSeuratObject(seu_obj)
   }else{
     if(verbose){message('Update Seurat Object escaped for it has been the latest version!')}
@@ -848,11 +840,7 @@ check_genes_error <- "None of the input genes can be found!"
 # for plot features related functions when none of the input features can be recognized
 empty_plot <- ggplot2::ggplot() +
   ggplot2::annotate('text', x = 0, y = 0, label = 'Please input correct features!\n Unrecognized features will be removed automatically.\n You can check the features in "Search Features" page.', color = 'darkgrey', size = 6)  +
-  ggplot2::theme_bw() +
-  ggplot2::geom_blank() +
-  ggplot2::theme(axis.title = ggplot2::element_blank(),
-                 axis.text = ggplot2::element_blank(),
-                 axis.ticks = ggplot2::element_blank())
+  ggplot2::geom_blank()
 
 # Interactive plotting functions
 #' Convert a Seurat DimPlot to an interactive plotly object
@@ -863,50 +851,13 @@ empty_plot <- ggplot2::ggplot() +
 #' @param group.by The metadata column to group by
 #' @param height Height in pixels for the plot
 #' @return A plotly object
-interactive_dimplot <- function(p, obj, reduction = "umap", group.by = "seurat_clusters", height = NULL) {
+interactive_dimplot <- function(p, obj, reduction = "umap", group.by = "seurat_clusters", height = NULL, hover_info = "all", drag_mode = "pan") {
   requireNamespace("plotly")
-  
+  requireNamespace("magrittr")
+  requireNamespace("scales")
+
   # Convert to plotly with enhanced interactivity
-  plotly_obj <- plotly::ggplotly(p, tooltip = "all") %>%
-    plotly::layout(
-      hovermode = "closest",
-      dragmode = "pan",
-      title = list(text = paste("Interactive", toupper(reduction), "Plot"), font = list(size = 16)),
-      height = height,
-      xaxis = list(
-        title = list(text = paste0(toupper(reduction), "_1"), font = list(size = 14)),
-        showgrid = TRUE,
-        gridcolor = "rgba(128,128,128,0.2)",
-        zeroline = FALSE
-      ),
-      yaxis = list(
-        title = list(text = paste0(toupper(reduction), "_2"), font = list(size = 14)),
-        showgrid = TRUE,
-        gridcolor = "rgba(128,128,128,0.2)",
-        zeroline = FALSE
-      ),
-      legend = list(
-        x = 1.02,
-        y = 1,
-        bgcolor = "rgba(255,255,255,0.8)",
-        bordercolor = "rgba(0,0,0,0.2)",
-        borderwidth = 1
-      )
-    ) %>%
-    plotly::config(
-      displayModeBar = TRUE,
-      modeBarButtonsToRemove = c("select2d", "lasso2d", "autoScale2d"),
-      toImageButtonOptions = list(
-        format = "png",
-        filename = "dimplot_interactive",
-        height = 600,
-        width = 800,
-        scale = 2
-      ),
-      displaylogo = FALSE
-    )
-  
-  return(plotly_obj)
+  plotly::ggplotly(p, tooltip = hover_info)
 }
 
 #' Convert a Seurat FeaturePlot to an interactive plotly object
@@ -917,54 +868,19 @@ interactive_dimplot <- function(p, obj, reduction = "umap", group.by = "seurat_c
 #' @param reduction The reduction to use
 #' @param slot The data slot used
 #' @return A plotly object
-interactive_featureplot <- function(p, obj, features, reduction = "umap", slot = "data", height = NULL) {
+interactive_featureplot <- function(p, obj, features, reduction = "umap", slot = "data", height = NULL, hover_info = "all", drag_mode = "pan") {
   requireNamespace("plotly")
-  
-  # Convert to plotly with enhanced interactivity
-  plotly_obj <- plotly::ggplotly(p, tooltip = "all") %>%
-    plotly::layout(
-      hovermode = "closest",
-      dragmode = "pan",
-      title = list(
-        text = paste("Interactive Feature Plot:", paste(features, collapse = ", ")), 
-        font = list(size = 16)
-      ),
-      height = height,
-      xaxis = list(
-        title = list(text = paste0(toupper(reduction), "_1"), font = list(size = 14)),
-        showgrid = TRUE,
-        gridcolor = "rgba(128,128,128,0.2)",
-        zeroline = FALSE
-      ),
-      yaxis = list(
-        title = list(text = paste0(toupper(reduction), "_2"), font = list(size = 14)),
-        showgrid = TRUE,
-        gridcolor = "rgba(128,128,128,0.2)",
-        zeroline = FALSE
-      ),
-      coloraxis = list(
-        colorbar = list(
-          title = list(text = "Expression", font = list(size = 12)),
-          tickfont = list(size = 10)
-        )
-      )
-    ) %>%
-    plotly::config(
-      displayModeBar = TRUE,
-      modeBarButtonsToRemove = c("select2d", "lasso2d", "autoScale2d"),
-      toImageButtonOptions = list(
-        format = "png",
-        filename = "featureplot_interactive",
-        height = 600,
-        width = 800,
-        scale = 2
-      ),
-      displaylogo = FALSE
-    )
-  
-  return(plotly_obj)
-}
 
+  if (inherits(p, "patchwork")) {
+    plotly_plots <- lapply(p$patches$plots, function(plot) {
+      plotly::ggplotly(plot, tooltip = "text")
+    })
+    plotly::subplot(plotly_plots, nrows = length(plotly_plots), shareX = TRUE, shareY = TRUE)
+  } else {
+    # Convert to plotly with enhanced interactivity
+    plotly::ggplotly(p, tooltip = hover_info)
+  }
+}
 #' Convert a Seurat VlnPlot to an interactive plotly object
 #'
 #' @param p A ggplot object from Seurat::VlnPlot
@@ -973,53 +889,18 @@ interactive_featureplot <- function(p, obj, features, reduction = "umap", slot =
 #' @param group.by The metadata column to group by
 #' @param slot The data slot used
 #' @return A plotly object
-interactive_vlnplot <- function(p, obj, features, group.by = "seurat_clusters", slot = "data", height = NULL) {
+interactive_vlnplot <- function(p, obj, features, group.by = "seurat_clusters", slot = "data", height = NULL, hover_info = "all", drag_mode = "pan") {
   requireNamespace("plotly")
-  
-  # Convert to plotly with enhanced interactivity
-  plotly_obj <- plotly::ggplotly(p, tooltip = "all") %>%
-    plotly::layout(
-      hovermode = "closest",
-      dragmode = "pan",
-      title = list(
-        text = paste("Interactive Violin Plot:", paste(features, collapse = ", ")), 
-        font = list(size = 16)
-      ),
-      height = height,
-      xaxis = list(
-        title = list(text = "Clusters", font = list(size = 14)),
-        tickangle = -45,
-        showgrid = TRUE,
-        gridcolor = "rgba(128,128,128,0.1)"
-      ),
-      yaxis = list(
-        title = list(text = "Expression", font = list(size = 14)),
-        showgrid = TRUE,
-        gridcolor = "rgba(128,128,128,0.1)"
-      ),
-      legend = list(
-        orientation = "v",
-        x = 1.02,
-        y = 1,
-        bgcolor = "rgba(255,255,255,0.8)",
-        bordercolor = "rgba(0,0,0,0.2)",
-        borderwidth = 1
-      )
-    ) %>%
-    plotly::config(
-      displayModeBar = TRUE,
-      modeBarButtonsToRemove = c("select2d", "lasso2d", "autoScale2d"),
-      toImageButtonOptions = list(
-        format = "png",
-        filename = "violinplot_interactive",
-        height = 600,
-        width = 800,
-        scale = 2
-      ),
-      displaylogo = FALSE
-    )
-  
-  return(plotly_obj)
+
+  if (is.list(p)) {
+    plotly_plots <- lapply(1:length(p), function(i) {
+      plotly::ggplotly(p[[i]], tooltip = hover_info)
+    })
+    plotly::subplot(plotly_plots, nrows = length(plotly_plots), shareX = TRUE, shareY = FALSE)
+  } else {
+    # Convert to plotly with enhanced interactivity
+    plotly::ggplotly(p, tooltip = hover_info)
+  }
 }
 
 #' Convert a Seurat DotPlot to an interactive plotly object
@@ -1029,76 +910,43 @@ interactive_vlnplot <- function(p, obj, features, group.by = "seurat_clusters", 
 #' @param features The features being plotted
 #' @param group.by The metadata column to group by
 #' @return A plotly object
-interactive_dotplot <- function(p, obj, features, group.by = "seurat_clusters", height = NULL) {
+interactive_dotplot <- function(p, obj, features, group.by = "seurat_clusters", height = NULL, hover_info = "all", drag_mode = "pan") {
   requireNamespace("plotly")
-  
-  # Convert to plotly with enhanced interactivity
-  plotly_obj <- plotly::ggplotly(p, tooltip = "all") %>%
-    plotly::layout(
-      hovermode = "closest",
-      dragmode = "pan",
-      title = list(
-        text = paste("Interactive Dot Plot:", paste(features, collapse = ", ")), 
-        font = list(size = 16)
-      ),
-      height = height,
-      xaxis = list(
-        title = list(text = "Features", font = list(size = 14)),
-        tickangle = -45,
-        showgrid = TRUE,
-        gridcolor = "rgba(128,128,128,0.1)"
-      ),
-      yaxis = list(
-        title = list(text = "Clusters", font = list(size = 14)),
-        showgrid = TRUE,
-        gridcolor = "rgba(128,128,128,0.1)"
-      ),
-      coloraxis = list(
-        colorbar = list(
-          title = list(text = "Avg Expression", font = list(size = 12)),
-          tickfont = list(size = 10)
-        )
-      )
-    ) %>%
-    plotly::config(
-      displayModeBar = TRUE,
-      modeBarButtonsToRemove = c("select2d", "lasso2d", "autoScale2d"),
-      toImageButtonOptions = list(
-        format = "png",
-        filename = "dotplot_interactive",
-        height = 600,
-        width = 800,
-        scale = 2
-      ),
-      displaylogo = FALSE
-    )
-  
-  return(plotly_obj)
-}
 
+  # Convert to plotly with enhanced interactivity
+  plotly::ggplotly(p, tooltip = hover_info)
+}
+#' Convert a Seurat RidgePlot to an interactive plotly object
+#'
+#' @param p A ggplot object from Seurat::RidgePlot
+#' @param obj The Seurat object
+#' @param features The features being plotted
+#' @param group.by The metadata column to group by
+#' @param slot The data slot used
+#' @return A plotly object
+interactive_ridgeplot <- function(p, obj, features, group.by = "seurat_clusters", slot = "data", height = NULL, hover_info = "all", drag_mode = "pan") {
+  requireNamespace("plotly")
+
+  # Convert to plotly with enhanced interactivity
+  plotly::ggplotly(p, tooltip = hover_info)
+}
 #' Create an interactive empty plot for error cases
 #'
 #' @param message The error message to display
 #' @return A plotly object
 interactive_empty_plot <- function(message = "Please input correct features!") {
   requireNamespace("plotly")
-  
+
   p <- ggplot2::ggplot() +
     ggplot2::annotate('text', x = 0, y = 0, label = message, color = 'darkgrey', size = 6) +
-    ggplot2::theme_bw() +
-    ggplot2::geom_blank() +
-    ggplot2::theme(
-      axis.title = ggplot2::element_blank(),
-      axis.text = ggplot2::element_blank(),
-      axis.ticks = ggplot2::element_blank()
-    )
-  
+    ggplot2::geom_blank()
+
   plotly_obj <- plotly::ggplotly(p) %>%
     plotly::layout(
       title = list(text = "Error", font = list(size = 14))
     ) %>%
     plotly::config(displayModeBar = FALSE)
-  
+
   return(plotly_obj)
 }
 

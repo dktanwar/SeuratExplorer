@@ -37,21 +37,23 @@ Imports:
     knitr,
     markdown,
     plotly (>= 4.10.0),
-    htmlwidgets
+    htmlwidgets,
+    Signac
 Depends: 
     R (>= 4.1.0),
     shiny
 Suggests:
     ComplexHeatmap,
-    presto,
+    InteractiveComplexHeatmap,
     MAST,
     limma,
     DESeq2,
-    Signac
+    viridis
 Remotes:
     bioc::release/ComplexHeatmap,
-    github::immunogenomics/presto,
+    bioc::release/InteractiveComplexHeatmap,
     bioc::release/MAST,
     bioc::release/limma,
-    bioc::release/DESeq2
+    bioc::release/DESeq2,
+    cran::viridis
 LazyData: true

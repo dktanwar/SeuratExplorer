@@ -1,22 +1,20 @@
 # server.R
-## the server side
 
 #' server side functions related to `explorer_sidebar_ui`
-#'
 #' @param input server input
 #' @param output server output
 #' @param session server session
 #' @param verbose for debug use
 #' @param data the Seurat object and related parameters
-#'
 #' @import Seurat SeuratObject
 #' @importFrom utils str
 #' @importFrom grDevices dev.off pdf
 #' @importFrom stats na.omit
 #' @export
 #' @return server side functions related to `explorer_sidebar_ui`
-#'
 explorer_server <- function(input, output, session, data, verbose=FALSE){
+  source("R/utils.R")
+  requireNamespace("InteractiveComplexHeatmap")
   temp_dir <- tempdir() # temporary directory, for save plots
 
   if (dir.exists(temp_dir)) {
@@ -26,10 +24,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   dir.create(temp_dir, showWarnings = FALSE)
   # to make shinyBS::updateCollapse() runs correctly, refer to: https://github.com/ebailey78/shinyBS/issues/92
   shiny::addResourcePath("sbs", system.file("www", package="shinyBS"))
-
-  # Using an un-exported function from another R package:
-  # https://stackoverflow.com/questions/32535773/using-un-exported-function-from-another-r-package
-  subset_Seurat <- utils::getFromNamespace('subset.Seurat', 'SeuratObject')
 
   # batch define some output elements
   ## dimension reduction options for dimplot and featureplot
@@ -83,7 +77,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   #     shinyjqui::orderInput(inputId = cluster_order_UI_df$UIID[i], label = 'Drag to order', items = levels(data$obj@meta.data[,items_full]),width = '100%')
   #   })
   # })
-
   # allowed slots for each assay in each plot/summary functions
   assay_allowed_slots <- list('FeatureAssay' = isolate(data$assay_slots),
                               # use isolate for in case of error:
@@ -133,7 +126,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   ## batch addin
   do.call(tagList, c(output_dimension_reduction, output_resolution, output_assay))
-
 
   ############################# Dimension Reduction Plot
   # define Cluster order
@@ -191,7 +183,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   # the picture is a little bit of small, unknown why.
   px2cm <- 0.03
 
-  output$dimplot <- renderPlot({
+  dimplot_obj <- reactive({
     if(verbose){message("SeuratExplorer: preparing dimplot...")}
     cds <- data$obj # not a memory saving way
     # for highlight cells
@@ -223,70 +215,34 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     if(!input$DimShowLegend){
       p <- p & NoLegend()
     }
-    ggplot2::ggsave(paste0(temp_dir,"/dimplot.pdf"),
-                    p,
-                    width = dimplot_width() * px2cm,
-                    height = dimplot_width() * input$DimPlotHWRatio * px2cm,
-                    units = "cm",
-                    limitsize = FALSE)
+    p <- p + get(input$DimTheme)()
     return(p)
-  }, height = function(){session$clientData$output_dimplot_width * input$DimPlotHWRatio})
-  # box plot: height = width default
+  })
+
+  render_plot(output, session, "dimplot", dimplot_width, reactive({input$DimPlotHWRatio}), temp_dir, dimplot_obj)
+  download_plot(output, "dimplot", temp_dir)
 
   # Interactive DimPlot output
   output$dimplot_interactive <- plotly::renderPlotly({
     req(input$DimDimensionReduction)
     if(verbose){message("SeuratExplorer: preparing dimplot_interactive...")}
-    
+
     # Use the same logic as static plot to generate the base plot
-    cds <- data$obj
-    Seurat::Idents(cds) <- input$DimClusterResolution
-    
-    # get highlighted cells
-    if(is.null(input$DimHighlightedClusters)){
-      dim_cells_highlighted <- list()
-    }else{
-      dim_cells_highlighted <- colnames(cds)[cds@meta.data[,input$DimClusterResolution] %in% input$DimHighlightedClusters]
-    }
-    cds@meta.data[,input$DimClusterResolution] <- factor(cds@meta.data[,input$DimClusterResolution],
-                                                         levels = input$DimClusterOrder)
-    if (is.null(DimSplit.Revised())) { # not splited
-      p <- Seurat::DimPlot(cds,
-                           reduction = input$DimDimensionReduction,
-                           label = input$DimShowLabel,
-                           pt.size = input$DimPointSize,
-                           label.size = input$DimLabelSize,
-                           group.by = input$DimClusterResolution,
-                           cells.highlight = dim_cells_highlighted)
-      }else{ # splited
-      plot_numbers <- length(levels(cds@meta.data[,DimSplit.Revised()]))
-      p <- Seurat::DimPlot(cds, reduction = input$DimDimensionReduction,
-                           label = input$DimShowLabel, pt.size = input$DimPointSize,
-                           label.size = input$DimLabelSize,
-                           group.by = input$DimClusterResolution,
-                           split.by = DimSplit.Revised(),
-                           ncol = ceiling(sqrt(plot_numbers)),
-                           cells.highlight = dim_cells_highlighted)
-      }
-    if(!input$DimShowLegend){
-      p <- p & NoLegend()
-    }
-    
-    # Convert to interactive plot
-    interactive_dimplot(p = p, 
-                       obj = cds, 
-                       reduction = input$DimDimensionReduction, 
-                       group.by = input$DimClusterResolution)
-  })
+    p <- dimplot_obj()
 
-  # refer to: https://stackoverflow.com/questions/14810409/how-to-save-plots-that-are-made-in-a-shiny-app
-  output$downloaddimplot <- downloadHandler(
-    filename = function(){'dimplot.pdf'},
-    content = function(file) {
-      file.copy(paste0(temp_dir,"/dimplot.pdf"), file, overwrite=TRUE)
-    })
-
-  ################################ Feature Plot
+        if (!is.null(p)) {
+            # Convert to interactive plot
+            interactive_dimplot(p = p, 
+                               obj = data$obj, 
+                               reduction = input$DimDimensionReduction, 
+                               group.by = input$DimClusterResolution,
+                               height = session$clientData$output_dimplot_interactive_width * input$DimPlotHWRatio,
+                               hover_info = input$DimHoverInfo,
+                               drag_mode = input$DimDragMode)
+        } else {
+            interactive_empty_plot()
+        }
+      })  ################################ Feature Plot
   # define slot Choice UI
   output$FeatureAssaySlots.UI <- renderUI({
     req(input$FeatureAssay)
@@ -340,7 +296,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       features_dimplot$features_current <- features_input
     }
   })
-
   # though none errors show, very slow for Error in Seurat::FeaturePlot: None of the requested features were found: CD8A, CD4, SHANK3 in slot  data
   # observe({
   #   features_input <- CheckGene(InputGene = input$FeatureGeneSymbol, GeneLibrary =  c(rownames(data$obj@assays[[input$FeatureAssay]]), data$extra_qc_options))
@@ -349,10 +304,9 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   #     features_dimplot$features_current <- features_input
   #   }
   # })
-
   featureplot_width  <- reactive({ session$clientData$output_featureplot_width })
 
-  output$featureplot <- renderPlot({
+  featureplot_obj <- reactive({
     req(input$FeatureSlot)
     if(verbose){message("SeuratExplorer: preparing featureplot...")}
     if(input$FeatureMinCutoff == 0){
@@ -409,92 +363,34 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
         }
       }
     }
-    ggplot2::ggsave(paste0(temp_dir,"/featureplot.pdf"),
-                    p,
-                    width = featureplot_width() * px2cm,
-                    height = featureplot_width() * input$FeaturePlotHWRatio * px2cm,
-                    units = "cm",
-                    limitsize = FALSE)
+    p <- p & get(input$FeatureTheme)()
     return(p)
-  }, height = function(){session$clientData$output_featureplot_width * input$FeaturePlotHWRatio})
-  # box plot: height = width default
+  })
+
+  render_plot(output, session, "featureplot", featureplot_width, reactive({input$FeaturePlotHWRatio}), temp_dir, featureplot_obj)
+  download_plot(output, "featureplot", temp_dir)
 
   # Interactive FeaturePlot output
   output$featureplot_interactive <- plotly::renderPlotly({
     req(input$FeatureSlot)
     if(verbose){message("SeuratExplorer: preparing featureplot_interactive...")}
-    if(input$FeatureMinCutoff == 0){
-      expr_min_cutoff <- NA
-    }else{
-      expr_min_cutoff <- paste0('q', round(input$FeatureMinCutoff))
-    }
-    if(input$FeatureMaxCutoff == 100){
-      expr_max_cutoff <- NA
-    }else{
-        expr_max_cutoff <- paste0('q', round(input$FeatureMaxCutoff))
-    }
-    if (any(is.na(features_dimplot$features_current))) { # when NA value
-      interactive_empty_plot() # when all wrong input, show a blank pic.
-    }else{
-      cds <- data$obj
-      Seurat::Idents(cds) <- input$FeatureClusterResolution
-      Seurat::DefaultAssay(cds) <- input$FeatureAssay
-      # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
-      if(!any(features_dimplot$features_current %in% c(rownames(cds[[input$FeatureAssay]]),data$extra_qc_options))){
-        interactive_empty_plot()
-      }else{
-        if(is.null(FeatureSplit.Revised())) { # not split
-          p <- Seurat::FeaturePlot(cds,
-                                   features = features_dimplot$features_current,
-                                   pt.size = input$FeaturePointSize,
-                                   reduction = input$FeatureDimensionReduction,
-                                   slot = input$FeatureSlot,
-                                   cols = c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor),
-                                   label = input$FeatureShowLabel,
-                                   label.size = input$FeatureLabelSize,
-                                   alpha = input$FeaturePointAlpha,
-                                   min.cutoff = expr_min_cutoff,
-                                   max.cutoff = expr_max_cutoff)
 
-        }else{ # split
-          p <- Seurat::FeaturePlot(cds,
+    p <- featureplot_obj()
+
+        if (!is.null(p)) {
+            # Convert to interactive plot
+            interactive_featureplot(p = p, 
+                                   obj = data$obj, 
                                    features = features_dimplot$features_current,
-                                   pt.size = input$FeaturePointSize,
-                                   reduction = input$FeatureDimensionReduction,
+                                   reduction = input$FeatureDimensionReduction, 
                                    slot = input$FeatureSlot,
-                                   cols =  c(input$FeaturePlotLowestExprColor,input$FeaturePlotHighestExprColor),
-                                   split.by = FeatureSplit.Revised(),
-                                   label = input$FeatureShowLabel,
-                                   label.size = input$FeatureLabelSize,
-                                   alpha = input$FeaturePointAlpha,
-                                   min.cutoff = expr_min_cutoff,
-                                   max.cutoff = expr_max_cutoff)
-          if (length( features_dimplot$features_current) == 1) { # only one gene
-            plot_numbers <- length(levels(cds@meta.data[,FeatureSplit.Revised()]))
-            p <- p + patchwork::plot_layout(ncol = ceiling(sqrt(plot_numbers)),
-                                            nrow = ceiling(plot_numbers/ceiling(sqrt(plot_numbers))))
-          }
+                                   height = session$clientData$output_featureplot_interactive_width * input$FeaturePlotHWRatio,
+                                   hover_info = input$FeatureHoverInfo,
+                                   drag_mode = input$FeatureDragMode)
+        } else {
+            interactive_empty_plot()
         }
-        
-        # Convert to interactive plot
-        interactive_featureplot(p = p, 
-                               obj = cds, 
-                               features = features_dimplot$features_current,
-                               reduction = input$FeatureDimensionReduction, 
-                               slot = input$FeatureSlot)
-      }
-    }
-  })
-
-  output$downloadfeatureplot <- downloadHandler(
-    filename = function(){'featureplot.pdf'},
-    content = function(file) {
-      if (file.exists(paste0(temp_dir,"/featureplot.pdf"))) { # problem: will throw an error when file not exists; or with a uncorrected input, will download the pic of previous corrected input.
-        file.copy(paste0(temp_dir,"/featureplot.pdf"), file, overwrite=TRUE)
-      }
-    })
-
-  ################################ Violin Plot
+      })  ################################ Violin Plot
   # define slot Choice UI
   output$VlnAssaySlots.UI <- renderUI({
     req(input$VlnAssay)
@@ -506,7 +402,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                 choices = slot_choices,
                 selected = ifelse('data' %in% slot_choices, 'data', slot_choices[1]))
   })
-
   # only render plot when the inputs are really changed
   features_vlnplot <- reactiveValues(features_current = NA, features_last = NA)
 
@@ -638,7 +533,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   # debug in future! 2024.05.15
   # how to make sure renderPlot run after the observe(input$VlnSplitBy)[Warning: Error in SingleExIPlot: Unknown plot type: splitViolin,
   # for the VlnSplitPlot is not updated
-
   # seurat related bug
   # VlnPlot(cds,features = c("CD4","CD8A"),split.by = "orig.ident", stack = TRUE,group.by = "cca_clusters_res_0.2",flip = FALSE,split.plot = TRUE)
   # Error:
@@ -647,10 +541,9 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   # Caused by error in `$<-.data.frame`:
   # Run `rlang::last_trace()` to see where the error occurred
   # not related to ggplot2, pathcwork, rlang versions
-
   vlnplot_width  <- reactive({ session$clientData$output_vlnplot_width })
 
-  output$vlnplot <- renderPlot({
+  vlnplot_obj <- reactive({
     if(verbose){message("SeuratExplorer: preparing vlnplot...")}
     if (any(is.na(features_vlnplot$features_current))) { # when NA value
       p <- empty_plot # when no symbol or wrong input, show a blank pic.
@@ -687,7 +580,8 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                                fill.by = input$VlnFillBy,
                                idents = input$VlnIdentsSelected,
                                pt.size = input$VlnPointSize,
-                               alpha = input$VlnPointAlpha) &
+                               alpha = input$VlnPointAlpha,
+                               ncol = input$VlnNcol) &
             ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
                            axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
         }
@@ -701,85 +595,31 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
         }
       }
     }
-    ggplot2::ggsave(paste0(temp_dir,"/vlnplot.pdf"),
-                    p,
-                    width = vlnplot_width() * px2cm,
-                    height = vlnplot_width() * input$VlnPlotHWRatio * px2cm,
-                    units = "cm",
-                    limitsize = FALSE)
+    p <- p & get(input$VlnTheme)()
     return(p)
-  }, height = function(){session$clientData$output_vlnplot_width * input$VlnPlotHWRatio})
-  # box plot: height = width default
+  })
+
+  render_plot(output, session, "vlnplot", vlnplot_width, reactive({input$VlnPlotHWRatio}), temp_dir, vlnplot_obj)
+  download_plot(output, "vlnplot", temp_dir)
 
   # Interactive VlnPlot output
   output$vlnplot_interactive <- plotly::renderPlotly({
     if(verbose){message("SeuratExplorer: preparing vlnplot_interactive...")}
-    if (any(is.na(features_vlnplot$features_current))) { # when NA value
-      interactive_empty_plot() # when no symbol or wrong input, show a blank pic.
-    }else{
-      cds <- data$obj
-      cds@meta.data[,input$VlnClusterResolution] <- factor(cds@meta.data[,input$VlnClusterResolution],
-                                                           levels = input$VlnClusterOrder)
-      SeuratObject::Idents(cds) <- input$VlnClusterResolution
-      # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
-      if(!any(features_vlnplot$features_current %in% c(rownames(cds[[input$VlnAssay]]),data$extra_qc_options))){
-        interactive_empty_plot()
-      }else{
-        if(length(features_vlnplot$features_current) == 1) { # only One Gene
-          p <- Seurat::VlnPlot(cds,
+    p <- vlnplot_obj()
+        if(!is.null(p)){
+            # Convert to interactive plot
+            interactive_vlnplot(p = p, 
+                               obj = data$obj, 
                                features = features_vlnplot$features_current,
-                               assay = input$VlnAssay,
-                               layer = input$VlnSlot,
-                               split.by = VlnSplit.Revised(),
-                               split.plot = input$VlnSplitPlot,
-                               pt.size = input$VlnPointSize,
-                               alpha = input$VlnPointAlpha,
-                               idents = input$VlnIdentsSelected) &
-            ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
-                           axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
-        }else{ # multiple genes
-          p <- Seurat::VlnPlot(cds,
-                               features = features_vlnplot$features_current,
-                               assay = input$VlnAssay,
-                               layer = input$VlnSlot,
-                               split.by = VlnSplit.Revised(),
-                               split.plot = input$VlnSplitPlot,
-                               stack = input$VlnStackPlot,
-                               flip = input$VlnFlipPlot,
-                               fill.by = input$VlnFillBy,
-                               idents = input$VlnIdentsSelected,
-                               pt.size = input$VlnPointSize,
-                               alpha = input$VlnPointAlpha) &
-            ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$VlnXlabelSize),
-                           axis.text.y = ggplot2::element_text(size = input$VlnYlabelSize))
+                               group.by = input$VlnClusterResolution, 
+                               slot = input$VlnSlot,
+                               height = session$clientData$output_vlnplot_interactive_width * input$VlnPlotHWRatio,
+                               hover_info = input$VlnHoverInfo,
+                               drag_mode = input$VlnDragMode)
+        } else {
+            interactive_empty_plot()
         }
-        if (input$Vlnfillcolorplatte != 'default' & input$VlnSplitBy == 'None'){
-          # color
-          fill.colors <- getColors(color.platte = color_list,
-                                   choice = input$Vlnfillcolorplatte,
-                                   n = length(levels(Idents(cds))))
-          names(fill.colors) <- levels(Idents(cds))
-          p <- p & scale_fill_manual(values = fill.colors)
-        }
-        
-        # Convert to interactive plot
-        interactive_vlnplot(p = p, 
-                           obj = cds, 
-                           features = features_vlnplot$features_current,
-                           group.by = input$VlnClusterResolution, 
-                           slot = input$VlnSlot)
-      }
-    }
-  })
-
-  output$downloadvlnplot <- downloadHandler(
-    filename = function(){'vlnplot.pdf'},
-    content = function(file) {
-      if (file.exists(paste0(temp_dir,"/vlnplot.pdf"))) {
-        file.copy(paste0(temp_dir,"/vlnplot.pdf"), file, overwrite=TRUE)
-      }
-    })
-
+      })
 
   ################################ Dot Plot
   # only render plot when the inputs are really changed
@@ -864,7 +704,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   dotplot_width  <- reactive({ session$clientData$output_dotplot_width })
 
-  output$dotplot <- renderPlot({
+  dotplot_obj <- reactive({
     if(verbose){message("SeuratExplorer: preparing dotplot...")}
     if (any(is.na(features_dotplot$features_current))) { # NA
       p <- empty_plot # when no symbol or wrong input, show a blank pic.
@@ -904,73 +744,30 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
         if (input$DotFlipCoordinate) { p <- p + ggplot2::coord_flip() }
       }
     }
-    ggplot2::ggsave(paste0(temp_dir,"/dotplot.pdf"),
-                    p,
-                    width = dotplot_width() * px2cm,
-                    height = dotplot_width() * input$DotPlotHWRatio * px2cm,
-                    units = "cm",
-                    limitsize = FALSE)
+    p <- p + get(input$DotTheme)()
     return(p)
-  }, height = function(){session$clientData$output_dotplot_width * input$DotPlotHWRatio})
-  # box plot: height = width default
+  })
+
+  render_plot(output, session, "dotplot", dotplot_width, reactive({input$DotPlotHWRatio}), temp_dir, dotplot_obj)
+  download_plot(output, "dotplot", temp_dir)
 
   # Interactive DotPlot output
   output$dotplot_interactive <- plotly::renderPlotly({
     if(verbose){message("SeuratExplorer: preparing dotplot_interactive...")}
-    if (any(is.na(features_dotplot$features_current))) { # NA
-      interactive_empty_plot() # when no symbol or wrong input, show a blank pic.
-    }else{
-      cds <- data$obj
-      Seurat::DefaultAssay(cds) <- input$DotAssay
-      Idents(cds) <- input$DotClusterResolution
-      cds@meta.data[,input$DotClusterResolution] <- factor(cds@meta.data[,input$DotClusterResolution],
-                                                           levels = input$DotClusterOrder)
-      # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
-      if(!any(features_dotplot$features_current %in% rownames(cds[[input$DotAssay]]))){
-        interactive_empty_plot()
-      }else{
-        if (is.null(DotSplit.Revised())) {
-          p <- Seurat::DotPlot(cds,
+    p <- dotplot_obj()
+        if(!is.null(p)){
+            # Convert to interactive plot
+            interactive_dotplot(p = p, 
+                               obj = data$obj, 
                                features = features_dotplot$features_current,
                                group.by = input$DotClusterResolution,
-                               idents = input$DotIdentsSelected,
-                               split.by = DotSplit.Revised(),
-                               cluster.idents = input$DotClusterIdents,
-                               dot.scale = input$DotDotScale,
-                               cols = c(input$DotPlotLowestExprColor, input$DotPlotHighestExprColor))
-        }else{
-          split.levels.length <- length(levels(cds@meta.data[,DotSplit.Revised()]))
-          p <- Seurat::DotPlot(cds,
-                               features = features_dotplot$features_current,
-                               group.by = input$DotClusterResolution,
-                               idents = input$DotIdentsSelected,
-                               split.by = DotSplit.Revised(),
-                               cluster.idents = input$DotClusterIdents,
-                               dot.scale = input$DotDotScale,
-                               cols = scales::hue_pal()(split.levels.length))
+                               height = session$clientData$output_dotplot_interactive_width * input$DotPlotHWRatio,
+                               hover_info = input$DotHoverInfo,
+                               drag_mode = input$DotDragMode)
+        } else {
+            interactive_empty_plot()
         }
-        p <- p & ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$DotXlabelSize),
-                                axis.text.y = ggplot2::element_text(size = input$DotYlabelSize))
-        if (input$DotRotateAxis) { p <- p + Seurat::RotatedAxis() }
-        if (input$DotFlipCoordinate) { p <- p + ggplot2::coord_flip() }
-        
-        # Convert to interactive plot
-        interactive_dotplot(p = p, 
-                           obj = cds, 
-                           features = features_dotplot$features_current,
-                           group.by = input$DotClusterResolution)
-      }
-    }
-  })
-
-  output$downloaddotplot <- downloadHandler(
-    filename = function(){'dotplot.pdf'},
-    content = function(file) {
-      if (file.exists(paste0(temp_dir,"/dotplot.pdf"))) {
-        file.copy(paste0(temp_dir,"/dotplot.pdf"), file, overwrite=TRUE)
-      }
-    })
-
+      })
   ################################ Heatmap Cell Level
   # define slot Choice UI
   output$HeatmapAssaySlots.UI <- renderUI({
@@ -1019,12 +816,18 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   heatmap_width  <- reactive({ session$clientData$output_heatmap_width })
 
-  output$heatmap <- renderPlot({
+  heatmap_obj <- reactive({
     if(verbose){message("SeuratExplorer: preparing heatmap...")}
     if (any(is.na(features_heatmap$features_current))) { # NA
       p <- empty_plot # when no symbol or wrong input, show a blank pic.
     }else{
       cds <- data$obj
+
+      # Downsample cells
+      if (input$heatmap_mode == "interactive" && ncol(cds) > input$HeatmapDownsample) {
+        cds <- cds[, sample(colnames(cds), size = input$HeatmapDownsample, replace = FALSE)]
+      }
+
       cds@meta.data[,input$HeatmapClusterResolution] <- factor(cds@meta.data[,input$HeatmapClusterResolution],
                                                                levels = input$HeatmapClusterOrder)
       # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
@@ -1050,26 +853,29 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                                group.bar.height = input$HeatmapGroupBarHeight,
                                lines.width = input$HeatmapLineWidth) &
           ggplot2::theme(axis.text.y = ggplot2::element_text(size = input$HeatmapFeatureTextSize))
+
+        if (input$HeatmapColor != "default") {
+          requireNamespace("viridis")
+          p <- p & ggplot2::scale_fill_viridis_c(option = input$HeatmapColor)
+        }
       }
     }
-    ggplot2::ggsave(paste0(temp_dir,"/heatmap.pdf"),
-                    p,
-                    width = heatmap_width() * px2cm,
-                    height = heatmap_width() * input$HeatmapPlotHWRatio * px2cm,
-                    units = "cm",
-                    limitsize = FALSE)
     return(p)
-  }, height = function(){session$clientData$output_heatmap_width * input$HeatmapPlotHWRatio})
-  # box plot: height = width default
+  })
 
+  render_plot(output, session, "heatmap", heatmap_width, reactive({input$HeatmapPlotHWRatio}), temp_dir, heatmap_obj)
+  download_plot(output, "heatmap", temp_dir)
 
-  output$downloadheatmap <- downloadHandler(
-    filename = function(){'heatmap.pdf'},
-    content = function(file) {
-      if (file.exists(paste0(temp_dir,"/heatmap.pdf"))) {
-        file.copy(paste0(temp_dir,"/heatmap.pdf"), file, overwrite=TRUE)
-      }
-    })
+  output$heatmap_interactive <- renderUI({
+    req(input$heatmap_mode == "interactive")
+    if(verbose){message("SeuratExplorer: preparing heatmap_interactive...")}
+    p <- heatmap_obj()
+    if(!is.null(p)){
+      InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, p, "heatmap_interactive_plot")
+    } else {
+      return(NULL)
+    }
+  })
 
   ################################ Group Averaged Heatmap
   # only render plot when the inputs are really changed
@@ -1119,22 +925,22 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   averagedheatmap_width  <- reactive({ session$clientData$output_averagedheatmap_width })
 
-  output$averagedheatmap <- renderPlot({
+  averagedheatmap_obj <- reactive({
     if(verbose){message("SeuratExplorer: preparing averagedheatmap...")}
     if (any(is.na(features_heatmap_averaged$features_current))) { # NA
-      p <- empty_plot # when no symbol or wrong input, show a blank pic.
+      p <- NULL # when no symbol or wrong input, return NULL
     }else{
       cds <- data$obj
       Seurat::DefaultAssay(cds) <- input$AveragedHeatmapAssay
       cds@meta.data[,input$AveragedHeatmapClusterResolution] <- factor(cds@meta.data[,input$AveragedHeatmapClusterResolution],
                                                                        levels = input$AveragedHeatmapClusterOrder)
       Seurat::Idents(cds) <- input$AveragedHeatmapClusterResolution
-      cds <- subset_Seurat(cds, idents = input$AveragedHeatmapIdentsSelected)
+      cds <- subset(cds, idents = input$AveragedHeatmapIdentsSelected)
       # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
       if(!any(features_heatmap_averaged$features_current %in% rownames(cds[[input$AveragedHeatmapAssay]]))){
-        p <- empty_plot
+        p <- NULL
       }else{
-        p <- suppressMessages(AverageHeatmap(object = cds,
+        p <- AverageHeatmap(object = cds,
                                              markerGene = features_heatmap_averaged$features_current,
                                              group.by = input$AveragedHeatmapClusterResolution,
                                              feature.fontsize = input$AveragedHeatmapFeatureTextSize,
@@ -1142,30 +948,42 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                                              assays = input$AveragedHeatmapAssay,
                                              column_names_rot = input$AveragedHeatmapClusterTextRatateAngle,
                                              cluster_columns = input$AveragedHeatmapClusterClusters,
-                                             cluster_rows = input$AveragedHeatmapClusterFeatures))
+                                             cluster_rows = input$AveragedHeatmapClusterFeatures)
       }
     }
-    pdf(file = paste0(temp_dir,"/AveragedHeatmap.pdf"),
-        width = (averagedheatmap_width() * px2cm)/2.54,
-        height = (averagedheatmap_width() * input$AveragedHeatmapPlotHWRatio * px2cm)/2.54)
-    print(p)
-    dev.off()
-    # ggplot2::ggsave(paste0(temp_dir,"/AveragedHeatmap.pdf"),
-    # p,
-    # width = averagedheatmap_width() * px2cm,
-    # height = averagedheatmap_width() * input$AveragedHeatmapPlotHWRatio * px2cm, units = "cm", limitsize = FALSE)
     return(p)
-  }, height = function(){session$clientData$output_averagedheatmap_width * input$AveragedHeatmapPlotHWRatio})
-  # box plot: height = width default
+  })
+
+  output$averagedheatmap <- renderPlot({
+    p <- averagedheatmap_obj()
+    if(!is.null(p)){
+      p
+    } else {
+      empty_plot
+    }
+  })
+
 
 
   output$downloadaveragedheatmap <- downloadHandler(
     filename = function(){'AveragedHeatmap.pdf'},
     content = function(file) {
-      if (file.exists(paste0(temp_dir,"/AveragedHeatmap.pdf"))) {
-        file.copy(paste0(temp_dir,"/AveragedHeatmap.pdf"), file, overwrite=TRUE)
+      p <- averagedheatmap_obj()
+      if(!is.null(p)){
+        pdf(file)
+        print(p)
+        dev.off()
       }
     })
+
+  output$averagedheatmap_interactive <- renderUI({
+    req(input$averagedheatmap_mode == "interactive")
+    if(verbose){message("SeuratExplorer: preparing averagedheatmap_interactive...")}
+    p <- averagedheatmap_obj()
+    if(!is.null(p)){
+      InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, p, "averagedheatmap_interactive_plot")
+    }
+  })
 
   ################################ Ridge Plot
   # define slot Choice UI
@@ -1261,7 +1079,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   ridgeplot_width  <- reactive({ session$clientData$output_ridgeplot_width })
 
-  output$ridgeplot <- renderPlot({
+  ridgeplot_obj <- reactive({
     if(verbose){message("SeuratExplorer: preparing ridgeplot...")}
     if (any(is.na(features_ridgeplot$features_current))) { # NA
       p <- empty_plot # when no symbol or wrong input, show a blank pic.
@@ -1274,7 +1092,8 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       # check gene again, if all the input symbols not exist in the selected assay, specially case: when switch assay!
       if(!any(features_ridgeplot$features_current %in% c(rownames(cds[[input$RidgeplotAssay]]), data$extra_qc_options))){
         p <- empty_plot
-      }else{
+      }
+      else{
         p <- Seurat::RidgePlot(object = cds,
                                features = features_ridgeplot$features_current,
                                assay = input$RidgeplotAssay,
@@ -1290,24 +1109,28 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                          axis.text.y = ggplot2::element_text(size = input$RidgeplotYlabelSize))
       }
     }
-    ggplot2::ggsave(paste0(temp_dir,"/ridgeplot.pdf"),
-                    p,
-                    width = ridgeplot_width() * px2cm,
-                    height = ridgeplot_width() * input$RidgeplotHWRatio * px2cm,
-                    units = "cm",
-                    limitsize = FALSE)
     return(p)
-  }, height = function(){session$clientData$output_ridgeplot_width * input$RidgeplotHWRatio})
-  # box plot: height = width default
+  })
 
+  render_plot(output, session, "ridgeplot", ridgeplot_width, reactive({input$RidgeplotHWRatio}), temp_dir, ridgeplot_obj)
+  download_plot(output, "ridgeplot", temp_dir)
 
-  output$downloadridgeplot <- downloadHandler(
-    filename = function(){'ridgeplot.pdf'},
-    content = function(file) {
-      if (file.exists(paste0(temp_dir,"/ridgeplot.pdf"))) {
-        file.copy(paste0(temp_dir,"/ridgeplot.pdf"), file, overwrite=TRUE)
-      }
-    })
+  output$ridgeplot_interactive <- plotly::renderPlotly({
+    req(input$ridgeplot_mode == "interactive")
+    if(verbose){message("SeuratExplorer: preparing ridgeplot_interactive...")}
+    p <- ridgeplot_obj()
+    if(!is.null(p)){
+      interactive_ridgeplot(p = p,
+                           obj = data$obj,
+                           features = features_ridgeplot$features_current,
+                           group.by = input$RidgeplotClusterResolution,
+                           slot = input$RidgeplotSlot,
+                           height = session$clientData$output_ridgeplot_interactive_width * input$RidgeplotHWRatio,
+                           drag_mode = input$RidgeplotDragMode)
+    } else {
+      interactive_empty_plot()
+    }
+  })
 
   ################################ Cell ratio Plot
   # define Fill choices
@@ -1384,7 +1207,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   cellratioplot_width  <- reactive({ session$clientData$output_cellratioplot_width})
 
   # plot
-  output$cellratioplot <- renderPlot({
+  cellratioplot_obj <- reactive({
     req(input$CellratioXChoice)
     req(input$CellratioXOrder)
     req(input$CellratioFillChoice)
@@ -1421,24 +1244,12 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                                                                   vjust = 1,
                                                                   hjust=1))
     }
-    ggplot2::ggsave(paste0(temp_dir,"/cellratioplot.pdf"),
-                    p,
-                    width = cellratioplot_width() * px2cm,
-                    height = cellratioplot_width() * input$CellratioplotHWRatio * px2cm,
-                    units = "cm",
-                    limitsize = FALSE)
+    p <- p + get(input$CellratioTheme)()
     return(p)
-  }, height = function(){session$clientData$output_cellratioplot_width * input$CellratioplotHWRatio})
-  # box plot: height = width default
+  })
 
-  # download
-  output$downloadcellratioplot <- downloadHandler(
-    filename = function(){'cellratioplot.pdf'},
-    content = function(file) {
-      if (file.exists(paste0(temp_dir,"/cellratioplot.pdf"))) {
-        file.copy(paste0(temp_dir,"/cellratioplot.pdf"), file, overwrite=TRUE)
-      }
-    })
+  render_plot(output, session, "cellratioplot", cellratioplot_width, reactive({input$CellratioplotHWRatio}), temp_dir, cellratioplot_obj)
+  download_plot(output, "cellratioplot", temp_dir)
 
   ################################ DEGs analysis
   # Warning
@@ -1551,7 +1362,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                             size = "l"))
       cds <- data$obj
       Seurat::Idents(cds) <- input$IntraClusterDEGsSubsetCells
-      cds <- subset_Seurat(cds, idents = input$IntraClusterDEGsSubsetCellsSelectedClusters)
+      cds <- subset(cds, idents = input$IntraClusterDEGsSubsetCellsSelectedClusters)
       cds <- check_SCT_assay(cds)
       cluster.markers <- Seurat::FindMarkers(cds,
                                              ident.1 = input$IntraClusterDEGsCustomizedGroupsCase,
@@ -1756,13 +1567,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
 
   observeEvent(input$TopGenesAnalysis, {
     if(verbose){message("SeuratExplorer: preparing TopGenesAnalysis...")}
-    showModal(modalDialog(title = "Calculating Top Genes at Cell Level...",
-                          "Please wait for a few minutes!",
-                          footer= NULL,
-                          size = "l"))
-    cds <- data$obj
-    Idents(cds) <- input$TopGenesClusterResolution
-    cds <- subset_Seurat(cds, idents = input$TopGenesSelectedClusters)
+    cds <- subset(cds, idents = input$TopGenesSelectedClusters)
 
 
     if (input$TopGenesClusterLevel) {
@@ -1796,7 +1601,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                           size = "l"))
     cds <- data$obj
     Idents(cds) <- input$TopGenesClusterResolution
-    cds <- subset_Seurat(cds, idents = input$TopGenesSelectedClusters)
+    cds <- subset(cds, idents = input$TopGenesSelectedClusters)
     if (input$TopGenesClusterLevel) {
       TopGenes$topgenes <- top_accumulated_genes(SeuratObj = cds,
                                                  top_n = input$TopGenesTopN,
@@ -1832,7 +1637,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                                                 list(extend = 'csv', title = "top-features"),
                                                 list(extend = 'excel', title = "top-features"))))
   })
-
   ################################ Feature Summary
   # info
   output$featuresummary_info = renderText({
@@ -1882,7 +1686,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                             size = "l"))
       cds <- data$obj
       Idents(cds) <- input$FeatureSummaryClusterResolution
-      cds <- subset_Seurat(cds, idents = input$FeatureSummarySelectedClusters)
+      cds <- subset(cds, idents = input$FeatureSummarySelectedClusters)
       if (input$FeatureSummaryClusterLevel) {
         FeatureSummary$summary <- summary_features(SeuratObj = cds,
                                                    features = GeneRevised,
@@ -1898,7 +1702,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       FeatureSummary$summary_ready <- TRUE
     }
   })
-
   output$dataset_featuresummary <-  DT::renderDT(server=FALSE,{
     req(FeatureSummary$summary)
     if(verbose){message("SeuratExplorer: preparing dataset_featuresummary...")}
@@ -1916,7 +1719,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                                                 list(extend = 'csv', title = "feature-summary"),
                                                 list(extend = 'excel', title = "feature-summary"))))
   })
-
   ################################ Feature Correlation
   # Warning
   output$featurecorrelation_info = renderText({
@@ -1958,10 +1760,8 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                           size = "l"))
     cds <- data$obj
     Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
-    cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
-    FeatureCorrelation$summary <- calculate_top_correlations(SeuratObj = cds,
-                                                             method = input$correlationmethod,
-                                                             assay = input$FeatureCorrelationAssay)
+    cds <- subset(cds, idents = input$FeatureCorrelationIdentsSelected)
+    FeatureCorrelation$summary <- calculate_top_correlations(SeuratObj = cds, method = input$correlationmethod, assay = input$FeatureCorrelationAssay)
     removeModal()
     if (nrow(FeatureCorrelation$summary) > 0) {
       FeatureCorrelation$summary_ready <- TRUE
@@ -1991,7 +1791,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                             size = "l"))
       cds <- data$obj
       Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
-      cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
+      cds <- subset(cds, idents = input$FeatureCorrelationIdentsSelected)
       FeatureCorrelation$summary <- calculate_most_correlated(SeuratObj = cds,
                                                               feature = feature.revised,
                                                               method = input$correlationmethod,
@@ -2008,7 +1808,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       }
     }
   })
-
   observeEvent(input$calculatecorrelation, {
     if(verbose){message("SeuratExplorer: preparing calculatecorrelation...")}
     if(is.na(input$CorrelationGeneList)){
@@ -2033,7 +1832,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                             footer= NULL, size = "l"))
       cds <- data$obj
       Seurat::Idents(cds) <- input$FeatureCorrelationClusterResolution
-      cds <- subset_Seurat(cds, idents = input$FeatureCorrelationIdentsSelected)
+      cds <- subset(cds, idents = input$FeatureCorrelationIdentsSelected)
       FeatureCorrelation$summary <- calculate_correlation(SeuratObj = cds,
                                                           features = GeneRevised,
                                                           method = input$correlationmethod,
@@ -2050,7 +1849,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       }
     }
   })
-
   output$dataset_correlation <-  DT::renderDT(server=FALSE,{
     req(FeatureCorrelation$summary)
     if(verbose){message("SeuratExplorer: preparing dataset_featuresummary...")}
@@ -2064,7 +1862,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                                                 list(extend = 'csv', title = "feature-correlation"),
                                                 list(extend = 'excel', title = "feature-correlation"))))
   })
-
   ############################## Search features
   # output the features dataset
   output$dataset_features <- DT::renderDT(server=TRUE,{
@@ -2072,6 +1869,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     # Show data
     DT::datatable(data$gene_annotions_list[[input$FeaturesDataframeAssay]],
                   extensions = 'Buttons',
+                  selection = "multiple",
                   options = list(scrollX=TRUE,
                                  paging = TRUE, searching = TRUE,
                                  fixedColumns = TRUE, autoWidth = TRUE,
@@ -2082,7 +1880,6 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                                                 list(extend = 'excel',
                                                      title = paste0("features-from-", input$FeaturesDataframeAssay)))))
   })
-
   ############################### Render metadata table
   # Server set to TRUE: https://stackoverflow.com/questions/50039186/add-download-buttons-in-dtrenderdatatable
   # when sever is set to TRUE, to download the whole data in DT button extensions.https://github.com/rstudio/DT/issues/267
@@ -2112,25 +1909,30 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       write.csv(data$obj@meta.data, file)
     }
   )
-
   ############################### Render Object structure
   output$object_structure <- renderPrint({
     req(data$obj)
     str(data$obj, max.level = input$ObjectStrutureLevel) # Display the structure of the data frame
   })
 
-}
+  observeEvent(input$send_to_vlnplot, {
+    req(input$dataset_features_rows_selected)
+    selected_rows <- input$dataset_features_rows_selected
+    if (!is.null(selected_rows)) {
+      selected_features <- data$gene_annotions_list[[input$FeaturesDataframeAssay]][selected_rows, "FeatureName"]
+      updateTextAreaInput(session, "VlnGeneSymbol", value = paste(selected_features, collapse = "\n"))
+    }
+  })
 
+}
 
 #' Server
 #' @import shiny shinydashboard shinyWidgets
 #' @import ggplot2 Seurat SeuratObject
 #' @importFrom utils write.csv
-#'
 #' @param input Input from the UI
 #' @param output Output to send back to UI
 #' @param session from shiny server function
-#'
 #' @export
 #' @return the server functions of shiny app
 #'
@@ -2152,7 +1954,6 @@ server <- function(input, output, session) {
                         split_maxlevel = getOption("SeuratExplorerSplitOptionMaxLevel"),
                         split_options = NULL,
                         extra_qc_options = NULL)
-
   # reductions_options: xy axis coordinate
   # cluster_options/split_options/extra_qc_options all are column name from seurat object meta.data,
   # which will be used for later plot
@@ -2194,18 +1995,15 @@ server <- function(input, output, session) {
                                                 types = c("double","integer","numeric"),
                                                 verbose = getOption('SeuratExplorerVerbose'))
   })
-
   # after data loaded,set loaded to TRUE
   observe({
     req(data$obj)
     data$loaded = !is.null(data$obj)
   })
-
   # Conditional panel control based on loaded obj, after loaded, show other UIs
   output$file_loaded = reactive({
     return(data$loaded)
   })
-
   outputOptions(output, 'file_loaded', suspendWhenHidden=FALSE)
 
   # Seurat Explorer functions
