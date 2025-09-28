@@ -249,7 +249,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
   render_plot(output, session, "dimplot", dimplot_width, reactive({input$DimPlotHWRatio}), temp_dir, dimplot_obj)
   download_plot(output, "dimplot", temp_dir)
 
-  # Interactive DimPlot output
+  # Interactive DimPlot output with performance optimization
   output$dimplot_interactive <- plotly::renderPlotly({
     req(input$DimDimensionReduction)
     if(verbose){message("SeuratExplorer: preparing dimplot_interactive...")}
@@ -258,6 +258,13 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
     p <- dimplot_obj()
 
         if (!is.null(p)) {
+            # Performance check: warn for very large datasets
+            n_cells <- ncol(data$obj)
+            if (n_cells > 10000) {
+              showNotification(paste("Large dataset detected (", n_cells, " cells). Interactive plot may be slow. Consider using static mode for better performance."), 
+                              type = "warning", duration = 5)
+            }
+            
             # Convert to interactive plot
             interactive_dimplot(p = p, 
                                obj = data$obj, 
@@ -269,7 +276,22 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
         } else {
             interactive_empty_plot()
         }
-      })  ################################ Feature Plot
+      })
+      
+  # 3D DimPlot output
+  output$dimplot_3d <- plotly::renderPlotly({
+    req(input$DimDimensionReduction)
+    if(verbose){message("SeuratExplorer: preparing dimplot_3d...")}
+
+    interactive_3d_dimplot(
+      obj = data$obj,
+      reduction = input$DimDimensionReduction,
+      group.by = input$DimClusterResolution,
+      pt.size = input$DimPointSize
+    )
+  })
+  
+  ################################ Feature Plot
   # define slot Choice UI
   output$FeatureAssaySlots.UI <- renderUI({
     req(input$FeatureAssay)
@@ -648,7 +670,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                               type = "message", duration = 3)
             }
             
-            # Convert to interactive plot
+            # Convert to interactive plot with proper height
             interactive_vlnplot(p = p, 
                                obj = data$obj, 
                                features = features_vlnplot$features_current,
@@ -1020,33 +1042,17 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
                                              column_names_rot = input$AveragedHeatmapClusterTextRatateAngle,
                                              cluster_columns = input$AveragedHeatmapClusterClusters,
                                              cluster_rows = input$AveragedHeatmapClusterFeatures,
-                                             color_palette = input$AveragedHeatmapColor)
+                                             color_palette = input$AveragedHeatmapColor,
+                                             # Set explicit dimensions to ensure visibility
+                                             width = grid::unit(10, "inches"),
+                                             height = grid::unit(8, "inches"))
       }
     }
     return(p)
   })
 
-  output$averagedheatmap <- renderPlot({
-    p <- averagedheatmap_obj()
-    if(!is.null(p)){
-      p
-    } else {
-      empty_plot
-    }
-  })
-
-
-
-  output$downloadaveragedheatmap <- downloadHandler(
-    filename = function(){'AveragedHeatmap.pdf'},
-    content = function(file) {
-      p <- averagedheatmap_obj()
-      if(!is.null(p)){
-        pdf(file)
-        print(p)
-        dev.off()
-      }
-    })
+  render_plot(output, session, "averagedheatmap", averagedheatmap_width, reactive({input$AveragedHeatmapPlotHWRatio}), temp_dir, averagedheatmap_obj)
+  download_plot(output, "averagedheatmap", temp_dir)
 
   output$averagedheatmap_interactive <- plotly::renderPlotly({
     req(input$averagedheatmap_mode == "interactive")
@@ -1061,7 +1067,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       limited_features <- features_heatmap_averaged$features_current
     }
     
-    # Create plotly averaged heatmap
+    # Create plotly averaged heatmap - fix layer issue by using correct assay parameter
     if (!any(is.na(limited_features)) && length(limited_features) > 0) {
       tryCatch({
         # Get subset object for selected clusters
@@ -1075,7 +1081,7 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
           obj = cds,
           features = limited_features,
           group.by = input$AveragedHeatmapClusterResolution,
-          assay = input$AveragedHeatmapAssay,
+          assay = input$AveragedHeatmapAssay,  # Use correct parameter name (not "assays")
           slot = input$AveragedHeatmapSlot,
           color_palette = input$AveragedHeatmapColor
         )
@@ -1211,6 +1217,15 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
           ggplot2::theme(axis.text.x = ggplot2::element_text(size = input$RidgeplotXlabelSize),
                          axis.text.y = ggplot2::element_text(size = input$RidgeplotYlabelSize))
       }
+    }
+    # Apply theme safely
+    if (!is.null(input$RidgeplotTheme) && input$RidgeplotTheme != "") {
+      tryCatch({
+        p <- p + get(input$RidgeplotTheme)()
+      }, error = function(e) {
+        # Fallback to theme_bw if theme not found
+        p <<- p + theme_bw()
+      })
     }
     return(p)
   })
@@ -2070,6 +2085,17 @@ explorer_server <- function(input, output, session, data, verbose=FALSE){
       updateTextAreaInput(session, "RidgeplotGeneSymbol", value = paste(selected_features, collapse = "\n"))
       # Switch to ridge plot tab
       updateTabItems(session, "tabs", selected = "ridgeplot")
+    }
+  })
+
+  observeEvent(input$send_to_avgheatmap, {
+    req(input$dataset_features_rows_selected)
+    selected_rows <- input$dataset_features_rows_selected
+    if (!is.null(selected_rows)) {
+      selected_features <- data$gene_annotions_list[[input$FeaturesDataframeAssay]][selected_rows, "FeatureName"]
+      updateTextAreaInput(session, "AveragedHeatmapGeneSymbol", value = paste(selected_features, collapse = "\n"))
+      # Switch to averaged heatmap tab
+      updateTabItems(session, "tabs", selected = "averagedheatmap")
     }
   })
 

@@ -4,8 +4,10 @@
 utils::globalVariables(c("Gene", "Expr", "GeneA", "GeneB", "correlation"))
 
 #' @importFrom magrittr %>%
+#' @importFrom grDevices rainbow
 #' @export plotly_heatmap
 #' @export plotly_averaged_heatmap
+#' @export interactive_3d_dimplot
 
 prepare_seurat_object <- function(obj, verbose = FALSE){
   requireNamespace("Seurat")
@@ -692,7 +694,12 @@ AverageHeatmap <- function(
   }
 
   # color
-  col_fun <- circlize::colorRamp2(htRange, htCol)
+  if (color_palette == "default") {
+    col_fun <- circlize::colorRamp2(htRange, htCol)
+  } else {
+    requireNamespace("viridis")
+    col_fun <- circlize::colorRamp2(htRange, viridis::viridis_pal(option = color_palette)(100)[c(1, 50, 100)])
+  }
 
   # anno color
   if (annoCol == FALSE) {
@@ -864,17 +871,37 @@ interactive_dimplot <- function(p, obj, reduction = "umap", group.by = "seurat_c
   requireNamespace("magrittr")
   requireNamespace("scales")
 
-  # Convert to plotly with enhanced interactivity
+  # Convert to plotly with performance optimizations for large datasets
   plotly_obj <- plotly::ggplotly(p, tooltip = hover_info) %>%
     plotly::config(
       displayModeBar = TRUE,
-      modeBarButtonsToAdd = list("lasso2d", "select2d", "pan2d", "zoom2d", "resetScale2d"),
-      dragmode = drag_mode
+      displaylogo = FALSE,
+      modeBarButtonsToRemove = c("autoScale2d", "resetScale2d", "toggleSpikelines", "hoverClosestCartesian", "hoverCompareCartesian"),
+      # Performance optimizations
+      scrollZoom = TRUE,
+      doubleClick = "reset+autosize",
+      # Enable WebGL for better performance with large datasets
+      plotGlPixelRatio = 2
     ) %>%
     plotly::layout(
       dragmode = drag_mode,
-      selectdirection = "any"
+      # Optimize for zoom performance
+      xaxis = list(
+        fixedrange = FALSE,  # Allow zooming
+        autorange = TRUE
+      ),
+      yaxis = list(
+        fixedrange = FALSE,  # Allow zooming
+        autorange = TRUE
+      ),
+      # Reduce rendering overhead
+      showlegend = TRUE,
+      hovermode = "closest"
     )
+  
+  # Add zoom reset on double click
+  plotly_obj <- plotly_obj %>%
+    plotly::config(doubleClick = "reset+autosize")
   
   return(plotly_obj)
 }
@@ -903,7 +930,8 @@ interactive_featureplot <- function(p, obj, features, reduction = "umap", slot =
       plotly_plot <- plotly::ggplotly(individual_plot, tooltip = hover_info) %>%
         plotly::config(
           displayModeBar = TRUE,
-          modeBarButtonsToAdd = list("lasso2d", "select2d", "pan2d", "zoom2d", "resetScale2d"),
+          displaylogo = FALSE,
+          modeBarButtonsToRemove = c("autoScale2d", "resetScale2d", "toggleSpikelines", "hoverClosestCartesian", "hoverCompareCartesian"),
           dragmode = drag_mode
         ) %>%
         plotly::layout(
@@ -935,7 +963,8 @@ interactive_featureplot <- function(p, obj, features, reduction = "umap", slot =
   plotly::ggplotly(p, tooltip = hover_info) %>%
     plotly::config(
       displayModeBar = TRUE,
-      modeBarButtonsToAdd = list("lasso2d", "select2d", "pan2d", "zoom2d", "resetScale2d"),
+      displaylogo = FALSE,
+      modeBarButtonsToRemove = c("autoScale2d", "resetScale2d", "toggleSpikelines", "hoverClosestCartesian", "hoverCompareCartesian"),
       dragmode = drag_mode
     ) %>%
     plotly::layout(
@@ -962,47 +991,56 @@ interactive_vlnplot <- function(p, obj, features, group.by = "seurat_clusters", 
     # Handle multiple features - create separate subplots using patchwork indexing
     plotly_plots <- list()
     
+    # Calculate height per subplot if total height is provided
+    subplot_height <- if (!is.null(height)) height / length(features) else NULL
+    
     for (i in seq_len(length(p))) {
       individual_plot <- p[[i]]
-      plotly_plot <- plotly::ggplotly(individual_plot, tooltip = hover_info) %>%
+      # Set height directly in ggplotly() and preserve individual legends
+      plotly_plot <- plotly::ggplotly(individual_plot, 
+                                     tooltip = hover_info, 
+                                     height = subplot_height) %>%
         plotly::config(
-          displayModeBar = TRUE,
-          modeBarButtonsToAdd = list("lasso2d", "select2d", "pan2d", "zoom2d", "resetScale2d"),
-          dragmode = drag_mode
+          displayModeBar = FALSE,
+          displaylogo = FALSE
         ) %>%
         plotly::layout(
-          dragmode = drag_mode,
-          title = list(text = features[i], font = list(size = 14))
+          title = list(text = features[i], font = list(size = 14)),
+          margin = list(t = 30),
+          showlegend = TRUE  # Ensure each subplot has its own legend
         )
       plotly_plots[[i]] <- plotly_plot
     }
     
-    # Create subplot layout
-    return(
-      plotly::subplot(plotly_plots, 
-                     nrows = length(plotly_plots), 
-                     shareX = FALSE, 
-                     shareY = FALSE,
-                     titleX = TRUE,
-                     titleY = TRUE) %>%
+    # Create subplot layout - DON'T merge legends, keep separate
+    subplot_obj <- plotly::subplot(plotly_plots, 
+                   nrows = length(plotly_plots), 
+                   shareX = FALSE, 
+                   shareY = FALSE,
+                   titleX = TRUE,
+                   titleY = TRUE,
+                   margin = 0.05) %>%  # Add margin between subplots
       plotly::layout(
         title = list(text = paste("Violin Plot:", paste(features, collapse = ", ")), 
-                    font = list(size = 16))
+                    font = list(size = 16)),
+        showlegend = TRUE  # Keep legends separate for each subplot
       )
-    )
+    
+    return(subplot_obj)
   }
   
   # Single feature or combined plot
-  plotly::ggplotly(p, tooltip = hover_info) %>%
+  # Set height directly in ggplotly() - this is the correct way  
+  plot_obj <- plotly::ggplotly(p, 
+                              tooltip = hover_info,
+                              height = height) %>%
     plotly::config(
-      displayModeBar = TRUE,
-      modeBarButtonsToAdd = list("lasso2d", "select2d", "pan2d", "zoom2d", "resetScale2d"),
-      dragmode = drag_mode
+      displayModeBar = FALSE,
+      displaylogo = FALSE
     ) %>%
-    plotly::layout(
-      dragmode = drag_mode,
-      selectdirection = "any"
-    )
+    plotly::layout(showlegend = TRUE)
+  
+  return(plot_obj)
 }
 
 #' Convert a Seurat DotPlot to an interactive plotly object
@@ -1018,17 +1056,40 @@ interactive_vlnplot <- function(p, obj, features, group.by = "seurat_clusters", 
 interactive_dotplot <- function(p, obj, features, group.by = "seurat_clusters", height = NULL, hover_info = "all", drag_mode = "pan") {
   requireNamespace("plotly")
 
-  # Convert to plotly with enhanced interactivity
-  plotly::ggplotly(p, tooltip = hover_info) %>%
+  # Convert to plotly while preserving theme elements
+  plotly_obj <- plotly::ggplotly(p, tooltip = hover_info) %>%
     plotly::config(
       displayModeBar = TRUE,
-      modeBarButtonsToAdd = list("lasso2d", "select2d", "pan2d", "zoom2d", "resetScale2d"),
+      displaylogo = FALSE,
+      modeBarButtonsToRemove = c("autoScale2d", "resetScale2d", "toggleSpikelines", "hoverClosestCartesian", "hoverCompareCartesian"),
       dragmode = drag_mode
     ) %>%
     plotly::layout(
       dragmode = drag_mode,
-      selectdirection = "any"
+      selectdirection = "any",
+      # Preserve plot background and panel styling from theme
+      plot_bgcolor = "white",
+      paper_bgcolor = "white",
+      # Ensure axis lines and borders are visible for themes like theme_bw
+      xaxis = list(
+        showline = TRUE,
+        linecolor = "black",
+        linewidth = 1,
+        mirror = TRUE,
+        showgrid = TRUE,
+        gridcolor = "lightgrey"
+      ),
+      yaxis = list(
+        showline = TRUE,
+        linecolor = "black", 
+        linewidth = 1,
+        mirror = TRUE,
+        showgrid = TRUE,
+        gridcolor = "lightgrey"
+      )
     )
+  
+  return(plotly_obj)
 }
 #' Convert a Seurat RidgePlot to an interactive plotly object
 #'
@@ -1083,7 +1144,8 @@ interactive_ridgeplot <- function(p, obj, features, group.by = "seurat_clusters"
   plotly::ggplotly(p, tooltip = hover_info) %>%
     plotly::config(
       displayModeBar = TRUE,
-      modeBarButtonsToAdd = list("lasso2d", "select2d", "pan2d", "zoom2d", "resetScale2d"),
+      displaylogo = FALSE,
+      modeBarButtonsToRemove = c("autoScale2d", "resetScale2d", "toggleSpikelines", "hoverClosestCartesian", "hoverCompareCartesian"),
       dragmode = drag_mode
     ) %>%
     plotly::layout(
@@ -1109,6 +1171,68 @@ interactive_empty_plot <- function(message = "Please input correct features!") {
     plotly::config(displayModeBar = FALSE)
 
   return(plotly_obj)
+}
+
+#' Create a 3D interactive plot from Seurat dimensional reduction
+#'
+#' @param obj Seurat object
+#' @param reduction Dimensional reduction to use (must have 3 dimensions)
+#' @param group.by Grouping variable for coloring
+#' @param pt.size Point size
+#' @return A plotly 3D scatter plot
+#' @export
+interactive_3d_dimplot <- function(obj, reduction = "umap", group.by = "seurat_clusters", pt.size = 1) {
+  requireNamespace("plotly")
+  
+  # Check if reduction has 3D data
+  if (!(reduction %in% names(obj@reductions))) {
+    return(interactive_empty_plot("Selected reduction not found in the object"))
+  }
+  
+  embeddings <- obj@reductions[[reduction]]@cell.embeddings
+  if (ncol(embeddings) < 3) {
+    return(interactive_empty_plot("Selected reduction does not have 3D coordinates. Please compute 3D reduction first."))
+  }
+  
+  # Get first 3 dimensions
+  coords <- embeddings[, 1:3]
+  colnames(coords) <- c("Dim1", "Dim2", "Dim3")
+  
+  # Get grouping variable
+  groups <- obj@meta.data[, group.by]
+  
+  # Create color palette
+  unique_groups <- unique(groups)
+  colors <- rainbow(length(unique_groups))
+  names(colors) <- unique_groups
+  
+  # Create 3D scatter plot
+  p <- plotly::plot_ly(
+    x = coords[, "Dim1"],
+    y = coords[, "Dim2"], 
+    z = coords[, "Dim3"],
+    color = groups,
+    colors = colors,
+    type = "scatter3d",
+    mode = "markers",
+    marker = list(size = pt.size),
+    text = paste("Cell:", rownames(coords), "<br>Group:", groups),
+    hovertemplate = "%{text}<br>%{xaxis.title.text}: %{x}<br>%{yaxis.title.text}: %{y}<br>Z: %{z}<extra></extra>"
+  ) %>%
+    plotly::layout(
+      title = paste("3D", toupper(reduction), "Plot"),
+      scene = list(
+        xaxis = list(title = paste0(toupper(reduction), "_1")),
+        yaxis = list(title = paste0(toupper(reduction), "_2")),
+        zaxis = list(title = paste0(toupper(reduction), "_3"))
+      )
+    ) %>%
+    plotly::config(
+      displayModeBar = TRUE,
+      displaylogo = FALSE
+    )
+  
+  return(p)
 }
 
 

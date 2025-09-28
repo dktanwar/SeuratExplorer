@@ -46,8 +46,14 @@ plotly_heatmap <- function(obj, features, group.by = "seurat_clusters",
   # Subset to features
   expr_data <- expr_data[features, , drop = FALSE]
   
-  # Get cell metadata
-  cell_meta <- obj_subset@meta.data[, group.by, drop = FALSE]
+  # Get cell metadata - fix the column access issue
+  if (group.by %in% colnames(obj_subset@meta.data)) {
+    cell_meta <- obj_subset@meta.data[, group.by, drop = FALSE]
+  } else {
+    # Use Seurat::Idents if group.by column doesn't exist
+    cell_meta <- data.frame(cluster = Seurat::Idents(obj_subset))
+    colnames(cell_meta) <- group.by
+  }
   
   # Order cells by group
   cell_order <- order(cell_meta[, group.by])

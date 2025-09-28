@@ -63,7 +63,7 @@ explorer_body_ui <- function(tab_list){
                                             shinyWidgets::radioGroupButtons(
                                               inputId = "dimplot_mode",
                                               label = "Plot Type:",
-                                              choices = c("Static" = "static", "Interactive" = "interactive"),
+                                              choices = c("Static" = "static", "Interactive" = "interactive", "3D Interactive" = "3d"),
                                               selected = "static",
                                               status = "primary",
                                               size = "sm",
@@ -77,6 +77,10 @@ explorer_body_ui <- function(tab_list){
                                         conditionalPanel(
                                           condition = "input.dimplot_mode == 'interactive'",
                                           withSpinner(plotly::plotlyOutput("dimplot_interactive",height = "auto"))
+                                        ),
+                                        conditionalPanel(
+                                          condition = "input.dimplot_mode == '3d'",
+                                          withSpinner(plotly::plotlyOutput("dimplot_3d",height = "auto"))
                                         ),
                                         # show the button on right end, refer to: https://stackoverflow.com/questions/28749693/shiny-r-aligning-buttons
                                         div(style = "display:inline-block; float:right",downloadBttn(outputId = "downloaddimplot",style = "bordered",color = "primary")),
@@ -98,7 +102,7 @@ explorer_body_ui <- function(tab_list){
                                         sliderInput("DimPlotHWRatio", label = "Adjust H/W Ratio of DimPlot", min = 0.1, max = 4, value = 0.9),
                                         selectInput("DimHoverInfo", "Hover Info:", choices = c("All" = "all", "Cluster" = "group"), selected = "all"),
                                         selectInput("DimTheme", "Theme:", choices = c("Gray" = "theme_gray", "Black/White" = "theme_bw", "Linedraw" = "theme_linedraw", "Light" = "theme_light", "Dark" = "theme_dark", "Minimal" = "theme_minimal", "Classic" = "theme_classic", "Void" = "theme_void"), selected = "theme_bw"),
-                                        selectInput("DimDragMode", "Drag Mode:", choices = c("Lasso" = "lasso", "Pan" = "pan", "Box Select" = "select"), selected = "lasso")
+                                        selectInput("DimDragMode", "Drag Mode:", choices = c("Lasso" = "lasso", "Pan" = "pan", "Box Zoom" = "zoom"), selected = "lasso")
                                     )
                                   )
   )
@@ -147,7 +151,7 @@ explorer_body_ui <- function(tab_list){
                                             selectInput("FeatureHoverInfo", "Hover Info:", choices = c("All" = "all", "Expression" = "z"), selected = "all"),
                                             selectInput("FeatureTheme", "Theme:", choices = c("Gray" = "theme_gray", "Black/White" = "theme_bw", "Linedraw" = "theme_linedraw", "Light" = "theme_light", "Dark" = "theme_dark", "Minimal" = "theme_minimal", "Classic" = "theme_classic", "Void" = "theme_void"), selected = "theme_bw"),
 
-                                            selectInput("FeatureDragMode", "Drag Mode:", choices = c("Lasso" = "lasso", "Pan" = "pan", "Box Select" = "select"), selected = "lasso")
+                                            selectInput("FeatureDragMode", "Drag Mode:", choices = c("Lasso" = "lasso", "Pan" = "pan", "Box Zoom" = "zoom"), selected = "lasso")
                                         )
                                       )
   )
@@ -215,7 +219,7 @@ explorer_body_ui <- function(tab_list){
                                         selectInput("VlnHoverInfo", "Hover Info:", choices = c("All" = "all", "Expression" = "y"), selected = "all"),
                                         sliderInput("VlnNcol", label = "Number of columns:", min = 1, max = 10, value = 1),
                                         selectInput("VlnTheme", "Theme:", choices = c("Gray" = "theme_gray", "Black/White" = "theme_bw", "Linedraw" = "theme_linedraw", "Light" = "theme_light", "Dark" = "theme_dark", "Minimal" = "theme_minimal", "Classic" = "theme_classic", "Void" = "theme_void"), selected = "theme_bw"),
-                                        selectInput("VlnDragMode", "Drag Mode:", choices = c("Lasso" = "lasso", "Pan" = "pan", "Box Select" = "select"), selected = "lasso")
+                                        selectInput("VlnDragMode", "Drag Mode:", choices = c("Lasso" = "lasso", "Pan" = "pan", "Box Zoom" = "zoom"), selected = "lasso")
                                     )
                                   )
   )
@@ -268,7 +272,7 @@ explorer_body_ui <- function(tab_list){
                                         sliderInput("DotPlotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 8, value = 0.9),
                                         selectInput("DotHoverInfo", "Hover Info:", choices = c("All" = "all", "Avg. Exp" = "colour", "Pct. Exp" = "size"), selected = "all"),
                                         selectInput("DotTheme", "Theme:", choices = c("Gray" = "theme_gray", "Black/White" = "theme_bw", "Linedraw" = "theme_linedraw", "Light" = "theme_light", "Dark" = "theme_dark", "Minimal" = "theme_minimal", "Classic" = "theme_classic", "Void" = "theme_void"), selected = "theme_bw"),
-                                        selectInput("DotDragMode", "Drag Mode:", choices = c("Lasso" = "lasso", "Pan" = "pan", "Box Select" = "select"), selected = "lasso")
+                                        selectInput("DotDragMode", "Drag Mode:", choices = c("Lasso" = "lasso", "Pan" = "pan", "Box Zoom" = "zoom"), selected = "lasso")
                                     )
                                   )
   )
@@ -290,10 +294,10 @@ explorer_body_ui <- function(tab_list){
                                           condition = "input.heatmap_mode == 'static'",
                                           withSpinner(plotOutput("heatmap",height = "auto"))
                                         ),
-                                                                                  conditionalPanel(
-                                                                                  condition = "input.heatmap_mode == 'interactive'",
-                                                                                  InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput("heatmap_interactive_plot")
-                                                                                ),                                        div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadheatmap",style = "bordered",color = "primary")),
+                                        conditionalPanel(
+                                          condition = "input.heatmap_mode == 'interactive'",
+                                          withSpinner(plotly::plotlyOutput("heatmap_interactive", height = "auto"))
+                                        ),                                        div(style = "display:inline-block; float:right", downloadBttn(outputId = "downloadheatmap",style = "bordered",color = "primary")),
                                         width = 9, status = "primary", collapsible = TRUE, solidHeader = TRUE),
                                     box(title = "Settings", solidHeader = TRUE, status = "primary", width = 3,
                                         textAreaInput("HeatmapGeneSymbol", "Gene Symbols:", value = "", height = '80px', resize = "vertical"),
@@ -413,7 +417,8 @@ explorer_body_ui <- function(tab_list){
                                           sliderInput("RidgeplotXlabelSize", label = "x Axis Label Size:", min = 0, max = 20, value = 14),
                                           sliderInput("RidgeplotYlabelSize", label = "Y Axis Label Size:", min = 0, max = 20, value = 10),
                                           sliderInput("RidgeplotHWRatio", label = "Adjust Height/Width Ratio:", min = 0.1, max = 4, value = 0.9),
-                                          selectInput("RidgeplotDragMode", "Drag Mode:", choices = c("Lasso" = "lasso", "Pan" = "pan", "Box Select" = "select"), selected = "lasso")
+                                          selectInput("RidgeplotTheme", "Theme:", choices = c("Gray" = "theme_gray", "Black/White" = "theme_bw", "Linedraw" = "theme_linedraw", "Light" = "theme_light", "Dark" = "theme_dark", "Minimal" = "theme_minimal", "Classic" = "theme_classic", "Void" = "theme_void"), selected = "theme_bw"),
+                                          selectInput("RidgeplotDragMode", "Drag Mode:", choices = c("Lasso" = "lasso", "Pan" = "pan", "Box Zoom" = "zoom"), selected = "lasso")
 
                                       )
                                     )
@@ -591,9 +596,13 @@ explorer_body_ui <- function(tab_list){
                                                    fluidRow(
                                                      column(2, actionButton("send_to_vlnplot", "Send to Violin Plot", icon = shiny::icon("share"), class = "btn-primary")),
                                                      column(2, actionButton("send_to_featureplot", "Send to Feature Plot", icon = shiny::icon("share"), class = "btn-success")),
-                                                     column(2, actionButton("send_to_dotplot", "Send to Dot Plot", icon = shiny::icon("share"), class = "btn-info")),
+                                                     column(2, actionButton("send_to_dotplot", "Send to Dot Plot", icon = shiny::icon("share"), class = "btn-info"))
+                                                   ),
+                                                   br(),
+                                                   fluidRow(
                                                      column(2, actionButton("send_to_heatmap", "Send to Heatmap", icon = shiny::icon("share"), class = "btn-warning")),
-                                                     column(2, actionButton("send_to_ridgeplot", "Send to Ridge Plot", icon = shiny::icon("share"), class = "btn-danger"))
+                                                     column(2, actionButton("send_to_ridgeplot", "Send to Ridge Plot", icon = shiny::icon("share"), class = "btn-danger")),
+                                                     column(2, actionButton("send_to_avgheatmap", "Send to Avg Heatmap", icon = shiny::icon("share"), class = "btn-secondary"))
                                                    )
                                                )
                                              )
